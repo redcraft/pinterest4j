@@ -9,6 +9,7 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 	private final IPinterestCategory category;
 	private final BoardAccessRule accessRule;
 	private final int pinsCount;
+	private final int pageCount;
 	private final int followersCount;
 	
 	public static class Builder {
@@ -18,6 +19,7 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 		private IPinterestCategory category;
 		private BoardAccessRule accessRule;
 		private int pinsCount;
+		private int pageCount;
 		private int followersCount;
 		
 		public String getTitle() {
@@ -59,6 +61,14 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 		public void setPinsCount(int pinsCount) {
 			this.pinsCount = pinsCount;
 		}
+		
+		public int getPageCount() {
+			return pageCount;
+		}
+
+		public void setPageCount(int pageCount) {
+			this.pageCount = pageCount;
+		}
 
 		public int getFollowersCount() {
 			return followersCount;
@@ -69,7 +79,7 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 		}
 		
 		public BoardInfo build() {
-			return new BoardInfo(title, description, category, accessRule, pinsCount, followersCount);
+			return new BoardInfo(title, description, category, accessRule, pinsCount, followersCount, pageCount);
 		}
 	}
 	
@@ -79,12 +89,13 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 	
 	public BoardInfo(String title, String description, IPinterestCategory category,
 			BoardAccessRule accessRule, int pinsCount,
-			int followersCount) {
+			int followersCount, int pageCount) {
 		this.title = title;
 		this.description = description;
 		this.category = category;
 		this.accessRule = accessRule;
 		this.pinsCount = pinsCount;
+		this.pageCount = pageCount;
 		this.followersCount = followersCount;
 	}
 	public IPinterestCategory getCategory() {
@@ -104,5 +115,9 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 	}
 	public BoardAccessRule getAccessRule() {
 		return accessRule;
+	}
+
+	public int getPageCount() {
+		return pageCount;
 	}
 }

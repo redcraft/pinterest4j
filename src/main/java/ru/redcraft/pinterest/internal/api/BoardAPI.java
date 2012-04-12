@@ -118,6 +118,7 @@ public final class BoardAPI extends CoreAPI {
 				infoBuilder.setFollowersCount(Integer.valueOf(propContent));
 			}
 		}
+		infoBuilder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
 		infoBuilder.setTitle(board.getTitle());
 		infoBuilder.setAccessRule(BoardAccessRule.ME);
 		return infoBuilder.build();
@@ -155,4 +156,5 @@ public final class BoardAPI extends CoreAPI {
 		}
 		return new Board(board.getId(), createLink(title, accessToken.getLogin()), title);
 	}
+	
 }

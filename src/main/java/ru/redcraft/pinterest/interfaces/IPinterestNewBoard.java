@@ -11,4 +11,5 @@ public interface IPinterestNewBoard {
 	public IPinterestCategory getCategory();
 	
 	public BoardAccessRule getAccessRule();
+	
 }

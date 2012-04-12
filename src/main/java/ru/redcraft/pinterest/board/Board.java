@@ -75,4 +75,9 @@ public class Board implements IPinterestBoard, IPinterestAdtBoardInto {
 		}
 	}
 
+	public int getPageCount() {
+		loadAdtInfo();
+		return boardInfo.getPageCount();
+	}
+
 }
