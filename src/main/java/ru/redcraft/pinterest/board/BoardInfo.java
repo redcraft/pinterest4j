@@ -4,7 +4,7 @@ import ru.redcraft.pinterest.interfaces.IPinterestAdtBoardInto;
 import ru.redcraft.pinterest.interfaces.IPinterestCategory;
 
 public class BoardInfo implements IPinterestAdtBoardInto {
-	private final String name;
+	private final String title;
 	private final String description;
 	private final IPinterestCategory category;
 	private final BoardAccessRule accessRule;
@@ -13,19 +13,19 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 	
 	public static class Builder {
 		
-		private String name = null;
+		private String title = null;
 		private String description;
 		private IPinterestCategory category;
 		private BoardAccessRule accessRule;
 		private int pinsCount;
 		private int followersCount;
 		
-		public String getName() {
-			return name;
+		public String getTitle() {
+			return title;
 		}
 
-		public void setName(String name) {
-			this.name = name;
+		public void setTitle(String title) {
+			this.title = title;
 		}
 
 		public String getDescription() {
@@ -69,7 +69,7 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 		}
 		
 		public BoardInfo build() {
-			return new BoardInfo(name, description, category, accessRule, pinsCount, followersCount);
+			return new BoardInfo(title, description, category, accessRule, pinsCount, followersCount);
 		}
 	}
 	
@@ -77,10 +77,10 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 		return new Builder();
 	}
 	
-	public BoardInfo(String name, String description, IPinterestCategory category,
+	public BoardInfo(String title, String description, IPinterestCategory category,
 			BoardAccessRule accessRule, int pinsCount,
 			int followersCount) {
-		this.name = name;
+		this.title = title;
 		this.description = description;
 		this.category = category;
 		this.accessRule = accessRule;
@@ -96,8 +96,8 @@ public class BoardInfo implements IPinterestAdtBoardInto {
 	public int getFollowersCount() {
 		return followersCount;
 	}
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 	public String getDescription() {
 		return description;

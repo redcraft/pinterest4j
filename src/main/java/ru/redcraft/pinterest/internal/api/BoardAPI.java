@@ -92,7 +92,7 @@ public final class BoardAPI extends CoreAPI {
 	
 	private Form createNewBoardForm(IPinterestNewBoard newBoard) {
 		Form form = new Form();
-		form.add("name", newBoard.getName());
+		form.add("name", newBoard.getTitle());
 		form.add("category", newBoard.getCategory().getId());
 		form.add("collaborator", newBoard.getAccessRule().name().toLowerCase());
 		return form;
@@ -115,8 +115,12 @@ public final class BoardAPI extends CoreAPI {
 				infoBuilder.setFollowersCount(Integer.valueOf(propContent));
 			}
 		}
-		infoBuilder.setName(board.getName());
+		infoBuilder.setTitle(board.getTitle());
 		infoBuilder.setAccessRule(BoardAccessRule.ME);
 		return infoBuilder.build();
+	}
+
+	public void deleteBoard(IPinterestBoard board) {
+		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings").delete(ClientResponse.class);
 	}
 }

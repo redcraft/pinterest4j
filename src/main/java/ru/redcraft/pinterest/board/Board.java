@@ -9,7 +9,7 @@ public class Board implements IPinterestBoard, IPinterestAdtBoardInto {
 
 	private final long id;
 	private final String url;
-	private final String name;
+	private final String title;
 	
 	private IPinterestAdtBoardInto boardInfo;
 	
@@ -18,14 +18,14 @@ public class Board implements IPinterestBoard, IPinterestAdtBoardInto {
 	public Board(Long id, String url, String name) {
 		this.id = id;
 		this.url = url;
-		this.name = name;
+		this.title = name;
 		this.boardManager = null;
 		this.boardInfo = null;
 	}
 	
 	@Override
 	public String toString() {
-		return "Board [id=" + id + ", link=" + url + ", name=" + name + "]";
+		return "Board [id=" + id + ", link=" + url + ", title=" + title + "]";
 	}
 
 	public long getId() {
@@ -36,8 +36,8 @@ public class Board implements IPinterestBoard, IPinterestAdtBoardInto {
 		return url;
 	}
 
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 
 	void setBoardManager(IPinterestBoardManager boardManager) {

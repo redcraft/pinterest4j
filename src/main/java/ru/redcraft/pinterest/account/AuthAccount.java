@@ -4,6 +4,7 @@ import ru.redcraft.pinterest.exceptions.PinterestAuthException;
 import ru.redcraft.pinterest.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest.interfaces.IPinterestAuthAccount;
 import ru.redcraft.pinterest.interfaces.IPinterestBoard;
+import ru.redcraft.pinterest.interfaces.IPinterestCategory;
 import ru.redcraft.pinterest.interfaces.IPinterestNewBoard;
 import ru.redcraft.pinterest.internal.api.InternalAPIManager;
 
@@ -17,6 +18,13 @@ public class AuthAccount extends Account implements IPinterestAuthAccount {
 		return boardManager.createBoard(newBoard);
 	}
 
-	
-	
+	public void deleteBoard(IPinterestBoard board) {
+		boardManager.deleteBoard(board);
+	}
+
+	public void updateBoardInfo(IPinterestBoard board, String title, 
+			String description, IPinterestCategory category) {
+		boardManager.updateBoardInfo(board, title, 
+				description, category);
+	}
 }

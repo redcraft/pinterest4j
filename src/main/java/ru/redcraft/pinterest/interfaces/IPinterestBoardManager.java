@@ -11,4 +11,9 @@ public interface IPinterestBoardManager {
 	public IPinterestBoard createBoard(IPinterestNewBoard newBoard) throws PinterestBoardExistException;
 	
 	public IPinterestAdtBoardInto getAdditionalBoardInfo(IPinterestBoard board);
+
+	public void deleteBoard(IPinterestBoard board);
+
+	public void updateBoardInfo(IPinterestBoard board, String title,
+			String description, IPinterestCategory category);
 }

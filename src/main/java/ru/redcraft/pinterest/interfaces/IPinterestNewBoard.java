@@ -6,7 +6,7 @@ public interface IPinterestNewBoard {
 		ME, PUBLIC;
 	}
 	
-	public String getName();
+	public String getTitle();
 	
 	public IPinterestCategory getCategory();
 	

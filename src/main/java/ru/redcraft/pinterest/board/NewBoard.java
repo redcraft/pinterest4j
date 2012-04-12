@@ -5,18 +5,18 @@ import ru.redcraft.pinterest.interfaces.IPinterestNewBoard;
 
 public class NewBoard implements IPinterestNewBoard {
 
-	private final String name;
+	private final String title;
 	private final IPinterestCategory category;
 	private final BoardAccessRule accessRule;
 	
-	public NewBoard(String name, IPinterestCategory category) {
-		this.name = name;
+	public NewBoard(String title, IPinterestCategory category) {
+		this.title = title;
 		this.category = category;
 		this.accessRule = BoardAccessRule.ME;
 	}
 	
-	public String getName() {
-		return name;
+	public String getTitle() {
+		return title;
 	}
 
 	public IPinterestCategory getCategory() {
@@ -29,7 +29,7 @@ public class NewBoard implements IPinterestNewBoard {
 
 	@Override
 	public String toString() {
-		return "NewBoard [name=" + name + ", category=" + category
+		return "NewBoard [title=" + title + ", category=" + category
 				+ ", accessRule=" + accessRule + "]";
 	}
 
