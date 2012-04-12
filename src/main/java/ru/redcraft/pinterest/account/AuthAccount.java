@@ -22,9 +22,9 @@ public class AuthAccount extends Account implements IPinterestAuthAccount {
 		boardManager.deleteBoard(board);
 	}
 
-	public void updateBoardInfo(IPinterestBoard board, String title, 
+	public IPinterestBoard updateBoardInfo(IPinterestBoard board, String title, 
 			String description, IPinterestCategory category) {
-		boardManager.updateBoardInfo(board, title, 
+		return boardManager.updateBoardInfo(board, title, 
 				description, category);
 	}
 }

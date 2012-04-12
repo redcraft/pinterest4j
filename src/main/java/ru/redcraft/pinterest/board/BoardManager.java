@@ -41,7 +41,13 @@ public class BoardManager extends BaseManager implements IPinterestBoardManager 
 		apiManager.getBoardAPI().deleteBoard(board);
 	}
 
-	public void updateBoardInfo(IPinterestBoard board, String title,
+	public IPinterestBoard updateBoardInfo(IPinterestBoard board, String title,
 			String description, IPinterestCategory category) {
+		String newTitle = (title != null) ? title : board.getTitle();
+		String newDescription = (description != null) ? description : board.getDescription();
+		IPinterestCategory newCategory = (category != null) ? category : board.getCategory();
+		Board newBoard = apiManager.getBoardAPI().updateBoardInfo(board, newTitle, newDescription, newCategory);
+		newBoard.setBoardManager(this);
+		return newBoard;
 	}
 }

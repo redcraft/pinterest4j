@@ -8,6 +8,6 @@ public interface IPinterestAuthAccount extends IPinterestAccount {
 	
 	public void deleteBoard(IPinterestBoard board);
 	
-	public void updateBoardInfo(IPinterestBoard board, String title, 
+	public IPinterestBoard updateBoardInfo(IPinterestBoard board, String title, 
 			String description, IPinterestCategory category);
 }

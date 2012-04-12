@@ -18,6 +18,7 @@ import ru.redcraft.pinterest.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest.exceptions.PinterestRuntimeException;
 import ru.redcraft.pinterest.interfaces.IPinterestAdtBoardInto;
 import ru.redcraft.pinterest.interfaces.IPinterestBoard;
+import ru.redcraft.pinterest.interfaces.IPinterestCategory;
 import ru.redcraft.pinterest.interfaces.IPinterestNewBoard;
 import ru.redcraft.pinterest.interfaces.IPinterestNewBoard.BoardAccessRule;
 
@@ -33,6 +34,8 @@ public final class BoardAPI extends CoreAPI {
 	
 	private static final Logger log = Logger.getLogger(BoardAPI.class);
 	private static final String BOARD_CREATION_ERROR = "PINBOARD CREATION ERROR: ";
+	private static final String BOARD_DELETION_ERROR = "PINBOARD DELETION ERROR: ";
+	private static final String BOARD_UPDATE_ERROR = "PINBOARD UPDATE ERROR: ";
 	
 	public BoardAPI(PinterestAccessToken accessToken) {
 		this.accessToken = accessToken;
@@ -55,8 +58,8 @@ public final class BoardAPI extends CoreAPI {
 		return boardList;
 	}
 	
-	public static String createLink(String name, String login) {
-		String boardNameId = name.replace('_', ' ').replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase();
+	public static String createLink(String title, String login) {
+		String boardNameId = title.replace('_', ' ').replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase();
 		return String.format("/%s/%s/", login, boardNameId);
 	}
 
@@ -121,6 +124,35 @@ public final class BoardAPI extends CoreAPI {
 	}
 
 	public void deleteBoard(IPinterestBoard board) {
-		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings").delete(ClientResponse.class);
+		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").delete(ClientResponse.class);
+		if(response.getStatus() != 200) {
+			log.error("ERROR status: " + response.getStatus());
+			log.error("ERROR message: " + response.getEntity(String.class));
+			throw new PinterestRuntimeException(BOARD_DELETION_ERROR + "bad server response");
+		}
+	}
+
+	private Form createUpdateBoardForm(String title, String description, IPinterestCategory category) {
+		Form form = new Form();
+		form.add("name", title);
+		form.add("description", description);
+		form.add("change_BoardCollaborators", "me");
+		form.add("csrfmiddlewaretoken", accessToken.getCsrfToken().getValue());
+		form.add("collaborator_name", "Enter a name");
+		form.add("collaborator_username", null);
+		form.add("category", category.getId());
+		return form;
+	}
+	
+	public Board updateBoardInfo(IPinterestBoard board, String title,
+			String description, IPinterestCategory category) {
+		Form updateBoardForm = createUpdateBoardForm(title, description, category);
+		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").post(ClientResponse.class, updateBoardForm);
+		if(response.getStatus() != 200) {
+			log.error("ERROR status: " + response.getStatus());
+			log.error("ERROR message: " + response.getEntity(String.class));
+			throw new PinterestRuntimeException(BOARD_UPDATE_ERROR + "bad server response");
+		}
+		return new Board(board.getId(), createLink(title, accessToken.getLogin()), title);
 	}
 }
