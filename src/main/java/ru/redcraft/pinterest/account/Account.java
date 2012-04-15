@@ -19,8 +19,8 @@ public class Account implements IPinterestAccount {
 	
 	protected Account(String login, InternalAPIManager apiManager) {
 		this.login = login;
-		boardManager = new BoardManager(apiManager);
 		pinManager = new PinManager(apiManager);
+		boardManager = new BoardManager(apiManager, pinManager);
 	}
 	
 	public Account(String login) throws PinterestUserNotFoundException {

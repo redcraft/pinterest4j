@@ -10,14 +10,22 @@ import ru.redcraft.pinterest.interfaces.IPinterestBoard;
 import ru.redcraft.pinterest.interfaces.IPinterestBoardManager;
 import ru.redcraft.pinterest.interfaces.IPinterestCategory;
 import ru.redcraft.pinterest.interfaces.IPinterestNewBoard;
+import ru.redcraft.pinterest.interfaces.IPinterestPinManager;
 import ru.redcraft.pinterest.internal.api.InternalAPIManager;
 
 public class BoardManager extends BaseManager implements IPinterestBoardManager {
 
-	public  BoardManager(InternalAPIManager apiManager) {
+	private final IPinterestPinManager pinManager; 
+	
+	public  BoardManager(InternalAPIManager apiManager, IPinterestPinManager pinManager) {
 		super(apiManager);
+		this.pinManager = pinManager;
 	}
 
+	IPinterestPinManager getPinManager() {
+		return pinManager;
+	}
+	
 	public List<IPinterestBoard> getBoards() {
 		List<IPinterestBoard> boards = new ArrayList<IPinterestBoard>();
 		for(Board board : apiManager.getBoardAPI().getBoards()) {

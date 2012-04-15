@@ -1,9 +1,12 @@
 package ru.redcraft.pinterest.board;
 
+import java.util.List;
+
 import ru.redcraft.pinterest.interfaces.IPinterestAdtBoardInto;
 import ru.redcraft.pinterest.interfaces.IPinterestBoard;
 import ru.redcraft.pinterest.interfaces.IPinterestBoardManager;
 import ru.redcraft.pinterest.interfaces.IPinterestCategory;
+import ru.redcraft.pinterest.interfaces.IPinterestPin;
 
 public class Board implements IPinterestBoard, IPinterestAdtBoardInto {
 
@@ -78,6 +81,16 @@ public class Board implements IPinterestBoard, IPinterestAdtBoardInto {
 	public int getPageCount() {
 		loadAdtInfo();
 		return boardInfo.getPageCount();
+	}
+
+	public List<IPinterestPin> getAllPins() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List<IPinterestPin> getPins(int pageNumber) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
