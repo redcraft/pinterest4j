@@ -1,6 +1,5 @@
 package ru.redcraft.pinterest.board;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import ru.redcraft.pinterest.core.BaseManager;
@@ -27,17 +26,11 @@ public class BoardManager extends BaseManager implements IPinterestBoardManager 
 	}
 	
 	public List<IPinterestBoard> getBoards() {
-		List<IPinterestBoard> boards = new ArrayList<IPinterestBoard>();
-		for(Board board : apiManager.getBoardAPI().getBoards()) {
-			board.setBoardManager(this);
-			boards.add(board);
-		}
-		return boards;
+		return apiManager.getBoardAPI().getBoards(this);
 	}
 
 	public IPinterestBoard createBoard(IPinterestNewBoard newBoard) throws PinterestBoardExistException {
-		Board board = apiManager.getBoardAPI().createBoard(newBoard);
-		board.setBoardManager(this);
+		Board board = apiManager.getBoardAPI().createBoard(this, newBoard);
 		return board;
 	}
 
@@ -54,8 +47,7 @@ public class BoardManager extends BaseManager implements IPinterestBoardManager 
 		String newTitle = (title != null) ? title : board.getTitle();
 		String newDescription = (description != null) ? description : board.getDescription();
 		IPinterestCategory newCategory = (category != null) ? category : board.getCategory();
-		Board newBoard = apiManager.getBoardAPI().updateBoardInfo(board, newTitle, newDescription, newCategory);
-		newBoard.setBoardManager(this);
+		Board newBoard = apiManager.getBoardAPI().updateBoardInfo(this, board, newTitle, newDescription, newCategory);
 		return newBoard;
 	}
 }

@@ -16,13 +16,13 @@ public class Board implements IPinterestBoard, IPinterestAdtBoardInto {
 	
 	private IPinterestAdtBoardInto boardInfo;
 	
-	private IPinterestBoardManager boardManager;
+	private final IPinterestBoardManager boardManager;
 	
-	public Board(Long id, String url, String name) {
+	public Board(IPinterestBoardManager boardManager, Long id, String url, String name) {
 		this.id = id;
 		this.url = url;
 		this.title = name;
-		this.boardManager = null;
+		this.boardManager = boardManager;
 		this.boardInfo = null;
 	}
 	
@@ -41,10 +41,6 @@ public class Board implements IPinterestBoard, IPinterestAdtBoardInto {
 
 	public String getTitle() {
 		return title;
-	}
-
-	void setBoardManager(IPinterestBoardManager boardManager) {
-		this.boardManager = boardManager;
 	}
 
 	public IPinterestCategory getCategory() {

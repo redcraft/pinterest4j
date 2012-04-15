@@ -18,6 +18,7 @@ import ru.redcraft.pinterest.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest.exceptions.PinterestRuntimeException;
 import ru.redcraft.pinterest.interfaces.IPinterestAdtBoardInto;
 import ru.redcraft.pinterest.interfaces.IPinterestBoard;
+import ru.redcraft.pinterest.interfaces.IPinterestBoardManager;
 import ru.redcraft.pinterest.interfaces.IPinterestCategory;
 import ru.redcraft.pinterest.interfaces.IPinterestNewBoard;
 import ru.redcraft.pinterest.interfaces.IPinterestNewBoard.BoardAccessRule;
@@ -41,9 +42,9 @@ public final class BoardAPI extends CoreAPI {
 		this.accessToken = accessToken;
 	}
 	
-	public List<Board> getBoards() {
+	public List<IPinterestBoard> getBoards(IPinterestBoardManager boardManager) {
 		log.debug("Parsing boards for token: " + accessToken);
-		List<Board> boardList = new ArrayList<Board>();
+		List<IPinterestBoard> boardList = new ArrayList<IPinterestBoard>();
 		ClientResponse response = getWR(Protocol.HTTP, accessToken.getLogin() + "/").get(ClientResponse.class);
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlBoards = doc.select(".pinBoard");
@@ -51,7 +52,7 @@ public final class BoardAPI extends CoreAPI {
 			long id = Long.valueOf(htmlBoard.attr("id").replace("board", ""));
 			String url = htmlBoard.select("a.link").first().attr("href");
 			String name = htmlBoard.select("h3.serif").first().select("a").text();
-			Board board = new Board(id, url, name);
+			Board board = new Board(boardManager, id, url, name);
 			boardList.add(board);
 			log.debug("Parsed board: " + board);
 		}
@@ -63,7 +64,7 @@ public final class BoardAPI extends CoreAPI {
 		return String.format("/%s/%s/", login, boardNameId);
 	}
 
-	public Board createBoard(IPinterestNewBoard newBoard) throws PinterestBoardExistException {
+	public Board createBoard(IPinterestBoardManager boardManager, IPinterestNewBoard newBoard) throws PinterestBoardExistException {
 		log.debug("Creating board for token: " + accessToken);
 		Board createdBoard = null;
 		Form newBoardForm = createNewBoardForm(newBoard);
@@ -79,7 +80,7 @@ public final class BoardAPI extends CoreAPI {
 						throw new PinterestRuntimeException(BOARD_CREATION_ERROR + jResponse.getString("message"));
 					}
 				}
-				createdBoard = new Board(jResponse.getLong("id"), jResponse.getString("url"), jResponse.getString("name"));
+				createdBoard = new Board(boardManager, jResponse.getLong("id"), jResponse.getString("url"), jResponse.getString("name"));
 			} catch(JSONException e) {
 				String msg = BOARD_CREATION_ERROR + e.getMessage();
 				log.error(msg);
@@ -145,7 +146,7 @@ public final class BoardAPI extends CoreAPI {
 		return form;
 	}
 	
-	public Board updateBoardInfo(IPinterestBoard board, String title,
+	public Board updateBoardInfo(IPinterestBoardManager boardManager, IPinterestBoard board, String title,
 			String description, IPinterestCategory category) {
 		Form updateBoardForm = createUpdateBoardForm(title, description, category);
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").post(ClientResponse.class, updateBoardForm);
@@ -154,7 +155,7 @@ public final class BoardAPI extends CoreAPI {
 			log.error("ERROR message: " + response.getEntity(String.class));
 			throw new PinterestRuntimeException(BOARD_UPDATE_ERROR + "bad server response");
 		}
-		return new Board(board.getId(), createLink(title, accessToken.getLogin()), title);
+		return new Board(boardManager, board.getId(), createLink(title, accessToken.getLogin()), title);
 	}
 	
 }
