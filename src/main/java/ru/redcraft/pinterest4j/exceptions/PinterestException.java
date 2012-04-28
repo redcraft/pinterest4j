@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest.exceptions;
+package ru.redcraft.pinterest4j.exceptions;
 
 public class PinterestException extends Exception {
 

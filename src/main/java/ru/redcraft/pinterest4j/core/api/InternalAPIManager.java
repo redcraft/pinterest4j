@@ -1,8 +1,7 @@
-package ru.redcraft.pinterest.internal.api;
+package ru.redcraft.pinterest4j.core.api;
 
-import ru.redcraft.pinterest.exceptions.PinterestAuthException;
-import ru.redcraft.pinterest.exceptions.PinterestConnectionException;
-import ru.redcraft.pinterest.exceptions.PinterestUserNotFoundException;
+import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
+import ru.redcraft.pinterest4j.exceptions.PinterestConnectionException;
 
 public class InternalAPIManager {
 
@@ -10,10 +9,6 @@ public class InternalAPIManager {
 	
 	public InternalAPIManager(String login, String password) throws PinterestAuthException {
 		accessToken = AuthAPI.authenticate(login, password);
-	}
-	
-	public InternalAPIManager(String login) throws PinterestUserNotFoundException {
-		accessToken = AuthAPI.validate(login);
 	}
 	
 	public BoardAPI getBoardAPI() {

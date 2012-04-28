@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest.internal.api;
+package ru.redcraft.pinterest4j.core.api;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,8 +6,8 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 
-import ru.redcraft.pinterest.exceptions.PinterestAuthException;
-import ru.redcraft.pinterest.exceptions.PinterestUserNotFoundException;
+import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
+import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.representation.Form;

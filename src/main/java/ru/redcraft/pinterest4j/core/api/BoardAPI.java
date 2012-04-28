@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest.internal.api;
+package ru.redcraft.pinterest4j.core.api;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,17 +11,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import ru.redcraft.pinterest.board.Board;
-import ru.redcraft.pinterest.board.BoardInfo;
-import ru.redcraft.pinterest.core.Category;
-import ru.redcraft.pinterest.exceptions.PinterestBoardExistException;
-import ru.redcraft.pinterest.exceptions.PinterestRuntimeException;
-import ru.redcraft.pinterest.interfaces.IPinterestAdtBoardInto;
-import ru.redcraft.pinterest.interfaces.IPinterestBoard;
-import ru.redcraft.pinterest.interfaces.IPinterestBoardManager;
-import ru.redcraft.pinterest.interfaces.IPinterestCategory;
-import ru.redcraft.pinterest.interfaces.IPinterestNewBoard;
-import ru.redcraft.pinterest.interfaces.IPinterestNewBoard.BoardAccessRule;
+import ru.redcraft.pinterest4j.Board;
+import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.core.NewBoard;
+import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
+import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.representation.Form;
@@ -29,6 +23,7 @@ import com.sun.jersey.api.representation.Form;
 public final class BoardAPI extends CoreAPI {
 
 	private static final String BOARD_DESCRIPTION_PROP_NAME = "og:description";
+	private static final String BOARD_TITLE_PROP_NAME = "og:title";
 	private static final String BOARD_CATEGORY_PROP_NAME = "pinterestapp:category";
 	private static final String BOARD_PINS_PROP_NAME = "pinterestapp:pins";
 	private static final String BOARD_FOLLOWERS_PROP_NAME = "pinterestapp:followers";
@@ -42,31 +37,34 @@ public final class BoardAPI extends CoreAPI {
 		this.accessToken = accessToken;
 	}
 	
-	public List<IPinterestBoard> getBoards(IPinterestBoardManager boardManager) {
+	public List<Board> getBoards(String userName) {
 		log.debug("Parsing boards for token: " + accessToken);
-		List<IPinterestBoard> boardList = new ArrayList<IPinterestBoard>();
-		ClientResponse response = getWR(Protocol.HTTP, accessToken.getLogin() + "/").get(ClientResponse.class);
+		List<Board> boardList = new ArrayList<Board>();
+		ClientResponse response = getWR(Protocol.HTTP, userName + "/").get(ClientResponse.class);
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlBoards = doc.select(".pinBoard");
 		for(Element htmlBoard : htmlBoards) {
 			long id = Long.valueOf(htmlBoard.attr("id").replace("board", ""));
 			String url = htmlBoard.select("a.link").first().attr("href");
 			String name = htmlBoard.select("h3.serif").first().select("a").text();
-			Board board = new Board(boardManager, id, url, name);
+			LazyBoard board = new LazyBoard(id, url, name, this);
 			boardList.add(board);
 			log.debug("Parsed board: " + board);
 		}
 		return boardList;
 	}
 	
+	public static String encodeTitle(String title) {
+		return title.replace('_', ' ').replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase();
+	}
+	
 	public static String createLink(String title, String login) {
-		String boardNameId = title.replace('_', ' ').replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase();
-		return String.format("/%s/%s/", login, boardNameId);
+		return String.format("/%s/%s/", login, encodeTitle(title));
 	}
 
-	public Board createBoard(IPinterestBoardManager boardManager, IPinterestNewBoard newBoard) throws PinterestBoardExistException {
+	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
 		log.debug("Creating board for token: " + accessToken);
-		Board createdBoard = null;
+		LazyBoard createdBoard = null;
 		Form newBoardForm = createNewBoardForm(newBoard);
 		ClientResponse response = getWR(Protocol.HTTP, "board/create/").post(ClientResponse.class, newBoardForm);
 		if(response.getStatus() == 200) {
@@ -80,7 +78,7 @@ public final class BoardAPI extends CoreAPI {
 						throw new PinterestRuntimeException(BOARD_CREATION_ERROR + jResponse.getString("message"));
 					}
 				}
-				createdBoard = new Board(boardManager, jResponse.getLong("id"), jResponse.getString("url"), jResponse.getString("name"));
+				createdBoard = new LazyBoard(jResponse.getLong("id"), jResponse.getString("url"), jResponse.getString("name"), this);
 			} catch(JSONException e) {
 				String msg = BOARD_CREATION_ERROR + e.getMessage();
 				log.error(msg);
@@ -94,38 +92,45 @@ public final class BoardAPI extends CoreAPI {
 		return createdBoard;
 	}
 	
-	private Form createNewBoardForm(IPinterestNewBoard newBoard) {
+	private Form createNewBoardForm(NewBoard newBoard) {
 		Form form = new Form();
 		form.add("name", newBoard.getTitle());
 		form.add("category", newBoard.getCategory().getId());
-		form.add("collaborator", newBoard.getAccessRule().name().toLowerCase());
+		form.add("collaborator", "me");
 		return form;
 	}
 	
-	public IPinterestAdtBoardInto getAdditionalBoardInfo(IPinterestBoard board) {
-		BoardInfo.Builder infoBuilder = BoardInfo.newBuilder();
-		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
-		Document doc = Jsoup.parse(response.getEntity(String.class));
-		for(Element meta : doc.select("meta")) {
-			String propName = meta.attr("property");
-			String propContent = meta.attr("content");
-			if(propName.equals(BOARD_DESCRIPTION_PROP_NAME)) {
-				infoBuilder.setDescription(propContent);
-			} else if(propName.equals(BOARD_CATEGORY_PROP_NAME)) {
-				infoBuilder.setCategory(Category.getInstanceById(propContent));
-			} else if(propName.equals(BOARD_PINS_PROP_NAME)) {
-				infoBuilder.setPinsCount(Integer.valueOf(propContent));
-			} else if(propName.equals(BOARD_FOLLOWERS_PROP_NAME)) {
-				infoBuilder.setFollowersCount(Integer.valueOf(propContent));
-			}
-		}
-		infoBuilder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
-		infoBuilder.setTitle(board.getTitle());
-		infoBuilder.setAccessRule(BoardAccessRule.ME);
-		return infoBuilder.build();
-	}
+//	public IPinterestAdtBoardInto getAdditionalBoardInfo(IPinterestBoard board) {
+//		BoardInfo.Builder infoBuilder = BoardInfo.newBuilder();
+//		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
+//		Document doc = Jsoup.parse(response.getEntity(String.class));
+//		for(Element meta : doc.select("meta")) {
+//			String propName = meta.attr("property");
+//			String propContent = meta.attr("content");
+//			if(propName.equals(BOARD_DESCRIPTION_PROP_NAME)) {
+//				infoBuilder.setDescription(propContent);
+//			} else if(propName.equals(BOARD_CATEGORY_PROP_NAME)) {
+//				infoBuilder.setCategory(BoardCategoryImpl.getInstanceById(propContent));
+//			} else if(propName.equals(BOARD_PINS_PROP_NAME)) {
+//				infoBuilder.setPinsCount(Integer.valueOf(propContent));
+//			} else if(propName.equals(BOARD_FOLLOWERS_PROP_NAME)) {
+//				infoBuilder.setFollowersCount(Integer.valueOf(propContent));
+//			} else if(propName.equals(BOARD_TITLE_PROP_NAME)) {
+//				infoBuilder.setTitle(propContent);
+//			}
+//		}
+//		for(Element meta : doc.select("div.BoardList").first().select("li")) {
+//			if(meta.child(0).text().equals(infoBuilder.getTitle())) {
+//				infoBuilder.setId(Long.valueOf(meta.attr("data")));
+//				break;
+//			}
+//		}
+//		infoBuilder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
+//		infoBuilder.setAccessRule(BoardAccessRule.ME);
+//		return infoBuilder.build();
+//	}
 
-	public void deleteBoard(IPinterestBoard board) {
+	public void deleteBoard(Board board) {
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").delete(ClientResponse.class);
 		if(response.getStatus() != 200) {
 			log.error("ERROR status: " + response.getStatus());
@@ -134,7 +139,7 @@ public final class BoardAPI extends CoreAPI {
 		}
 	}
 
-	private Form createUpdateBoardForm(String title, String description, IPinterestCategory category) {
+	private Form createUpdateBoardForm(String title, String description, BoardCategory category) {
 		Form form = new Form();
 		form.add("name", title);
 		form.add("description", description);
@@ -146,8 +151,7 @@ public final class BoardAPI extends CoreAPI {
 		return form;
 	}
 	
-	public Board updateBoardInfo(IPinterestBoardManager boardManager, IPinterestBoard board, String title,
-			String description, IPinterestCategory category) {
+	public Board updateBoardInfo(Board board, String title, String description, BoardCategory category) {
 		Form updateBoardForm = createUpdateBoardForm(title, description, category);
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").post(ClientResponse.class, updateBoardForm);
 		if(response.getStatus() != 200) {
@@ -155,7 +159,7 @@ public final class BoardAPI extends CoreAPI {
 			log.error("ERROR message: " + response.getEntity(String.class));
 			throw new PinterestRuntimeException(BOARD_UPDATE_ERROR + "bad server response");
 		}
-		return new Board(boardManager, board.getId(), createLink(title, accessToken.getLogin()), title);
+		return new LazyBoard(board.getId(), createLink(title, accessToken.getLogin()), title, description, category, this);
 	}
 	
 }

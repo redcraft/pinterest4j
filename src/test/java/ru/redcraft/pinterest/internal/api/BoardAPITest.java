@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import ru.redcraft.pinterest4j.core.api.BoardAPI;
+
 public class BoardAPITest {
 
 	@Test

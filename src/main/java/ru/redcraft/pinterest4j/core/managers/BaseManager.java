@@ -1,6 +1,6 @@
-package ru.redcraft.pinterest.core;
+package ru.redcraft.pinterest4j.core.managers;
 
-import ru.redcraft.pinterest.internal.api.InternalAPIManager;
+import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
 
 public abstract class BaseManager {
 
