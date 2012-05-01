@@ -16,13 +16,6 @@ public class PinterestAccessToken {
 		this.sessionToken = sessionToken;
 	}
 	
-	public PinterestAccessToken(String login) {
-		this.login = login;
-		this.password = null;
-		this.csrfToken = null;
-		this.sessionToken = null;
-	}
-	
 	public String getLogin() {
 		return login;
 	}

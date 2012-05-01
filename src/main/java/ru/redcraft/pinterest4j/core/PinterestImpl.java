@@ -41,4 +41,8 @@ public class PinterestImpl implements Pinterest {
 	public void deleteBoard(Board board) {
 		managerBundle.getBoardManager().deleteBoard(board);
 	}
+
+	public User getUserForName(String userName) {
+		return managerBundle.getUserManager().getUserForName(userName);
+	}
 }

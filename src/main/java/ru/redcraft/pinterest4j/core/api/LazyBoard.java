@@ -11,8 +11,8 @@ public class LazyBoard implements Board {
 	private final long id;
 	private final String url;
 	private final String title;
-	private String description;
-	private BoardCategory category;
+	private String description = null;
+	private BoardCategory category = null;
 	private final BoardAPI boardAPI;
 	
 	
@@ -36,18 +36,15 @@ public class LazyBoard implements Board {
 	}
 
 	public long getId() {
-		// TODO Auto-generated method stub
-		return 0;
+		return id;
 	}
 
 	public String getURL() {
-		// TODO Auto-generated method stub
-		return null;
+		return url;
 	}
 
 	public String getTitle() {
-		// TODO Auto-generated method stub
-		return null;
+		return title;
 	}
 
 	public String getDescription() {
@@ -83,6 +80,12 @@ public class LazyBoard implements Board {
 	public List<Pin> getPins(int pageNumber) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return "LazyBoard [id=" + id + ", url=" + url + ", title=" + title
+				+ "]";
 	}
 
 }

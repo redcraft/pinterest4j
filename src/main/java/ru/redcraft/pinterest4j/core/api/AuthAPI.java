@@ -7,7 +7,6 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
-import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.representation.Form;
@@ -24,7 +23,7 @@ public final class AuthAPI extends CoreAPI {
 	private static final String LOGIN_FORM_CSRF_FIELD = "csrfmiddlewaretoken";
 	
 	private AuthAPI() {
-		accessToken = new PinterestAccessToken(null);
+		accessToken = null;
 	}
 	
 	public static AuthAPI getAuthAPI() {
@@ -37,18 +36,6 @@ public final class AuthAPI extends CoreAPI {
 	
 	public static PinterestAccessToken authenticate(PinterestAccessToken accessToken) throws PinterestAuthException {
 		return authAPI.getAccessToken(accessToken.getLogin(), accessToken.getPassword());
-	}
-	
-	public static PinterestAccessToken validate(String login) throws PinterestUserNotFoundException {
-		return authAPI.validateLogin(login);
-	}
-	
-	public PinterestAccessToken validateLogin(String login) throws PinterestUserNotFoundException {
-		ClientResponse responClient = getWR(Protocol.HTTPS, login + "/").get(ClientResponse.class);
-		if(responClient.getStatus() == 404) {
-			throw new PinterestUserNotFoundException();
-		}
-		return new PinterestAccessToken(login);
 	}
 	
 	public PinterestAccessToken getAccessToken(String login, String password) throws PinterestAuthException {

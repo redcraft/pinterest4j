@@ -1,14 +1,15 @@
 package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.managers.ManagerBundle;
 
 public class LazyUser  implements User {
 	
 	private final String userName;
+	private final UserAPI userAPI;
 	
-	public LazyUser(String userName, ManagerBundle managerBundle) {
+	LazyUser(String userName, UserAPI userAPI) {
 		this.userName = userName;
+		this.userAPI = userAPI;
 	}
 	
 	public String getUserName() {

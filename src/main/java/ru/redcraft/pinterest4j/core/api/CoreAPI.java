@@ -23,9 +23,11 @@ public abstract class CoreAPI {
 		Client client = Client.create(config);
 		String requestURL = String.format("%s://%s/%s", protocol.name().toLowerCase(), PINTEREST_DOMAIN, url);
 		wr = client.resource(UriBuilder.fromUri(requestURL).build()).getRequestBuilder();
-		wr = wr.header(COOKIE_HEADER_NAME, accessToken.generateCookieHeader());
-		wr = wr.header("X-CSRFToken", accessToken.getCsrfToken().getValue());
-		wr = wr.header("X-Requested-With", "XMLHttpRequest");
+		if(accessToken != null) {
+			wr = wr.header(COOKIE_HEADER_NAME, accessToken.generateCookieHeader());
+			wr = wr.header("X-CSRFToken", accessToken.getCsrfToken().getValue());
+			wr = wr.header("X-Requested-With", "XMLHttpRequest");
+		}
 		return wr;
 	}
 	

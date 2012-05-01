@@ -18,4 +18,6 @@ public interface Pinterest {
 	public void deleteBoard(Board board);
 	
 	public Pin addPinToBoard(long boardID, NewPin newPin);
+	
+	public User getUserForName(String userName);
 }

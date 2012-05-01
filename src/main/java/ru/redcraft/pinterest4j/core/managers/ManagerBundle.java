@@ -6,10 +6,12 @@ public class ManagerBundle {
 
 	private final PinManager pinManager;
 	private final BoardManager boardManager;
+	private final UserManager userManager;
 	
 	public ManagerBundle(InternalAPIManager internalAPI) {
 		pinManager = new PinManager(internalAPI);
 		boardManager = new BoardManager(internalAPI);
+		userManager = new UserManager(internalAPI);
 	}
 
 	public PinManager getPinManager() {
@@ -20,4 +22,7 @@ public class ManagerBundle {
 		return boardManager;
 	}
 	
+	public UserManager getUserManager() {
+		return userManager;
+	}
 }

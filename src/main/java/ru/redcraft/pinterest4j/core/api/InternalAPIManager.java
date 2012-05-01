@@ -1,41 +1,30 @@
 package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
-import ru.redcraft.pinterest4j.exceptions.PinterestConnectionException;
 
 public class InternalAPIManager {
 
-	private PinterestAccessToken accessToken = null;
+	private final PinterestAccessToken accessToken;
+	private final UserAPI userAPI;
+	private final BoardAPI boardAPI;
+	private final PinAPI pinAPI;
 	
 	public InternalAPIManager(String login, String password) throws PinterestAuthException {
 		accessToken = AuthAPI.authenticate(login, password);
+		userAPI = new UserAPI(accessToken);
+		boardAPI = new BoardAPI(accessToken);
+		pinAPI = new PinAPI(accessToken);
 	}
 	
 	public BoardAPI getBoardAPI() {
-		BoardAPI boardAPI = null;
-		try {
-			boardAPI = new BoardAPI(accessToken);
-		} catch(PinterestConnectionException connectionExc) {
-			try {
-				accessToken = AuthAPI.authenticate(accessToken);
-			} catch (PinterestAuthException authExc) {
-				throw connectionExc;
-			}
-		}
 		return boardAPI;
 	}
 	
 	public PinAPI getPinAPI() {
-		PinAPI pinAPI = null;
-		try {
-			pinAPI = new PinAPI(accessToken);
-		} catch(PinterestConnectionException connectionExc) {
-			try {
-				accessToken = AuthAPI.authenticate(accessToken);
-			} catch (PinterestAuthException authExc) {
-				throw connectionExc;
-			}
-		}
 		return pinAPI;
+	}
+	
+	public UserAPI getUserAPI() {
+		return userAPI;
 	}
 }
