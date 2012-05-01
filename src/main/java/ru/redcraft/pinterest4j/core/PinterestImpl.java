@@ -14,9 +14,11 @@ import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
 public class PinterestImpl implements Pinterest {
 
+	private final String login;
 	private final ManagerBundle managerBundle;
 	
 	public PinterestImpl(String login, String password) throws PinterestAuthException {
+		this.login = login;
 		InternalAPIManager internalAPI = new InternalAPIManager(login, password);
 		managerBundle = new ManagerBundle(internalAPI);
 	}
@@ -27,6 +29,10 @@ public class PinterestImpl implements Pinterest {
 
 	public List<Board> getBoardsForUser(User user) {
 		return managerBundle.getBoardManager().getBoards(user);
+	}
+	
+	public List<Board> getBoards() {
+		return getBoardsForUser(getUserForName(login));
 	}
 
 	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
@@ -45,4 +51,5 @@ public class PinterestImpl implements Pinterest {
 	public User getUserForName(String userName) {
 		return managerBundle.getUserManager().getUserForName(userName);
 	}
+
 }

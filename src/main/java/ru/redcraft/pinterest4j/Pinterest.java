@@ -11,6 +11,8 @@ public interface Pinterest {
 
 	public List<Board> getBoardsForUser(User user);
 	
+	public List<Board> getBoards();
+	
 	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException;
 	
 	public Board updateBoard(Board board, String title,	String description, BoardCategory category);

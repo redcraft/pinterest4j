@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest.internal.api;
+package ru.redcraft.pinterest4j.core.api;
 
 import static org.junit.Assert.*;
 
