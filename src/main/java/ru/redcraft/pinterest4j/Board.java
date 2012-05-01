@@ -1,6 +1,5 @@
 package ru.redcraft.pinterest4j;
 
-import java.util.List;
 
 public interface Board {
 
@@ -20,7 +19,4 @@ public interface Board {
 	
 	public int getFollowersCount();
 	
-	public List<Pin> getAllPins();
-	
-	public List<Pin> getPins(int pageNumber);
 }

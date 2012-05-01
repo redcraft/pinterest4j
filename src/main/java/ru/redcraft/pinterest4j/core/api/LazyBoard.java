@@ -1,10 +1,7 @@
 package ru.redcraft.pinterest4j.core.api;
 
-import java.util.List;
-
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
-import ru.redcraft.pinterest4j.Pin;
 
 public class LazyBoard implements Board {
 
@@ -14,7 +11,17 @@ public class LazyBoard implements Board {
 	private String description = null;
 	private BoardCategory category = null;
 	private final BoardAPI boardAPI;
+	private BoardImpl target = null;
 	
+	
+	LazyBoard(long id, String url, String title, BoardCategory category, BoardAPI boardAPI) {
+		super();
+		this.id = id;
+		this.url = url;
+		this.title = title;
+		this.category = category;
+		this.boardAPI = boardAPI;
+	}
 	
 	LazyBoard(long id, String url, String title, BoardAPI boardAPI) {
 		super();
@@ -35,6 +42,13 @@ public class LazyBoard implements Board {
 		this.boardAPI = boardAPI;
 	}
 
+	private Board getTarget() {
+		if(target == null) {
+			target = boardAPI.getCompleteBoard(this);
+		}
+		return target;
+	}
+	
 	public long getId() {
 		return id;
 	}
@@ -48,38 +62,33 @@ public class LazyBoard implements Board {
 	}
 
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		if(target == null && description != null) {
+			return description;
+		}
+		else {
+			return getTarget().getDescription();
+		}
 	}
 
 	public BoardCategory getCategory() {
-		// TODO Auto-generated method stub
-		return null;
+		if(target == null && category != null) {
+			return category;
+		}
+		else {
+			return getTarget().getCategory();
+		}
 	}
 
 	public int getPinsCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getTarget().getPinsCount();
 	}
 
 	public int getPageCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return getTarget().getPageCount();
 	}
 
 	public int getFollowersCount() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public List<Pin> getAllPins() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public List<Pin> getPins(int pageNumber) {
-		// TODO Auto-generated method stub
-		return null;
+		return getTarget().getFollowersCount();
 	}
 
 	@Override

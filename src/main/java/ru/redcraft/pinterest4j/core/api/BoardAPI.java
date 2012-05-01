@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
@@ -78,7 +79,7 @@ public final class BoardAPI extends CoreAPI {
 						throw new PinterestRuntimeException(BOARD_CREATION_ERROR + jResponse.getString("message"));
 					}
 				}
-				createdBoard = new LazyBoard(jResponse.getLong("id"), jResponse.getString("url"), jResponse.getString("name"), this);
+				createdBoard = new LazyBoard(jResponse.getLong("id"), jResponse.getString("url"), jResponse.getString("name"), newBoard.getCategory(), this);
 			} catch(JSONException e) {
 				String msg = BOARD_CREATION_ERROR + e.getMessage();
 				log.error(msg);
@@ -100,35 +101,37 @@ public final class BoardAPI extends CoreAPI {
 		return form;
 	}
 	
-//	public IPinterestAdtBoardInto getAdditionalBoardInfo(IPinterestBoard board) {
-//		BoardInfo.Builder infoBuilder = BoardInfo.newBuilder();
-//		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
-//		Document doc = Jsoup.parse(response.getEntity(String.class));
-//		for(Element meta : doc.select("meta")) {
-//			String propName = meta.attr("property");
-//			String propContent = meta.attr("content");
-//			if(propName.equals(BOARD_DESCRIPTION_PROP_NAME)) {
-//				infoBuilder.setDescription(propContent);
-//			} else if(propName.equals(BOARD_CATEGORY_PROP_NAME)) {
-//				infoBuilder.setCategory(BoardCategoryImpl.getInstanceById(propContent));
-//			} else if(propName.equals(BOARD_PINS_PROP_NAME)) {
-//				infoBuilder.setPinsCount(Integer.valueOf(propContent));
-//			} else if(propName.equals(BOARD_FOLLOWERS_PROP_NAME)) {
-//				infoBuilder.setFollowersCount(Integer.valueOf(propContent));
-//			} else if(propName.equals(BOARD_TITLE_PROP_NAME)) {
-//				infoBuilder.setTitle(propContent);
-//			}
-//		}
-//		for(Element meta : doc.select("div.BoardList").first().select("li")) {
-//			if(meta.child(0).text().equals(infoBuilder.getTitle())) {
-//				infoBuilder.setId(Long.valueOf(meta.attr("data")));
-//				break;
-//			}
-//		}
-//		infoBuilder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
-//		infoBuilder.setAccessRule(BoardAccessRule.ME);
-//		return infoBuilder.build();
-//	}
+	public BoardImpl getCompleteBoard(Board board) {
+		BoardBuilder builder = new BoardBuilder();
+		builder.setURL(board.getURL());
+		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
+		Document doc = Jsoup.parse(response.getEntity(String.class));
+		
+		for(Element meta : doc.select("meta")) {
+			String propName = meta.attr("property");
+			String propContent = meta.attr("content");
+			if(propName.equals(BOARD_DESCRIPTION_PROP_NAME)) {
+				builder.setDescription(propContent);
+			} else if(propName.equals(BOARD_CATEGORY_PROP_NAME)) {
+				builder.setCategory(BoardCategoryImpl.getInstanceById(propContent));
+			} else if(propName.equals(BOARD_PINS_PROP_NAME)) {
+				builder.setPinsCount(Integer.valueOf(propContent));
+			} else if(propName.equals(BOARD_FOLLOWERS_PROP_NAME)) {
+				builder.setFollowersCount(Integer.valueOf(propContent));
+			} else if(propName.equals(BOARD_TITLE_PROP_NAME)) {
+				builder.setTitle(propContent);
+			}
+		}
+		for(Element meta : doc.select("div.BoardList").first().select("li")) {
+			if(meta.child(0).text().equals(builder.getTitle())) {
+				builder.setId(Long.valueOf(meta.attr("data")));
+				break;
+			}
+		}
+		builder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
+		
+		return builder.build();
+	}
 
 	public void deleteBoard(Board board) {
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").delete(ClientResponse.class);
