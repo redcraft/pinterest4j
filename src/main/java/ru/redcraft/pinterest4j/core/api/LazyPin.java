@@ -1,7 +1,5 @@
 package ru.redcraft.pinterest4j.core.api;
 
-import java.net.URL;
-
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.core.PinImpl;
@@ -10,11 +8,18 @@ public class LazyPin implements Pin {
 
 	private final long id;
 	private final PinAPI pinAPI;
-	private final PinImpl target = null;
+	private PinImpl target = null;
 	
 	LazyPin(long id, PinAPI pinAPI) {
 		this.id = id;
 		this.pinAPI = pinAPI;
+	}
+	
+	private PinImpl getTarget() {
+		if(target == null) {
+			target = pinAPI.getCompletePin(this);
+		}
+		return target;
 	}
 	
 	public long getId() {
@@ -22,23 +27,23 @@ public class LazyPin implements Pin {
 	}
 
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		return getTarget().getDescription();
 	}
 
-	public URL getLink() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getLink() {
+		return getTarget().getLink();
 	}
 
-	public URL getImageURL() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getImageURL() {
+		return getTarget().getImageURL();
 	}
 
 	public Board getBoard() {
-		// TODO Auto-generated method stub
-		return null;
+		return getTarget().getBoard();
+	}
+
+	public double getPrice() {
+		return getTarget().getPrice();
 	}
 
 }

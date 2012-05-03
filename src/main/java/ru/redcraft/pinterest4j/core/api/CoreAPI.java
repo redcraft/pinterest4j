@@ -9,14 +9,25 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 public abstract class CoreAPI {
 
-	protected PinterestAccessToken accessToken = null; 
+	protected final PinterestAccessToken accessToken; 
+	protected final InternalAPIManager apiManager;
 	
 	private static final String PINTEREST_DOMAIN = "pinterest.com";
 	private static final String COOKIE_HEADER_NAME = "Cookie";
 	
 	public enum Protocol {HTTP, HTTPS};
 	
+	CoreAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
+		this.accessToken = accessToken;
+		this.apiManager = apiManager;
+	}
+	
 	protected WebResource.Builder getWR(Protocol protocol, String url) {
+		
+		return getWR(protocol, url, true);
+	}
+	
+	protected WebResource.Builder getWR(Protocol protocol, String url, boolean useAJAX) {
 		
 		WebResource.Builder wr = null;
 		ClientConfig config = new DefaultClientConfig();
@@ -26,7 +37,9 @@ public abstract class CoreAPI {
 		if(accessToken != null) {
 			wr = wr.header(COOKIE_HEADER_NAME, accessToken.generateCookieHeader());
 			wr = wr.header("X-CSRFToken", accessToken.getCsrfToken().getValue());
-			wr = wr.header("X-Requested-With", "XMLHttpRequest");
+			if(useAJAX) {
+				wr = wr.header("X-Requested-With", "XMLHttpRequest");
+			}
 		}
 		return wr;
 	}

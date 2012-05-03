@@ -1,35 +1,50 @@
 package ru.redcraft.pinterest4j.core;
 
-import java.net.URL;
-
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Pin;
 
 public class PinImpl implements Pin {
 
+	private final long id;
+	private final String description;
+	private final double price;
+	private final String link;
+	private final String imageURL;
+	private final Board board;
+	
+	public PinImpl(long id, String description, double price, String link, String imageUrl,
+			Board board) {
+		super();
+		this.id = id;
+		this.description = description;
+		this.price = price;
+		this.link = link;
+		this.imageURL = imageUrl;
+		this.board = board;
+	}
+
 	public long getId() {
-		// TODO Auto-generated method stub
-		return 0;
+		return id;
 	}
 
 	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
+		return description;
+	}
+	
+	public double getPrice() {
+		return price;
 	}
 
-	public URL getLink() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getLink() {
+		return link;
 	}
 
-	public URL getImageURL() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getImageURL() {
+		return imageURL;
 	}
 
 	public Board getBoard() {
-		// TODO Auto-generated method stub
-		return null;
+		return board;
 	}
 
 }

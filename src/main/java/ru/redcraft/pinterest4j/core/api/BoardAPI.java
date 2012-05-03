@@ -13,7 +13,10 @@ import org.jsoup.select.Elements;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.core.BoardBuilder;
 import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
+import ru.redcraft.pinterest4j.core.BoardImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
@@ -34,14 +37,14 @@ public final class BoardAPI extends CoreAPI {
 	private static final String BOARD_DELETION_ERROR = "PINBOARD DELETION ERROR: ";
 	private static final String BOARD_UPDATE_ERROR = "PINBOARD UPDATE ERROR: ";
 	
-	public BoardAPI(PinterestAccessToken accessToken) {
-		this.accessToken = accessToken;
+	public BoardAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
+		super(accessToken, apiManager);
 	}
 	
-	public List<Board> getBoards(String userName) {
+	public List<Board> getBoards(User user) {
 		log.debug("Parsing boards for token: " + accessToken);
 		List<Board> boardList = new ArrayList<Board>();
-		ClientResponse response = getWR(Protocol.HTTP, userName + "/").get(ClientResponse.class);
+		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/").get(ClientResponse.class);
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlBoards = doc.select(".pinBoard");
 		for(Element htmlBoard : htmlBoards) {
@@ -101,7 +104,7 @@ public final class BoardAPI extends CoreAPI {
 		return form;
 	}
 	
-	public BoardImpl getCompleteBoard(Board board) {
+	public BoardImpl getCompleteBoard(LazyBoard board) {
 		BoardBuilder builder = new BoardBuilder();
 		builder.setURL(board.getURL());
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);

@@ -11,9 +11,9 @@ public class InternalAPIManager {
 	
 	public InternalAPIManager(String login, String password) throws PinterestAuthException {
 		accessToken = AuthAPI.authenticate(login, password);
-		userAPI = new UserAPI(accessToken);
-		boardAPI = new BoardAPI(accessToken);
-		pinAPI = new PinAPI(accessToken);
+		userAPI = new UserAPI(accessToken, this);
+		boardAPI = new BoardAPI(accessToken, this);
+		pinAPI = new PinAPI(accessToken, this);
 	}
 	
 	public BoardAPI getBoardAPI() {

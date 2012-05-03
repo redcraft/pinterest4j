@@ -23,7 +23,7 @@ public final class AuthAPI extends CoreAPI {
 	private static final String LOGIN_FORM_CSRF_FIELD = "csrfmiddlewaretoken";
 	
 	private AuthAPI() {
-		accessToken = null;
+		super(null, null);
 	}
 	
 	public static AuthAPI getAuthAPI() {

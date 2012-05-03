@@ -14,17 +14,17 @@ import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
 public class PinterestImpl implements Pinterest {
 
-	private final String login;
+	private final User user;
 	private final ManagerBundle managerBundle;
 	
 	public PinterestImpl(String login, String password) throws PinterestAuthException {
-		this.login = login;
 		InternalAPIManager internalAPI = new InternalAPIManager(login, password);
 		managerBundle = new ManagerBundle(internalAPI);
+		this.user = getUserForName(login);
 	}
 
-	public Pin addPinToBoard(long boardID, NewPin newPin) {
-		return managerBundle.getPinManager().addPinToBoard(boardID, newPin);
+	public Pin addPinToBoard(Board board, NewPin newPin) {
+		return managerBundle.getPinManager().addPinToBoard(board, newPin);
 	}
 
 	public List<Board> getBoardsForUser(User user) {
@@ -32,7 +32,7 @@ public class PinterestImpl implements Pinterest {
 	}
 	
 	public List<Board> getBoards() {
-		return getBoardsForUser(getUserForName(login));
+		return getBoardsForUser(user);
 	}
 
 	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
@@ -50,6 +50,38 @@ public class PinterestImpl implements Pinterest {
 
 	public User getUserForName(String userName) {
 		return managerBundle.getUserManager().getUserForName(userName);
+	}
+
+	public List<Pin> getPins(Board board) {
+		return managerBundle.getPinManager().getPins(board);
+	}
+
+	public List<Pin> getPins(Board board, int page) {
+		return managerBundle.getPinManager().getPins(board, page);
+	}
+	
+	public List<Pin> getPins(User user) {
+		return managerBundle.getPinManager().getPins(user);
+	}
+	
+	public List<Pin> getPins(User user, int page) {
+		return managerBundle.getPinManager().getPins(user, page);
+	}
+	
+	public List<Pin> getPins() {
+		return managerBundle.getPinManager().getPins(user);
+	}
+
+	public List<Pin> getPins(int page) {
+		return managerBundle.getPinManager().getPins(user, page);
+	}
+
+	public void deletePin(Pin pin) {
+		managerBundle.getPinManager().deletePin(pin);
+	}
+
+	public void updatePin(Pin pin, String description, Double price, String link, Board board) {
+		managerBundle.getPinManager().updatePin(pin, description, price, link, board);
 	}
 
 }

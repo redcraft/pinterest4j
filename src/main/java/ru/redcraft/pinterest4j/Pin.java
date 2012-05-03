@@ -1,17 +1,16 @@
 package ru.redcraft.pinterest4j;
 
-import java.net.URL;
-
-
 public interface Pin {
 
 	public long getId();
 	
 	public String getDescription();
 	
-	public URL getLink();
+	public double getPrice();
 	
-	public URL getImageURL();
+	public String getLink();
+	
+	public String getImageURL();
 	
 	public Board getBoard();
 	

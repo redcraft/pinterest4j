@@ -1,32 +1,37 @@
 package ru.redcraft.pinterest4j.core;
 
 import java.io.File;
-import java.net.URL;
 
 public class NewPin {
 
 	private final String description;
-	private final URL link;
-	private final URL imageURL;
+	private final double price;
+	private final String link;
+	private final String imageURL;
 	private final File imageFile;
 	
-	public NewPin(String description, URL link,	URL imageURL, File imageFile) {
+	public NewPin(String description, double price, String link, String imageURL, File imageFile) {
 		super();
 		this.description = description;
 		this.link = link;
 		this.imageURL = imageURL;
 		this.imageFile = imageFile;
+		this.price = price;
 	}
 
 	public String getDescription() {
 		return description;
 	}
+	
+	public double getPrice() {
+		return price;
+	}
 
-	public URL getLink() {
+	public String getLink() {
 		return link;
 	}
 
-	public URL getImageURL() {
+	public String getImageURL() {
 		return imageURL;
 	}
 

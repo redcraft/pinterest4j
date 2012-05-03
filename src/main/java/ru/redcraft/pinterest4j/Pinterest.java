@@ -9,6 +9,8 @@ import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
 public interface Pinterest {
 
+	//Boards
+	
 	public List<Board> getBoardsForUser(User user);
 	
 	public List<Board> getBoards();
@@ -19,7 +21,27 @@ public interface Pinterest {
 	
 	public void deleteBoard(Board board);
 	
-	public Pin addPinToBoard(long boardID, NewPin newPin);
+	//Pin
+	
+	public Pin addPinToBoard(Board board, NewPin newPin);
+	
+	public List<Pin> getPins(Board board);
+	
+	public List<Pin> getPins(Board board, int page);
+	
+	public List<Pin> getPins(User user);
+	
+	public List<Pin> getPins(User user, int page);
+	
+	public List<Pin> getPins();
+	
+	public List<Pin> getPins(int page);
+	
+	public void deletePin(Pin pin);
+	
+	public void updatePin(Pin pin, String description, Double price, String link, Board board);
+	
+	//User
 	
 	public User getUserForName(String userName);
 }

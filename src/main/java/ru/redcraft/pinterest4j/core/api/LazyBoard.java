@@ -2,17 +2,22 @@ package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.core.BoardImpl;
 
 public class LazyBoard implements Board {
 
-	private final long id;
+	private long id = 0;
 	private final String url;
-	private final String title;
+	private String title;
 	private String description = null;
 	private BoardCategory category = null;
 	private final BoardAPI boardAPI;
 	private BoardImpl target = null;
 	
+	LazyBoard(String url, BoardAPI boardAPI) {
+		this.url = url;
+		this.boardAPI = boardAPI;
+	}
 	
 	LazyBoard(long id, String url, String title, BoardCategory category, BoardAPI boardAPI) {
 		super();
@@ -50,7 +55,12 @@ public class LazyBoard implements Board {
 	}
 	
 	public long getId() {
-		return id;
+		if(target == null && id != 0) {
+			return id;
+		}
+		else {
+			return getTarget().getId();
+		}
 	}
 
 	public String getURL() {
@@ -58,7 +68,12 @@ public class LazyBoard implements Board {
 	}
 
 	public String getTitle() {
-		return title;
+		if(target == null && title != null) {
+			return title;
+		}
+		else {
+			return getTarget().getTitle();
+		}
 	}
 
 	public String getDescription() {
@@ -93,8 +108,7 @@ public class LazyBoard implements Board {
 
 	@Override
 	public String toString() {
-		return "LazyBoard [id=" + id + ", url=" + url + ", title=" + title
-				+ "]";
+		return "LazyBoard [url=" + url + "]";
 	}
 
 }

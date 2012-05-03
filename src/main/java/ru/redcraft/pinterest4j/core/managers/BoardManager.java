@@ -17,7 +17,7 @@ public class BoardManager extends BaseManager {
 	}
 	
 	public List<Board> getBoards(User user) {
-		return apiManager.getBoardAPI().getBoards(user.getUserName());
+		return apiManager.getBoardAPI().getBoards(user);
 	}
 
 	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
