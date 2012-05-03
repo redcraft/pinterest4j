@@ -39,9 +39,10 @@ public interface Pinterest {
 	
 	public void deletePin(Pin pin);
 	
-	public void updatePin(Pin pin, String description, Double price, String link, Board board);
+	public Pin updatePin(Pin pin, String description, Double price, String link, Board board);
 	
 	//User
 	
 	public User getUserForName(String userName);
+	public User getUser();
 }

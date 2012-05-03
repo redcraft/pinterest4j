@@ -80,8 +80,12 @@ public class PinterestImpl implements Pinterest {
 		managerBundle.getPinManager().deletePin(pin);
 	}
 
-	public void updatePin(Pin pin, String description, Double price, String link, Board board) {
-		managerBundle.getPinManager().updatePin(pin, description, price, link, board);
+	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) {
+		return managerBundle.getPinManager().updatePin(pin, description, price, link, board);
+	}
+
+	public User getUser() {
+		return user;
 	}
 
 }

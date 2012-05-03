@@ -39,11 +39,11 @@ public class PinManager extends BaseManager {
 		apiManager.getPinAPI().deletePin(pin);
 	}
 
-	public void updatePin(Pin pin, String description, Double price, String link, Board board) {
+	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) {
 		String newDescription = (description != null) ? description : pin.getDescription();
 		double newPrice = (price != null) ? price : pin.getPrice();
 		String newLink = (link != null) ? link : pin.getLink();
 		Board newBoard = (board != null) ? board : pin.getBoard();
-		apiManager.getPinAPI().updatePin(pin, newDescription, newPrice, newLink, newBoard);
+		return apiManager.getPinAPI().updatePin(pin, newDescription, newPrice, newLink, newBoard);
 	}
 }

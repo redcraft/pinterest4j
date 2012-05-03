@@ -1,5 +1,7 @@
 package ru.redcraft.pinterest4j;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
@@ -12,6 +14,9 @@ public class PinterestTestBase {
 	protected TestUserInfo id1, idAutherror;
 	protected PinterestFactory pinterestFactory;
 	protected Pinterest pinterest1;
+	protected String imageLink;
+	protected File imageFile;
+	protected String webLink;
 	private static final String BUNDLE_NAME = "test";
 	private static final Logger log = Logger.getLogger(PinterestTestBase.class);
 	
@@ -46,6 +51,14 @@ public class PinterestTestBase {
 		id1 = getTestUserForPrefix(rb, "pinterest1");
 		idAutherror = getTestUserForPrefix(rb, "autherror");
 		pinterestFactory = new PinterestFactory();
+		imageLink = rb.getString("pin.image.link");
+		webLink = rb.getString("pin.link");
+		try {
+			imageFile = new File(ClassLoader.getSystemResource("pin_image.jpg").toURI());
+		} catch(URISyntaxException e) {
+			log.error("Can't load image file", e);
+			throw new RuntimeException(e);
+		}
 	}
 	
 	private TestUserInfo getTestUserForPrefix(ResourceBundle rb, String prefix) {

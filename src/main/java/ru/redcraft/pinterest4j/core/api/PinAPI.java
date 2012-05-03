@@ -63,6 +63,8 @@ public class PinAPI extends CoreAPI {
 			} catch(JSONException e) {
 				String msg = PIN_CREATION_ERROR + e.getMessage();
 				log.error(msg);
+				log.error("RESPONSE: " + response.getEntity(String.class));
+				log.error("STATUS: " + response.getStatus());
 				throw new PinterestRuntimeException(msg, e);
 			}
 		} else {
@@ -91,7 +93,6 @@ public class PinAPI extends CoreAPI {
 		else {
 			File imgFile = newPin.getImageFile();
 			String[] mimeInfo = new MimetypesFileTypeMap().getContentType(imgFile).split("/");
-			System.out.println(mimeInfo[0] + " " + mimeInfo[1]);
 			MediaType imageType = new MediaType(mimeInfo[0], mimeInfo[1]);
 			FormDataBodyPart f = new FormDataBodyPart(
 		                FormDataContentDisposition.name("img").fileName(imgFile.getName()).build(),
@@ -180,7 +181,7 @@ public class PinAPI extends CoreAPI {
 	}
 
 	public void deletePin(Pin pin) {
-		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/delete/").post(ClientResponse.class);
+		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/delete/").entity("{}").post(ClientResponse.class);
 		if(response.getStatus() != 200) {
 			log.error("ERROR status: " + response.getStatus());
 			log.error("ERROR message: " + response.getEntity(String.class));
