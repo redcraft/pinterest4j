@@ -15,5 +15,10 @@ public class LazyUser  implements User {
 	public String getUserName() {
 		return userName;
 	}
+
+	@Override
+	public String toString() {
+		return "LazyUser [userName=" + userName + "]";
+	}
 	
 }

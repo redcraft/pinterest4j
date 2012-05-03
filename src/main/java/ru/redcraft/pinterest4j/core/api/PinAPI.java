@@ -47,6 +47,7 @@ public class PinAPI extends CoreAPI {
 	}
 
 	public Pin addPinToBoard(Board board, NewPin newPin) {
+		log.debug("Creating new pin on board " + board + " with new pin: " + newPin);
 		board.getPinsCount(); // Magic. Pinterest boards are lazy initiated on creation
 		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), newPin);
 		ClientResponse response = getWR(Protocol.HTTP, "pin/create/").
@@ -72,6 +73,7 @@ public class PinAPI extends CoreAPI {
 			log.error("ERROR message: " + response.getEntity(String.class));
 			throw new PinterestRuntimeException(PIN_CREATION_ERROR + "bad server response");
 		}
+		log.debug("Pin created " + createdPin);
 		return createdPin;
 	}
 	
@@ -103,12 +105,12 @@ public class PinAPI extends CoreAPI {
 	}
 
 	public PinImpl getCompletePin(LazyPin lazyPin) {
+		log.debug("Getting all info for lazy pin " + lazyPin);
 		PinBuilder builder = new PinBuilder();
 		builder.setId(lazyPin.getId());
 		log.debug("Getting complete info for pin with id=" + Long.toString(lazyPin.getId()));
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + Long.toString(lazyPin.getId()) + "/", false).get(ClientResponse.class);
 		Document doc = Jsoup.parse(response.getEntity(String.class));
-		System.out.println(response.getStatus());
 		for(Element meta : doc.select("meta")) {
 			String propName = meta.attr("property");
 			String propContent = meta.attr("content");
@@ -129,6 +131,7 @@ public class PinAPI extends CoreAPI {
 	}
 	
 	public List<Pin> getPins(User user, int page) {
+		log.debug("Getting pin list for user " + user + " on page " + page);
 		List<Pin> pinList = new ArrayList<Pin>();
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/pins/?page=" + page).get(ClientResponse.class);
 		Document doc = Jsoup.parse(response.getEntity(String.class));
@@ -139,10 +142,12 @@ public class PinAPI extends CoreAPI {
 				pinList.add(new LazyPin(pinID, this));
 			}
 		}
+		log.debug("Collected pins: " + pinList.size());
 		return pinList;
 	}
 	
 	public List<Pin> getPins(User user) {
+		log.debug("Getting pin list for user " + user);
 		List<Pin> pinList = new ArrayList<Pin>();
 		List<Pin> pinPartialList = null;
 		boolean pinsLoaded = true;
@@ -151,10 +156,12 @@ public class PinAPI extends CoreAPI {
 			pinsLoaded = !pinPartialList.isEmpty();
 			pinList.addAll(pinPartialList);
 		}
+		log.debug("Collected pins: " + pinList.size());
 		return pinList;
 	}
 	
 	public List<Pin> getPins(Board board, int page) {
+		log.debug("Getting pin list for board " + board + " on page " + page);
 		List<Pin> pinList = new ArrayList<Pin>();
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "?page=" + page).get(ClientResponse.class);
 		Document doc = Jsoup.parse(response.getEntity(String.class));
@@ -165,10 +172,12 @@ public class PinAPI extends CoreAPI {
 				pinList.add(new LazyPin(pinID, this));
 			}
 		}
+		log.debug("Collected pins: " + pinList.size());
 		return pinList;
 	}
 	
 	public List<Pin> getPins(Board board) {
+		log.debug("Getting pin list for board " + board);
 		List<Pin> pinList = new ArrayList<Pin>();
 		List<Pin> pinPartialList = null;
 		boolean pinsLoaded = true;
@@ -177,19 +186,24 @@ public class PinAPI extends CoreAPI {
 			pinsLoaded = !pinPartialList.isEmpty();
 			pinList.addAll(pinPartialList);
 		}
+		log.debug("Collected pins: " + pinList.size());
 		return pinList;
 	}
 
 	public void deletePin(Pin pin) {
+		log.debug("Deleting pin " + pin);
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/delete/").entity("{}").post(ClientResponse.class);
 		if(response.getStatus() != 200) {
 			log.error("ERROR status: " + response.getStatus());
 			log.error("ERROR message: " + response.getEntity(String.class));
 			throw new PinterestRuntimeException(PIN_DELETION_ERROR + "bad server response");
 		}
+		log.debug("Pin deleted");
 	}
 
 	public Pin updatePin(Pin pin, String description, double price, String link, Board board) {
+		log.debug(String.format("Updating pin=%s with desc=%s, price=%f, link = %s, board=%s",
+				pin, description, price, link, board));
 		NewPin newPin = new NewPin(description, price, link, "", null);
 		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), newPin);
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/edit/").
@@ -199,7 +213,9 @@ public class PinAPI extends CoreAPI {
 			log.error("ERROR message: " + response.getEntity(String.class));
 			throw new PinterestRuntimeException(PIN_UPDATE_ERROR + "bad server response");
 		}
-		return new LazyPin(pin.getId(), this);
+		Pin updatedPin = new LazyPin(pin.getId(), this);
+		log.debug("Pin updated");
+		return updatedPin;
 	}
 	
 

@@ -6,6 +6,8 @@ import java.util.Map;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 
+import org.apache.log4j.Logger;
+
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -22,25 +24,22 @@ public final class AuthAPI extends CoreAPI {
 	private static final String LOGIN_FORM_PASSWORD_FIELD = "password";
 	private static final String LOGIN_FORM_CSRF_FIELD = "csrfmiddlewaretoken";
 	
+	private static final Logger log = Logger.getLogger(AuthAPI.class);
+	
 	private AuthAPI() {
 		super(null, null);
-	}
-	
-	public static AuthAPI getAuthAPI() {
-		return authAPI;
 	}
 	
 	public static PinterestAccessToken authenticate(String login, String password) throws PinterestAuthException {
 		return authAPI.getAccessToken(login, password);
 	}
 	
-	public static PinterestAccessToken authenticate(PinterestAccessToken accessToken) throws PinterestAuthException {
-		return authAPI.getAccessToken(accessToken.getLogin(), accessToken.getPassword());
-	}
-	
 	public PinterestAccessToken getAccessToken(String login, String password) throws PinterestAuthException {
+		log.debug("Creating AccessToken for login = " + login);
+		
 		ClientResponse responClient = getWR(Protocol.HTTPS, "login/").get(ClientResponse.class);
 		Cookie csrfToken = getCookieMap(responClient).get(CSRF_TOKEN_COOKIE);
+		log.debug("CSRF cookie value = " + csrfToken.getValue());
 		
 		Form loginForm = getLoginForm(login, password, csrfToken);
 		responClient = getWR(Protocol.HTTPS, "login/").cookie(csrfToken).post(ClientResponse.class, loginForm);
@@ -48,8 +47,12 @@ public final class AuthAPI extends CoreAPI {
 			throw new PinterestAuthException();
 		}
 		Cookie sessionToken = getCookieMap(responClient).get(SESSION_COOKIE);
+		log.debug("SESSION cookie value = " + sessionToken.getValue());
 		
-		return new PinterestAccessToken(login, password, csrfToken, sessionToken);
+		PinterestAccessToken accessToken = new PinterestAccessToken(login, password, csrfToken, sessionToken);
+		log.debug("ACCESS TOKEN: " + accessToken);
+		
+		return accessToken;
 	}
 	
 	private static Map<String, Cookie> getCookieMap(ClientResponse responClient) {

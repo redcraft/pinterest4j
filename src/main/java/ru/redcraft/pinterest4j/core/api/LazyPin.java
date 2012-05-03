@@ -46,4 +46,9 @@ public class LazyPin implements Pin {
 		return getTarget().getPrice();
 	}
 
+	@Override
+	public String toString() {
+		return "LazyPin [id=" + id + "]";
+	}
+	
 }

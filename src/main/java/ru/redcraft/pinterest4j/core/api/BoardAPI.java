@@ -42,7 +42,7 @@ public final class BoardAPI extends CoreAPI {
 	}
 	
 	public List<Board> getBoards(User user) {
-		log.debug("Parsing boards for token: " + accessToken);
+		log.debug("Collecting board list for user = " + user);
 		List<Board> boardList = new ArrayList<Board>();
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/").get(ClientResponse.class);
 		Document doc = Jsoup.parse(response.getEntity(String.class));
@@ -53,8 +53,8 @@ public final class BoardAPI extends CoreAPI {
 			String name = htmlBoard.select("h3.serif").first().select("a").text();
 			LazyBoard board = new LazyBoard(id, url, name, this);
 			boardList.add(board);
-			log.debug("Parsed board: " + board);
 		}
+		log.debug("Board count = " + boardList.size());
 		return boardList;
 	}
 	
@@ -67,7 +67,7 @@ public final class BoardAPI extends CoreAPI {
 	}
 
 	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
-		log.debug("Creating board for token: " + accessToken);
+		log.debug("Creating board for user = " + accessToken.getLogin() + "using info: " + newBoard);
 		LazyBoard createdBoard = null;
 		Form newBoardForm = createNewBoardForm(newBoard);
 		ClientResponse response = getWR(Protocol.HTTP, "board/create/").post(ClientResponse.class, newBoardForm);
@@ -93,6 +93,7 @@ public final class BoardAPI extends CoreAPI {
 			log.error("ERROR message: " + response.getEntity(String.class));
 			throw new PinterestRuntimeException(BOARD_CREATION_ERROR + "bad server response");
 		}
+		log.debug("Board created " + createdBoard);
 		return createdBoard;
 	}
 	
@@ -105,6 +106,7 @@ public final class BoardAPI extends CoreAPI {
 	}
 	
 	public BoardImpl getCompleteBoard(LazyBoard board) {
+		log.debug("Getting all info for lazy board " + board);
 		BoardBuilder builder = new BoardBuilder();
 		builder.setURL(board.getURL());
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
@@ -137,12 +139,14 @@ public final class BoardAPI extends CoreAPI {
 	}
 
 	public void deleteBoard(Board board) {
+		log.debug("Deleting board " + board);
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").delete(ClientResponse.class);
 		if(response.getStatus() != 200) {
 			log.error("ERROR status: " + response.getStatus());
 			log.error("ERROR message: " + response.getEntity(String.class));
 			throw new PinterestRuntimeException(BOARD_DELETION_ERROR + "bad server response");
 		}
+		log.debug("Board deleted");
 	}
 
 	private Form createUpdateBoardForm(String title, String description, BoardCategory category) {
@@ -158,6 +162,8 @@ public final class BoardAPI extends CoreAPI {
 	}
 	
 	public Board updateBoardInfo(Board board, String title, String description, BoardCategory category) {
+		log.debug(String.format("Updating board with uri = %s with title=%s, desc=%s, cat=%s",
+				board.getURL(), title, description, category));
 		Form updateBoardForm = createUpdateBoardForm(title, description, category);
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").post(ClientResponse.class, updateBoardForm);
 		if(response.getStatus() != 200) {
@@ -165,7 +171,9 @@ public final class BoardAPI extends CoreAPI {
 			log.error("ERROR message: " + response.getEntity(String.class));
 			throw new PinterestRuntimeException(BOARD_UPDATE_ERROR + "bad server response");
 		}
-		return new LazyBoard(board.getId(), createLink(title, accessToken.getLogin()), title, description, category, this);
+		Board updatedBoard = new LazyBoard(board.getId(), createLink(title, accessToken.getLogin()), title, description, category, this);
+		log.debug("Board updated");
+		return updatedBoard;
 	}
 	
 }

@@ -35,9 +35,8 @@ public class PinterestAccessToken {
 	
 	@Override
 	public String toString() {
-		return "PinterestAccessToken [login=" + login + ", password="
-				+ password + ", csrfToken=" + csrfToken + ", sessionToken="
-				+ sessionToken + "]";
+		return "PinterestAccessToken [login=" + login + ", csrfToken=" +
+				csrfToken + ", sessionToken=" + sessionToken + "]";
 	}
 
 	public String generateCookieHeader() {

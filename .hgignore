@@ -5,3 +5,5 @@ syntax: regexp
 ^src/main/java/ru/redcraft/pinterest/DevTest\.java$
 syntax: regexp
 ^src/test/resources/test\.properties$
+syntax: regexp
+^src/test/java/ru/redcraft/pinterest4j/DevTest\.java$

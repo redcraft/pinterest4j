@@ -39,4 +39,11 @@ public class NewPin {
 		return imageFile;
 	}
 
+	@Override
+	public String toString() {
+		return "NewPin [description=" + description + ", price=" + price
+				+ ", link=" + link + ", imageURL=" + imageURL + ", imageFile="
+				+ imageFile + "]";
+	}
+	
 }
