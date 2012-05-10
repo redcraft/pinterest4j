@@ -48,11 +48,14 @@ public final class BoardAPI extends CoreAPI {
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlBoards = doc.select(".pinBoard");
 		for(Element htmlBoard : htmlBoards) {
-			long id = Long.valueOf(htmlBoard.attr("id").replace("board", ""));
-			String url = htmlBoard.select("a.link").first().attr("href");
-			String name = htmlBoard.select("h3.serif").first().select("a").text();
-			LazyBoard board = new LazyBoard(id, url, name, this);
-			boardList.add(board);
+			if(htmlBoard.hasAttr("id")) {
+				String stringID = htmlBoard.attr("id").replace("board", "");
+				long id = Long.valueOf(stringID);
+				String url = htmlBoard.select("a.link").first().attr("href");
+				String name = htmlBoard.select("h3.serif").first().select("a").text();
+				LazyBoard board = new LazyBoard(id, url, name, this);
+				boardList.add(board);
+			}
 		}
 		log.debug("Board count = " + boardList.size());
 		return boardList;
