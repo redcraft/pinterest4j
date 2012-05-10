@@ -14,6 +14,7 @@ public class BoardCategoryImpl implements BoardCategory {
 	public static final BoardCategory CARS_AND_MOTORCYCLES = new BoardCategoryImpl("cars_motorcycles", "Cars & Motorcycles");
 	public static final BoardCategory DESIGN = new BoardCategoryImpl("design", "Design");
 	public static final BoardCategory DIY_AND_CRAFT = new BoardCategoryImpl("diy_crafts", "DIY & Craft");
+	public static final BoardCategory MENS_APPAREL = new BoardCategoryImpl("men_apparel", "Men's Apparel");
 	public static final BoardCategory OTHER = new BoardCategoryImpl("other", "Other");
 	
 	private static Map<String, BoardCategory> categories = new HashMap<String, BoardCategory>();
