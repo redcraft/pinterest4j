@@ -21,6 +21,7 @@ import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.core.PinBuilder;
 import ru.redcraft.pinterest4j.core.PinImpl;
+import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -46,8 +47,15 @@ public class PinAPI extends CoreAPI {
 		super(accessToken, apiManager);
 	}
 
-	public Pin addPinToBoard(Board board, NewPin newPin) {
+	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException {
 		log.debug("Creating new pin on board " + board + " with new pin: " + newPin);
+		int descLength = newPin.getDescription().length();
+		if(descLength == 0) {
+			throw new PinMessageSizeException(PinMessageSizeException.MSG_ZERO_SIZE);
+		}
+		if(descLength > 500) {
+			throw new PinMessageSizeException(PinMessageSizeException.MSG_TOO_LONG);
+		}
 		board.getPinsCount(); // Magic. Pinterest boards are lazy initiated on creation
 		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), newPin);
 		ClientResponse response = getWR(Protocol.HTTP, "pin/create/").
@@ -201,9 +209,16 @@ public class PinAPI extends CoreAPI {
 		log.debug("Pin deleted");
 	}
 
-	public Pin updatePin(Pin pin, String description, double price, String link, Board board) {
+	public Pin updatePin(Pin pin, String description, double price, String link, Board board) throws PinMessageSizeException {
 		log.debug(String.format("Updating pin=%s with desc=%s, price=%f, link = %s, board=%s",
 				pin, description, price, link, board));
+		int descLength = description.length();
+		if(descLength == 0) {
+			throw new PinMessageSizeException(PinMessageSizeException.MSG_ZERO_SIZE);
+		}
+		if(descLength > 500) {
+			throw new PinMessageSizeException(PinMessageSizeException.MSG_TOO_LONG);
+		}
 		NewPin newPin = new NewPin(description, price, link, "", null);
 		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), newPin);
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/edit/").

@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.core.NewPin;
+import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
@@ -33,7 +34,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void getPinsTest() {
+	public void getPinsTest() throws PinMessageSizeException {
 		int pinsCount = 10;
 		String newDescription = UUID.randomUUID().toString();
 		NewPin newPin = new NewPin(newDescription, 0, webLink, null, imageFile);
@@ -47,7 +48,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void pinLifeCircleTest() throws InterruptedException {
+	public void pinLifeCircleTest() throws InterruptedException, PinMessageSizeException {
 		
 		//Create
 		
@@ -94,5 +95,28 @@ public class PinMethodsTest extends PinterestTestBase {
 		}
 		assertTrue("Pin does not deleted", pinDeleted);
 		
+	}
+	
+	@Test(expected=PinMessageSizeException.class)
+	public void pinDescriptionTooLongTest() throws PinMessageSizeException {
+		String newDescription = "ssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+				"sssssssssssssssssssssssssss";
+		double newPrice = 10;
+		NewPin newPin = new NewPin(newDescription, newPrice, webLink, imageLink, null);
+		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
+	}
+	
+	@Test(expected=PinMessageSizeException.class)
+	public void pinDescriptionZeroSizeTest() throws PinMessageSizeException {
+		String newDescription = "";
+		double newPrice = 10;
+		NewPin newPin = new NewPin(newDescription, newPrice, webLink, imageLink, null);
+		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
 	}
 }

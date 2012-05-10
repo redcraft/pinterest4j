@@ -9,6 +9,7 @@ import ru.redcraft.pinterest4j.Pinterest;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
 import ru.redcraft.pinterest4j.core.managers.ManagerBundle;
+import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
@@ -23,7 +24,7 @@ public class PinterestImpl implements Pinterest {
 		this.user = getUserForName(login);
 	}
 
-	public Pin addPinToBoard(Board board, NewPin newPin) {
+	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException {
 		return managerBundle.getPinManager().addPinToBoard(board, newPin);
 	}
 
@@ -80,7 +81,7 @@ public class PinterestImpl implements Pinterest {
 		managerBundle.getPinManager().deletePin(pin);
 	}
 
-	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) {
+	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException {
 		return managerBundle.getPinManager().updatePin(pin, description, price, link, board);
 	}
 

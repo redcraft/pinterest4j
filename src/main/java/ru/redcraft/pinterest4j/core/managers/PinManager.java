@@ -7,6 +7,7 @@ import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
+import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 
 public class PinManager extends BaseManager {
 
@@ -14,7 +15,7 @@ public class PinManager extends BaseManager {
 		super(internalAPI);
 	}
 
-	public Pin addPinToBoard(Board board, NewPin newPin) {
+	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException {
 		Pin pin = apiManager.getPinAPI().addPinToBoard(board, newPin);
 		return pin;
 	}
@@ -39,7 +40,7 @@ public class PinManager extends BaseManager {
 		apiManager.getPinAPI().deletePin(pin);
 	}
 
-	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) {
+	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException {
 		String newDescription = (description != null) ? description : pin.getDescription();
 		double newPrice = (price != null) ? price : pin.getPrice();
 		String newLink = (link != null) ? link : pin.getLink();

@@ -4,6 +4,7 @@ import java.util.List;
 
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.core.NewPin;
+import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
 
@@ -23,7 +24,7 @@ public interface Pinterest {
 	
 	//Pin
 	
-	public Pin addPinToBoard(Board board, NewPin newPin);
+	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException;
 	
 	public List<Pin> getPins(Board board);
 	
@@ -39,7 +40,7 @@ public interface Pinterest {
 	
 	public void deletePin(Pin pin);
 	
-	public Pin updatePin(Pin pin, String description, Double price, String link, Board board);
+	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException;
 	
 	//User
 	
