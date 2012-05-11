@@ -178,5 +178,9 @@ public final class BoardAPI extends CoreAPI {
 		log.debug("Board updated");
 		return updatedBoard;
 	}
+
+	public Board getBoardByURL(String url) {
+		return new LazyBoard(url, this);
+	}
 	
 }

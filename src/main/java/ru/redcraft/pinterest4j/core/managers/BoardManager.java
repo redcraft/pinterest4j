@@ -36,4 +36,8 @@ public class BoardManager extends BaseManager {
 		Board newBoard = apiManager.getBoardAPI().updateBoardInfo(board, newTitle, newDescription, newCategory);
 		return newBoard;
 	}
+
+	public Board getBoardByURL(String url) {
+		return apiManager.getBoardAPI().getBoardByURL(url);
+	}
 }

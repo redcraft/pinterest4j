@@ -24,6 +24,10 @@ public class PinterestImpl implements Pinterest {
 		this.user = getUserForName(login);
 	}
 
+	public Board getBoardByURL(String url) {
+		return managerBundle.getBoardManager().getBoardByURL(url);
+	}
+	
 	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException {
 		return managerBundle.getPinManager().addPinToBoard(board, newPin);
 	}

@@ -12,6 +12,8 @@ public interface Pinterest {
 
 	//Boards
 	
+	public Board getBoardByURL(String url);
+	
 	public List<Board> getBoardsForUser(User user);
 	
 	public List<Board> getBoards();
