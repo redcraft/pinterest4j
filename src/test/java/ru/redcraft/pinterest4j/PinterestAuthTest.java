@@ -8,11 +8,11 @@ public class PinterestAuthTest extends PinterestTestBase {
 
 	@Test
 	public void authSuccessTest() throws PinterestAuthException {
-		pinterestFactory.getInstance(id1.getLogin(), id1.getPassword());
+		PinterestFactory.getInstance(id1.getLogin(), id1.getPassword());
 	}
 	
 	@Test(expected=PinterestAuthException.class)
 	public void authFailerTest() throws PinterestAuthException {
-		pinterestFactory.getInstance(idAutherror.getLogin(), idAutherror.getPassword());
+		PinterestFactory.getInstance(idAutherror.getLogin(), idAutherror.getPassword());
 	}
 }

@@ -15,39 +15,45 @@ public class PinBuilder implements Pin {
 	public long getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public PinBuilder setId(long id) {
 		this.id = id;
+		return this;
 	}
 	public String getDescription() {
 		return description;
 	}
-	public void setDescription(String description) {
+	public PinBuilder setDescription(String description) {
 		this.description = description;
+		return this;
 	}
 	
 	public double getPrice() {
 		return price;
 	}
-	public void setPrice(double price) {
+	public PinBuilder setPrice(double price) {
 		this.price = price;
+		return this;
 	}
 	public String getLink() {
 		return link;
 	}
-	public void setLink(String link) {
+	public PinBuilder setLink(String link) {
 		this.link = link;
+		return this;
 	}
 	public String getImageURL() {
 		return imageURL;
 	}
-	public void setImageURL(String imageURL) {
+	public PinBuilder setImageURL(String imageURL) {
 		this.imageURL = imageURL;
+		return this;
 	}
 	public Board getBoard() {
 		return board;
 	}
-	public void setBoard(Board board) {
+	public PinBuilder setBoard(Board board) {
 		this.board = board;
+		return this;
 	}
 	
 	public PinImpl build() {

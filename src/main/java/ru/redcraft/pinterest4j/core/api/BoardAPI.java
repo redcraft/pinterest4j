@@ -33,6 +33,7 @@ public final class BoardAPI extends CoreAPI {
 	private static final String BOARD_FOLLOWERS_PROP_NAME = "pinterestapp:followers";
 	
 	private static final Logger log = Logger.getLogger(BoardAPI.class);
+	private static final String BOARDS_OBTAINING_ERROR = "PINBOARDS OBTAINING ERROR: ";
 	private static final String BOARD_CREATION_ERROR = "PINBOARD CREATION ERROR: ";
 	private static final String BOARD_DELETION_ERROR = "PINBOARD DELETION ERROR: ";
 	private static final String BOARD_UPDATE_ERROR = "PINBOARD UPDATE ERROR: ";
@@ -45,17 +46,25 @@ public final class BoardAPI extends CoreAPI {
 		log.debug("Collecting board list for user = " + user);
 		List<Board> boardList = new ArrayList<Board>();
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/").get(ClientResponse.class);
-		Document doc = Jsoup.parse(response.getEntity(String.class));
-		Elements htmlBoards = doc.select(".pinBoard");
-		for(Element htmlBoard : htmlBoards) {
-			if(htmlBoard.hasAttr("id")) {
-				String stringID = htmlBoard.attr("id").replace("board", "");
-				long id = Long.valueOf(stringID);
-				String url = htmlBoard.select("a.link").first().attr("href");
-				String name = htmlBoard.select("h3.serif").first().select("a").text();
-				LazyBoard board = new LazyBoard(id, url, name, this);
-				boardList.add(board);
+		if(response.getStatus() == 200) {
+			Document doc = Jsoup.parse(response.getEntity(String.class));
+			Elements htmlBoards = doc.select(".pinBoard");
+			for(Element htmlBoard : htmlBoards) {
+				if(htmlBoard.hasAttr("id")) {
+					String stringID = htmlBoard.attr("id").replace("board", "");
+					long id = Long.valueOf(stringID);
+					String url = htmlBoard.select("a.link").first().attr("href");
+					String name = htmlBoard.select("h3.serif").first().select("a").text();
+					LazyBoard board = new LazyBoard(id, url, name, this);
+					boardList.add(board);
+				}
 			}
+		}
+		else {
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class),
+					BOARDS_OBTAINING_ERROR + "can't get boars list");
 		}
 		log.debug("Board count = " + boardList.size());
 		return boardList;
@@ -87,14 +96,14 @@ public final class BoardAPI extends CoreAPI {
 				}
 				createdBoard = new LazyBoard(jResponse.getLong("id"), jResponse.getString("url"), jResponse.getString("name"), newBoard.getCategory(), this);
 			} catch(JSONException e) {
-				String msg = BOARD_CREATION_ERROR + e.getMessage();
-				log.error(msg);
+				String msg = BOARD_CREATION_ERROR + e.getMessage() + response.getEntity(String.class);
 				throw new PinterestRuntimeException(msg, e);
 			}
 		} else {
-			log.error("ERROR status: " + response.getStatus());
-			log.error("ERROR message: " + response.getEntity(String.class));
-			throw new PinterestRuntimeException(BOARD_CREATION_ERROR + "bad server response");
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class), 
+					BOARD_CREATION_ERROR + "bad server response");
 		}
 		log.debug("Board created " + createdBoard);
 		return createdBoard;
@@ -180,7 +189,7 @@ public final class BoardAPI extends CoreAPI {
 	}
 
 	public Board getBoardByURL(String url) {
-		return new LazyBoard(url, this);
+		return getCompleteBoard(new LazyBoard(url, this));
 	}
 	
 }

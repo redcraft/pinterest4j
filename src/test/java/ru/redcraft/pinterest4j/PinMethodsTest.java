@@ -66,6 +66,7 @@ public class PinMethodsTest extends PinterestTestBase {
 			}
 		}
 		assertTrue("Pin does not created", pinCreated);
+		assertTrue("Image URL is not correct", createdPin.getImageURL().length() > 0);
 		
 		//Update
 		
@@ -109,7 +110,7 @@ public class PinMethodsTest extends PinterestTestBase {
 				"sssssssssssssssssssssssssss";
 		double newPrice = 10;
 		NewPin newPin = new NewPin(newDescription, newPrice, webLink, imageLink, null);
-		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
+		pinterest1.addPinToBoard(board1, newPin);
 	}
 	
 	@Test(expected=PinMessageSizeException.class)
@@ -117,6 +118,6 @@ public class PinMethodsTest extends PinterestTestBase {
 		String newDescription = "";
 		double newPrice = 10;
 		NewPin newPin = new NewPin(newDescription, newPrice, webLink, imageLink, null);
-		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
+		pinterest1.addPinToBoard(board1, newPin);
 	}
 }

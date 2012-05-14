@@ -36,7 +36,7 @@ public class LazyBoard implements Board {
 		this.boardAPI = boardAPI;
 	}
 	
-	public LazyBoard(long id, String url, String title, String description,
+	LazyBoard(long id, String url, String title, String description,
 			BoardCategory category, BoardAPI boardAPI) {
 		super();
 		this.id = id;
