@@ -47,4 +47,8 @@ public class PinManager extends BaseManager {
 		Board newBoard = (board != null) ? board : pin.getBoard();
 		return apiManager.getPinAPI().updatePin(pin, newDescription, newPrice, newLink, newBoard);
 	}
+
+	public Pin getPinByID(long id) {
+		return apiManager.getPinAPI().getPinByID(id);
+	}
 }

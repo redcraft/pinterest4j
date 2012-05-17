@@ -44,6 +44,8 @@ public interface Pinterest {
 	
 	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException;
 	
+	public Pin getPinByID(long id);
+	
 	//User
 	
 	public User getUserForName(String userName);

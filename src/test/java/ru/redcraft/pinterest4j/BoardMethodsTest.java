@@ -6,12 +6,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
+import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 public class BoardMethodsTest extends PinterestTestBase {
@@ -98,22 +98,9 @@ public class BoardMethodsTest extends PinterestTestBase {
 		pinterest1.getBoardsForUser(nonexistentUser);
 	}
 	
-	@Ignore
-	@Test
-	public void boardErrorExceptionTest() {
-		String newTitle = UUID.randomUUID().toString();
-		BoardCategory newCategory = new BoardCategoryImpl("some_id", "some_name");
-		NewBoard newBoard = new NewBoard(newTitle, newCategory);
-		Board createdBoard = null;
-		boolean exceptionRised = false;
-		try {
-			createdBoard = pinterest1.createBoard(newBoard);
-			pinterest1.createBoard(newBoard);
-		} catch(PinterestBoardExistException e) {
-			exceptionRised = true;
-			pinterest1.deleteBoard(createdBoard);
-		}
-		assertTrue("No exception rised", exceptionRised);
+	@Test(expected=PinterestBoardNotFoundException.class)
+	public void getUnexistentBoardTest() {
+		pinterest1.getBoardByURL(UUID.randomUUID().toString());
 	}
 	
 }

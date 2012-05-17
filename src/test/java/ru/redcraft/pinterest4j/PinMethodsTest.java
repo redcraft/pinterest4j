@@ -13,6 +13,7 @@ import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
+import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
 
 public class PinMethodsTest extends PinterestTestBase {
 
@@ -35,7 +36,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void getPinsTest() throws PinMessageSizeException {
-		int pinsCount = 10;
+		int pinsCount = 3;
 		String newDescription = UUID.randomUUID().toString();
 		NewPin newPin = new NewPin(newDescription, 0, webLink, null, imageFile);
 		for(int i = 0; i < pinsCount; ++i) {
@@ -119,5 +120,10 @@ public class PinMethodsTest extends PinterestTestBase {
 		double newPrice = 10;
 		NewPin newPin = new NewPin(newDescription, newPrice, webLink, imageLink, null);
 		pinterest1.addPinToBoard(board1, newPin);
+	}
+	
+	@Test(expected=PinterestPinNotFoundException.class)
+	public void pinNotFoundExceptoinTest() {
+		pinterest1.getPinByID(13);
 	}
 }

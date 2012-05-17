@@ -19,6 +19,7 @@ import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
 import ru.redcraft.pinterest4j.core.BoardImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
+import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -122,30 +123,42 @@ public final class BoardAPI extends CoreAPI {
 		BoardBuilder builder = new BoardBuilder();
 		builder.setURL(board.getURL());
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
-		Document doc = Jsoup.parse(response.getEntity(String.class));
 		
-		for(Element meta : doc.select("meta")) {
-			String propName = meta.attr("property");
-			String propContent = meta.attr("content");
-			if(propName.equals(BOARD_DESCRIPTION_PROP_NAME)) {
-				builder.setDescription(propContent);
-			} else if(propName.equals(BOARD_CATEGORY_PROP_NAME)) {
-				builder.setCategory(BoardCategoryImpl.getInstanceById(propContent));
-			} else if(propName.equals(BOARD_PINS_PROP_NAME)) {
-				builder.setPinsCount(Integer.valueOf(propContent));
-			} else if(propName.equals(BOARD_FOLLOWERS_PROP_NAME)) {
-				builder.setFollowersCount(Integer.valueOf(propContent));
-			} else if(propName.equals(BOARD_TITLE_PROP_NAME)) {
-				builder.setTitle(propContent);
+		if(response.getStatus() == 200) {
+			Document doc = Jsoup.parse(response.getEntity(String.class));
+			
+			for(Element meta : doc.select("meta")) {
+				String propName = meta.attr("property");
+				String propContent = meta.attr("content");
+				if(propName.equals(BOARD_DESCRIPTION_PROP_NAME)) {
+					builder.setDescription(propContent);
+				} else if(propName.equals(BOARD_CATEGORY_PROP_NAME)) {
+					builder.setCategory(BoardCategoryImpl.getInstanceById(propContent));
+				} else if(propName.equals(BOARD_PINS_PROP_NAME)) {
+					builder.setPinsCount(Integer.valueOf(propContent));
+				} else if(propName.equals(BOARD_FOLLOWERS_PROP_NAME)) {
+					builder.setFollowersCount(Integer.valueOf(propContent));
+				} else if(propName.equals(BOARD_TITLE_PROP_NAME)) {
+					builder.setTitle(propContent);
+				}
 			}
-		}
-		for(Element meta : doc.select("div.BoardList").first().select("li")) {
-			if(meta.child(0).text().equals(builder.getTitle())) {
-				builder.setId(Long.valueOf(meta.attr("data")));
-				break;
+			for(Element meta : doc.select("div.BoardList").first().select("li")) {
+				if(meta.child(0).text().equals(builder.getTitle())) {
+					builder.setId(Long.valueOf(meta.attr("data")));
+					break;
+				}
 			}
+			builder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
 		}
-		builder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
+		else if(response.getStatus() == 404) {
+			throw new PinterestBoardNotFoundException(board);
+		}
+		else {
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class), 
+					BOARDS_OBTAINING_ERROR + "bad server response");
+		}
 		
 		return builder.build();
 	}
@@ -154,9 +167,10 @@ public final class BoardAPI extends CoreAPI {
 		log.debug("Deleting board " + board);
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").delete(ClientResponse.class);
 		if(response.getStatus() != 200) {
-			log.error("ERROR status: " + response.getStatus());
-			log.error("ERROR message: " + response.getEntity(String.class));
-			throw new PinterestRuntimeException(BOARD_DELETION_ERROR + "bad server response");
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class), 
+					BOARD_DELETION_ERROR + "bad server response");
 		}
 		log.debug("Board deleted");
 	}
@@ -179,9 +193,10 @@ public final class BoardAPI extends CoreAPI {
 		Form updateBoardForm = createUpdateBoardForm(title, description, category);
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").post(ClientResponse.class, updateBoardForm);
 		if(response.getStatus() != 200) {
-			log.error("ERROR status: " + response.getStatus());
-			log.error("ERROR message: " + response.getEntity(String.class));
-			throw new PinterestRuntimeException(BOARD_UPDATE_ERROR + "bad server response");
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class), 
+					BOARD_UPDATE_ERROR + "bad server response");
 		}
 		Board updatedBoard = new LazyBoard(board.getId(), createLink(title, accessToken.getLogin()), title, description, category, this);
 		log.debug("Board updated");

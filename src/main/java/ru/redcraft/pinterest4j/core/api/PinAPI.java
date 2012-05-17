@@ -22,6 +22,7 @@ import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.core.PinBuilder;
 import ru.redcraft.pinterest4j.core.PinImpl;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
+import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -42,6 +43,7 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_CREATION_ERROR = "PIN CREATION ERROR: ";
 	private static final String PIN_DELETION_ERROR = "PIN DELETION ERROR: ";
 	private static final String PIN_UPDATE_ERROR = "PIN UPDATE ERROR: ";
+	private static final String PINS_OBTAINING_ERROR = "PIN OBTAIN ERROR: ";
 	
 	public PinAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
@@ -71,15 +73,16 @@ public class PinAPI extends CoreAPI {
 				createdPin = new LazyPin(id, this);
 			} catch(JSONException e) {
 				String msg = PIN_CREATION_ERROR + e.getMessage();
-				log.error(msg);
-				log.error("RESPONSE: " + response.getEntity(String.class));
-				log.error("STATUS: " + response.getStatus());
-				throw new PinterestRuntimeException(msg, e);
+				throw new PinterestRuntimeException(
+						response.getStatus(), 
+						response.getEntity(String.class),
+						msg, e);
 			}
 		} else {
-			log.error("ERROR status: " + response.getStatus());
-			log.error("ERROR message: " + response.getEntity(String.class));
-			throw new PinterestRuntimeException(PIN_CREATION_ERROR + "bad server response");
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class),
+					PIN_CREATION_ERROR + "bad server response");
 		}
 		log.debug("Pin created " + createdPin);
 		return createdPin;
@@ -118,21 +121,33 @@ public class PinAPI extends CoreAPI {
 		builder.setId(lazyPin.getId());
 		log.debug("Getting complete info for pin with id=" + Long.toString(lazyPin.getId()));
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + Long.toString(lazyPin.getId()) + "/", false).get(ClientResponse.class);
-		Document doc = Jsoup.parse(response.getEntity(String.class));
-		for(Element meta : doc.select("meta")) {
-			String propName = meta.attr("property");
-			String propContent = meta.attr("content");
-			if(propName.equals(PIN_DESCRIPTION_PROP_NAME)) {
-				builder.setDescription(propContent);
-			} else if(propName.equals(PIN_IMAGE_PROP_NAME)) {
-				builder.setImageURL(propContent);
-			} else if(propName.equals(PIN_LINK_PROP_NAME)) {
-				builder.setLink(propContent);
-			} else if(propName.equals(PIN_PRICE_PROP_NAME)) {
-				builder.setPrice(Double.valueOf(propContent));
-			} else if(propName.equals(PIN_PINBOARD_PROP_NAME)) {
-				builder.setBoard(new LazyBoard(propContent.replace("http://pinterest.com", ""), apiManager.getBoardAPI()));
+		
+		if(response.getStatus() == 200) {
+			Document doc = Jsoup.parse(response.getEntity(String.class));
+			for(Element meta : doc.select("meta")) {
+				String propName = meta.attr("property");
+				String propContent = meta.attr("content");
+				if(propName.equals(PIN_DESCRIPTION_PROP_NAME)) {
+					builder.setDescription(propContent);
+				} else if(propName.equals(PIN_IMAGE_PROP_NAME)) {
+					builder.setImageURL(propContent);
+				} else if(propName.equals(PIN_LINK_PROP_NAME)) {
+					builder.setLink(propContent);
+				} else if(propName.equals(PIN_PRICE_PROP_NAME)) {
+					builder.setPrice(Double.valueOf(propContent));
+				} else if(propName.equals(PIN_PINBOARD_PROP_NAME)) {
+					builder.setBoard(new LazyBoard(propContent.replace("http://pinterest.com", ""), apiManager.getBoardAPI()));
+				}
 			}
+		}
+		else if(response.getStatus() == 404) {
+			throw new PinterestPinNotFoundException(lazyPin);
+		}
+		else {
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class),
+					PINS_OBTAINING_ERROR + "bad server response");
 		}
 		
 		return builder.build();
@@ -142,6 +157,7 @@ public class PinAPI extends CoreAPI {
 		log.debug("Getting pin list for user " + user + " on page " + page);
 		List<Pin> pinList = new ArrayList<Pin>();
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/pins/?page=" + page).get(ClientResponse.class);
+		
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlPins = doc.select("div.pin");
 		for(Element htmlPin : htmlPins) {
@@ -150,6 +166,7 @@ public class PinAPI extends CoreAPI {
 				pinList.add(new LazyPin(pinID, this));
 			}
 		}
+		
 		log.debug("Collected pins: " + pinList.size());
 		return pinList;
 	}
@@ -172,6 +189,7 @@ public class PinAPI extends CoreAPI {
 		log.debug("Getting pin list for board " + board + " on page " + page);
 		List<Pin> pinList = new ArrayList<Pin>();
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "?page=" + page).get(ClientResponse.class);
+		
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlPins = doc.select("div.pin");
 		for(Element htmlPin : htmlPins) {
@@ -180,6 +198,7 @@ public class PinAPI extends CoreAPI {
 				pinList.add(new LazyPin(pinID, this));
 			}
 		}
+		
 		log.debug("Collected pins: " + pinList.size());
 		return pinList;
 	}
@@ -202,9 +221,10 @@ public class PinAPI extends CoreAPI {
 		log.debug("Deleting pin " + pin);
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/delete/").entity("{}").post(ClientResponse.class);
 		if(response.getStatus() != 200) {
-			log.error("ERROR status: " + response.getStatus());
-			log.error("ERROR message: " + response.getEntity(String.class));
-			throw new PinterestRuntimeException(PIN_DELETION_ERROR + "bad server response");
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class),
+					PIN_DELETION_ERROR + "bad server response");
 		}
 		log.debug("Pin deleted");
 	}
@@ -224,13 +244,18 @@ public class PinAPI extends CoreAPI {
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/edit/").
 				type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, multipartForm);
 		if(response.getStatus() != 200) {
-			log.error("ERROR status: " + response.getStatus());
-			log.error("ERROR message: " + response.getEntity(String.class));
-			throw new PinterestRuntimeException(PIN_UPDATE_ERROR + "bad server response");
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class),
+					PIN_UPDATE_ERROR + "bad server response");
 		}
 		Pin updatedPin = new LazyPin(pin.getId(), this);
 		log.debug("Pin updated");
 		return updatedPin;
+	}
+
+	public Pin getPinByID(long id) {
+		return getCompletePin(new LazyPin(id, this));
 	}
 	
 

@@ -8,6 +8,10 @@ public class UserAPI extends CoreAPI {
 		super(accessToken, apiManager);
 	}
 	
+	public User getCompleteUser(User user) {
+		return null;
+	}
+	
 	public User getUserForName(String userName) {
 		return new LazyUser(userName, this);
 	}
