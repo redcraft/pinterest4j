@@ -26,6 +26,7 @@ import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.representation.Form;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
@@ -43,6 +44,7 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_CREATION_ERROR = "PIN CREATION ERROR: ";
 	private static final String PIN_DELETION_ERROR = "PIN DELETION ERROR: ";
 	private static final String PIN_UPDATE_ERROR = "PIN UPDATE ERROR: ";
+	private static final String PIN_REPIN_ERROR = "PIN REPIN ERROR: ";
 	private static final String PINS_OBTAINING_ERROR = "PIN OBTAIN ERROR: ";
 	
 	public PinAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
@@ -69,8 +71,7 @@ public class PinAPI extends CoreAPI {
 				if(jResponse.getString("status").equals("failure")) {
 					throw new PinterestRuntimeException(PIN_CREATION_ERROR + jResponse.getString("message"));
 				}
-				long id = Long.valueOf(jResponse.getString("url").replace("/pin/", "").replace("/", ""));
-				createdPin = new LazyPin(id, this);
+				createdPin = new LazyPin(jResponse.getString("url"), this);
 			} catch(JSONException e) {
 				String msg = PIN_CREATION_ERROR + e.getMessage();
 				throw new PinterestRuntimeException(
@@ -256,6 +257,47 @@ public class PinAPI extends CoreAPI {
 
 	public Pin getPinByID(long id) {
 		return getCompletePin(new LazyPin(id, this));
+	}
+
+	private Form createRepinForm(Pin pin, Board board, String description) {
+		Form form = new Form();
+		form.add("board", board.getId());
+		form.add("id", pin.getId());
+		form.add("details", description);
+		form.add("csrfmiddlewaretoken", accessToken.getCsrfToken().getValue());
+		return form;
+	}
+	
+	public Pin repin(Pin pin, Board board, String description) {
+		String newDescription = (description != null) ? description : pin.getDescription();
+		log.debug(String.format("Repining pin = %s on board = %s with descr = %s", pin, board, newDescription));
+		Form repinForm = createRepinForm(pin, board, newDescription);
+		Pin repinedPin = null;
+		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/repin/").post(ClientResponse.class, repinForm);
+		if(response.getStatus() == 200) {
+			try {
+				JSONObject responseMessage = new JSONObject(response.getEntity(String.class));
+				if(responseMessage.getString("status").equals("success")) {
+					repinedPin = new LazyPin(responseMessage.getString("repin_url"), this);
+				}
+				else {
+					throw new PinterestRuntimeException(PIN_REPIN_ERROR + responseMessage.getString("message"));
+				}
+			} catch (JSONException e) {
+				throw new PinterestRuntimeException(
+						response.getStatus(), 
+						response.getEntity(String.class),
+						PIN_REPIN_ERROR + "bad server response", e);
+			}
+		}
+		else {
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class),
+					PIN_REPIN_ERROR + "bad server response");
+		}
+		log.debug("Created repined pin=" + repinedPin);
+		return repinedPin;
 	}
 	
 

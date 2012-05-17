@@ -15,6 +15,10 @@ public class LazyPin implements Pin {
 		this.pinAPI = pinAPI;
 	}
 	
+	LazyPin(String url, PinAPI pinAPI) {
+		this(Long.valueOf(url.replace("/pin/", "").replace("/", "")), pinAPI);
+	}
+	
 	private PinImpl getTarget() {
 		if(target == null) {
 			target = pinAPI.getCompletePin(this);

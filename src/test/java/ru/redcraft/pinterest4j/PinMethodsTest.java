@@ -126,4 +126,17 @@ public class PinMethodsTest extends PinterestTestBase {
 	public void pinNotFoundExceptoinTest() {
 		pinterest1.getPinByID(13);
 	}
+	
+	@Test
+	public void repinTest() throws PinMessageSizeException {
+		String description = UUID.randomUUID().toString();
+		String newDescription = UUID.randomUUID().toString();
+		double newPrice = 10;
+		NewPin newPin = new NewPin(description, newPrice, webLink, imageLink, null);
+		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
+		Pin repinedPin = pinterest1.repin(createdPin, board2, newDescription);
+		assertEquals(newDescription, repinedPin.getDescription());
+		repinedPin = pinterest1.repin(createdPin, board2, null);
+		assertEquals(description, repinedPin.getDescription());
+	}
 }

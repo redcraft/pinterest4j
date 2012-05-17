@@ -46,6 +46,8 @@ public interface Pinterest {
 	
 	public Pin getPinByID(long id);
 	
+	public Pin repin(Pin pin, Board board, String description);
+	
 	//User
 	
 	public User getUserForName(String userName);

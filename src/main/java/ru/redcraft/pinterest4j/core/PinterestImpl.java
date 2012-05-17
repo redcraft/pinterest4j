@@ -97,4 +97,8 @@ public class PinterestImpl implements Pinterest {
 		return managerBundle.getPinManager().getPinByID(id);
 	}
 
+	public Pin repin(Pin pin, Board board, String description) {
+		return managerBundle.getPinManager().repin(pin, board, description);
+	}
+
 }

@@ -51,4 +51,8 @@ public class PinManager extends BaseManager {
 	public Pin getPinByID(long id) {
 		return apiManager.getPinAPI().getPinByID(id);
 	}
+
+	public Pin repin(Pin pin, Board board, String description) {
+		return apiManager.getPinAPI().repin(pin, board, description);
+	}
 }
