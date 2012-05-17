@@ -55,4 +55,12 @@ public class PinManager extends BaseManager {
 	public Pin repin(Pin pin, Board board, String description) {
 		return apiManager.getPinAPI().repin(pin, board, description);
 	}
+
+	public Pin likePin(Pin pin) {
+		return apiManager.getPinAPI().like(pin, true);
+	}
+	
+	public Pin unlikePin(Pin pin) {
+		return apiManager.getPinAPI().like(pin, false);
+	}
 }

@@ -139,4 +139,17 @@ public class PinMethodsTest extends PinterestTestBase {
 		repinedPin = pinterest1.repin(createdPin, board2, null);
 		assertEquals(description, repinedPin.getDescription());
 	}
+	
+	@Test
+	public void likeTest() throws PinMessageSizeException {
+		String description = UUID.randomUUID().toString();
+		double newPrice = 10;
+		NewPin newPin = new NewPin(description, newPrice, webLink, imageLink, null);
+		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
+		assertEquals(false, createdPin.isLiked());
+		Pin likedPin = pinterest2.likePin(createdPin);
+		assertEquals(true, likedPin.isLiked());
+		Pin unlikedPin = pinterest2.unlikePin(likedPin);
+		assertEquals(false, unlikedPin.isLiked());
+	}
 }

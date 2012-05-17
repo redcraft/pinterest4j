@@ -48,6 +48,10 @@ public interface Pinterest {
 	
 	public Pin repin(Pin pin, Board board, String description);
 	
+	public Pin likePin(Pin pin);
+	
+	public Pin unlikePin(Pin pin);
+	
 	//User
 	
 	public User getUserForName(String userName);

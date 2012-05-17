@@ -14,4 +14,6 @@ public interface Pin {
 	
 	public Board getBoard();
 	
+	public boolean isLiked();
+	
 }

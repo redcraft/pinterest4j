@@ -49,6 +49,10 @@ public class LazyPin implements Pin {
 	public double getPrice() {
 		return getTarget().getPrice();
 	}
+	
+	public boolean isLiked() {
+		return getTarget().isLiked();
+	}
 
 	@Override
 	public String toString() {

@@ -45,6 +45,7 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_DELETION_ERROR = "PIN DELETION ERROR: ";
 	private static final String PIN_UPDATE_ERROR = "PIN UPDATE ERROR: ";
 	private static final String PIN_REPIN_ERROR = "PIN REPIN ERROR: ";
+	private static final String PIN_LIKE_ERROR = "PIN LIKE ERROR: ";
 	private static final String PINS_OBTAINING_ERROR = "PIN OBTAIN ERROR: ";
 	
 	public PinAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
@@ -139,6 +140,12 @@ public class PinAPI extends CoreAPI {
 				} else if(propName.equals(PIN_PINBOARD_PROP_NAME)) {
 					builder.setBoard(new LazyBoard(propContent.replace("http://pinterest.com", ""), apiManager.getBoardAPI()));
 				}
+			}
+			if(doc.select("li.unlike-button").size() == 1) {
+				builder.setLiked(true);
+			}
+			else {
+				builder.setLiked(false);
 			}
 		}
 		else if(response.getStatus() == 404) {
@@ -298,6 +305,41 @@ public class PinAPI extends CoreAPI {
 		}
 		log.debug("Created repined pin=" + repinedPin);
 		return repinedPin;
+	}
+	
+	public Pin like(Pin pin, boolean like) {
+		log.debug(String.format("Setting like of pin = %s to = %s", pin, like));
+		ClientResponse response = null;
+		Form likeForm = new Form();
+		likeForm.add("bla", "bla");
+		if(like) {
+			response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/like/").post(ClientResponse.class, likeForm);
+		}
+		else {
+			likeForm.add("unlike", 1);
+			response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/like/").post(ClientResponse.class, likeForm);
+		}
+		if(response.getStatus() == 200) {
+			try {
+				JSONObject responseMessage = new JSONObject(response.getEntity(String.class));
+				if(!responseMessage.getString("status").equals("success")) {
+					throw new PinterestRuntimeException(PIN_LIKE_ERROR + responseMessage.getString("message"));
+				}
+			} catch (JSONException e) {
+				throw new PinterestRuntimeException(
+						response.getStatus(), 
+						response.getEntity(String.class),
+						PIN_LIKE_ERROR + "bad server response", e);
+			}
+		}
+		else {
+			throw new PinterestRuntimeException(
+					response.getStatus(), 
+					response.getEntity(String.class),
+					PIN_LIKE_ERROR + "bad server response");
+		}
+		log.debug("Pin like mark set to " + like);
+		return new LazyPin(pin.getId(), this);
 	}
 	
 

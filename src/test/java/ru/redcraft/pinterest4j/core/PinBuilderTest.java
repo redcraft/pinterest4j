@@ -17,13 +17,15 @@ public class PinBuilderTest {
 		double price = 10;
 		String link = "http://some_link";
 		String imageURL = "http://some_url";
+		boolean liked = true;
 		Board board = new BoardImpl(0, "", "", "", BoardCategoryImpl.OTHER, 0, 0, 0);
 		builder.setId(id)
 			   .setDescription(description)
 			   .setPrice(price)
 			   .setLink(link)
 			   .setImageURL(imageURL)
-			   .setBoard(board);
+			   .setBoard(board)
+			   .setLiked(liked);
 		
 		assertEquals(id, builder.getId());
 		assertEquals(description, builder.getDescription());
@@ -31,6 +33,7 @@ public class PinBuilderTest {
 		assertEquals(link, builder.getLink());
 		assertEquals(imageURL, builder.getImageURL());
 		assertEquals(board, builder.getBoard());
+		assertEquals(liked, builder.isLiked());
 		
 		Pin pin = builder.build();
 		assertEquals(id, pin.getId());
@@ -39,6 +42,7 @@ public class PinBuilderTest {
 		assertEquals(link, pin.getLink());
 		assertEquals(imageURL, pin.getImageURL());
 		assertEquals(board, pin.getBoard());
+		assertEquals(liked, pin.isLiked());
 	}
 
 }

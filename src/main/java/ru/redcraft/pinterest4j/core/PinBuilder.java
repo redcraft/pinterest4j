@@ -11,6 +11,7 @@ public class PinBuilder implements Pin {
 	private String link;
 	private String imageURL;
 	private Board board;
+	private boolean liked;
 	
 	public long getId() {
 		return id;
@@ -56,8 +57,17 @@ public class PinBuilder implements Pin {
 		return this;
 	}
 	
+	public boolean isLiked() {
+		return liked;
+	}
+	
+	public PinBuilder setLiked(boolean liked) {
+		this.liked = liked;
+		return this;
+	}
+	
 	public PinImpl build() {
-		return new PinImpl(id, description, price, link, imageURL, board);
+		return new PinImpl(id, description, price, link, imageURL, board, liked);
 	}
 
 }

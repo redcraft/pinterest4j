@@ -101,4 +101,12 @@ public class PinterestImpl implements Pinterest {
 		return managerBundle.getPinManager().repin(pin, board, description);
 	}
 
+	public Pin likePin(Pin pin) {
+		return managerBundle.getPinManager().likePin(pin);
+	}
+
+	public Pin unlikePin(Pin pin) {
+		return managerBundle.getPinManager().unlikePin(pin);
+	}
+
 }

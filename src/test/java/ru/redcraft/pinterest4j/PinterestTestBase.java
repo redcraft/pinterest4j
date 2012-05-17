@@ -13,8 +13,8 @@ import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 public class PinterestTestBase {
 
-	protected TestUserInfo id1, idAutherror;
-	protected Pinterest pinterest1;
+	protected TestUserInfo id1, id2, idAutherror;
+	protected Pinterest pinterest1, pinterest2;
 	protected String imageLink;
 	protected File imageFile;
 	protected String webLink;
@@ -51,6 +51,7 @@ public class PinterestTestBase {
 	public PinterestTestBase() {
 		ResourceBundle rb = ResourceBundle.getBundle(BUNDLE_NAME);
 		id1 = getTestUserForPrefix(rb, "pinterest1");
+		id2 = getTestUserForPrefix(rb, "pinterest2");
 		idAutherror = getTestUserForPrefix(rb, "autherror");
 		imageLink = rb.getString("pin.image.link");
 		webLink = rb.getString("pin.link");
@@ -72,5 +73,6 @@ public class PinterestTestBase {
 	@Before
 	public void initialize() throws PinterestAuthException {
 		pinterest1 = PinterestFactory.getInstance(id1.getLogin(), id1.getPassword());
+		pinterest2 = PinterestFactory.getInstance(id2.getLogin(), id2.getPassword());
 	}
 }
