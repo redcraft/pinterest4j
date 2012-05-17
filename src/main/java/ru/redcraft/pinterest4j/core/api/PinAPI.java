@@ -3,13 +3,12 @@ package ru.redcraft.pinterest4j.core.api;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -65,27 +64,12 @@ public class PinAPI extends CoreAPI {
 		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), newPin);
 		ClientResponse response = getWR(Protocol.HTTP, "pin/create/").
 				type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, multipartForm);
+		Map<String, String> responseMap = parseResponse(response, PIN_CREATION_ERROR);
 		LazyPin createdPin = null;
-		if(response.getStatus() == 200) {
-			try{
-				JSONObject jResponse = new JSONObject(response.getEntity(String.class));
-				if(jResponse.getString("status").equals("failure")) {
-					throw new PinterestRuntimeException(PIN_CREATION_ERROR + jResponse.getString("message"));
-				}
-				createdPin = new LazyPin(jResponse.getString("url"), this);
-			} catch(JSONException e) {
-				String msg = PIN_CREATION_ERROR + e.getMessage();
-				throw new PinterestRuntimeException(
-						response.getStatus(), 
-						response.getEntity(String.class),
-						msg, e);
-			}
-		} else {
-			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class),
-					PIN_CREATION_ERROR + "bad server response");
+		if(responseMap.get("status").equals("failure")) {
+			throw new PinterestRuntimeException(PIN_CREATION_ERROR + responseMap.get("message"));
 		}
+		createdPin = new LazyPin(responseMap.get("url"), this);
 		log.debug("Pin created " + createdPin);
 		return createdPin;
 	}
@@ -152,10 +136,7 @@ public class PinAPI extends CoreAPI {
 			throw new PinterestPinNotFoundException(lazyPin);
 		}
 		else {
-			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class),
-					PINS_OBTAINING_ERROR + "bad server response");
+			throw new PinterestRuntimeException(response, PINS_OBTAINING_ERROR + "bad server response");
 		}
 		
 		return builder.build();
@@ -229,10 +210,7 @@ public class PinAPI extends CoreAPI {
 		log.debug("Deleting pin " + pin);
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/delete/").entity("{}").post(ClientResponse.class);
 		if(response.getStatus() != 200) {
-			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class),
-					PIN_DELETION_ERROR + "bad server response");
+			throw new PinterestRuntimeException(response, PIN_DELETION_ERROR + "bad server response");
 		}
 		log.debug("Pin deleted");
 	}
@@ -252,10 +230,7 @@ public class PinAPI extends CoreAPI {
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/edit/").
 				type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, multipartForm);
 		if(response.getStatus() != 200) {
-			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class),
-					PIN_UPDATE_ERROR + "bad server response");
+			throw new PinterestRuntimeException(response, PIN_UPDATE_ERROR + "bad server response");
 		}
 		Pin updatedPin = new LazyPin(pin.getId(), this);
 		log.debug("Pin updated");
@@ -281,28 +256,11 @@ public class PinAPI extends CoreAPI {
 		Form repinForm = createRepinForm(pin, board, newDescription);
 		Pin repinedPin = null;
 		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/repin/").post(ClientResponse.class, repinForm);
-		if(response.getStatus() == 200) {
-			try {
-				JSONObject responseMessage = new JSONObject(response.getEntity(String.class));
-				if(responseMessage.getString("status").equals("success")) {
-					repinedPin = new LazyPin(responseMessage.getString("repin_url"), this);
-				}
-				else {
-					throw new PinterestRuntimeException(PIN_REPIN_ERROR + responseMessage.getString("message"));
-				}
-			} catch (JSONException e) {
-				throw new PinterestRuntimeException(
-						response.getStatus(), 
-						response.getEntity(String.class),
-						PIN_REPIN_ERROR + "bad server response", e);
-			}
-		}
-		else {
-			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class),
-					PIN_REPIN_ERROR + "bad server response");
-		}
+		Map<String, String> responseMap = parseResponse(response, PIN_REPIN_ERROR);
+		if(!responseMap.get("status").equals("success")) {
+			throw new PinterestRuntimeException(PIN_REPIN_ERROR + responseMap.get("message"));
+		}		
+		repinedPin = new LazyPin(responseMap.get("repin_url"), this);
 		log.debug("Created repined pin=" + repinedPin);
 		return repinedPin;
 	}
@@ -319,27 +277,17 @@ public class PinAPI extends CoreAPI {
 			likeForm.add("unlike", 1);
 			response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/like/").post(ClientResponse.class, likeForm);
 		}
-		if(response.getStatus() == 200) {
-			try {
-				JSONObject responseMessage = new JSONObject(response.getEntity(String.class));
-				if(!responseMessage.getString("status").equals("success")) {
-					throw new PinterestRuntimeException(PIN_LIKE_ERROR + responseMessage.getString("message"));
-				}
-			} catch (JSONException e) {
-				throw new PinterestRuntimeException(
-						response.getStatus(), 
-						response.getEntity(String.class),
-						PIN_LIKE_ERROR + "bad server response", e);
-			}
-		}
-		else {
-			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class),
-					PIN_LIKE_ERROR + "bad server response");
+		Map<String, String> responseMap = parseResponse(response, PIN_REPIN_ERROR);
+		if(!responseMap.get("status").equals("success")) {
+			throw new PinterestRuntimeException(PIN_LIKE_ERROR + responseMap.get("message"));
 		}
 		log.debug("Pin like mark set to " + like);
 		return new LazyPin(pin.getId(), this);
+	}
+
+	public Pin addCommentToPin(Pin pin, String comment) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 

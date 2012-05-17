@@ -52,6 +52,8 @@ public interface Pinterest {
 	
 	public Pin unlikePin(Pin pin);
 	
+	public Pin addCommentToPin(Pin pin, String comment);
+	
 	//User
 	
 	public User getUserForName(String userName);

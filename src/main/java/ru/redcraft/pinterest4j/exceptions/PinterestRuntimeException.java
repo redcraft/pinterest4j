@@ -1,5 +1,7 @@
 package ru.redcraft.pinterest4j.exceptions;
 
+import com.sun.jersey.api.client.ClientResponse;
+
 public class PinterestRuntimeException extends RuntimeException {
 
 	private static final long serialVersionUID = 8763514955708359725L;
@@ -16,12 +18,12 @@ public class PinterestRuntimeException extends RuntimeException {
 		super(msg, e);
 	}
 	
-	public PinterestRuntimeException(int status, String response, String msg) {
-		this(buildMsg(status, response, msg));
+	public PinterestRuntimeException(ClientResponse response, String msg) {
+		this(buildMsg(response.getStatus(), response.getEntity(String.class), msg));
 	}
 	
-	public PinterestRuntimeException(int status, String response, String msg,  Exception e) {
-		this(buildMsg(status, response, msg), e);
+	public PinterestRuntimeException(ClientResponse response, String msg,  Exception e) {
+		this(buildMsg(response.getStatus(), response.getEntity(String.class), msg), e);
 	}
 	
 }

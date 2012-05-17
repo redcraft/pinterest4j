@@ -1,8 +1,18 @@
 package ru.redcraft.pinterest4j.core.api;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import javax.ws.rs.core.UriBuilder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
+
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
@@ -41,6 +51,28 @@ public abstract class CoreAPI {
 			}
 		}
 		return wr;
+	}
+	
+	protected Map<String, String> parseResponse(ClientResponse response, String errorTitle) {
+		Map<String, String> resultMap = new HashMap<String, String>();
+		if(response.getStatus() == 200) {
+			try{
+				JSONObject jResponse = new JSONObject(response.getEntity(String.class));
+				Iterator<?> responseIterator = jResponse.keys();
+				while(responseIterator.hasNext()) {
+					String key = (String) responseIterator.next();
+					resultMap.put(key, jResponse.getString(key));
+				}
+			} catch(JSONException e) {
+				String msg = errorTitle + e.getMessage();
+				throw new PinterestRuntimeException(response, msg, e);
+			}
+		} else {
+			throw new PinterestRuntimeException(
+					response, 
+					errorTitle + "bad server response");
+		}
+		return resultMap;
 	}
 	
 }

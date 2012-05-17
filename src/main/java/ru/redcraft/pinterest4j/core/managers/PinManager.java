@@ -63,4 +63,8 @@ public class PinManager extends BaseManager {
 	public Pin unlikePin(Pin pin) {
 		return apiManager.getPinAPI().like(pin, false);
 	}
+
+	public Pin addCommentToPin(Pin pin, String comment) {
+		return apiManager.getPinAPI().addCommentToPin(pin, comment);
+	}
 }

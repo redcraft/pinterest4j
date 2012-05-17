@@ -2,10 +2,9 @@ package ru.redcraft.pinterest4j.core.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -63,8 +62,7 @@ public final class BoardAPI extends CoreAPI {
 		}
 		else {
 			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class),
+					response,
 					BOARDS_OBTAINING_ERROR + "can't get boars list");
 		}
 		log.debug("Board count = " + boardList.size());
@@ -84,28 +82,16 @@ public final class BoardAPI extends CoreAPI {
 		LazyBoard createdBoard = null;
 		Form newBoardForm = createNewBoardForm(newBoard);
 		ClientResponse response = getWR(Protocol.HTTP, "board/create/").post(ClientResponse.class, newBoardForm);
-		if(response.getStatus() == 200) {
-			try{
-				JSONObject jResponse = new JSONObject(response.getEntity(String.class));
-				if(jResponse.getString("status").equals("failure")) {
-					if(jResponse.getString("message").equals("You already have a board with that name.")) {
-						throw new PinterestBoardExistException(newBoard);
-					}
-					else {
-						throw new PinterestRuntimeException(BOARD_CREATION_ERROR + jResponse.getString("message"));
-					}
-				}
-				createdBoard = new LazyBoard(jResponse.getLong("id"), jResponse.getString("url"), jResponse.getString("name"), newBoard.getCategory(), this);
-			} catch(JSONException e) {
-				String msg = BOARD_CREATION_ERROR + e.getMessage() + response.getEntity(String.class);
-				throw new PinterestRuntimeException(msg, e);
+		Map<String, String> responseMap = parseResponse(response, BOARD_CREATION_ERROR);
+		if(responseMap.get("status").equals("failure")) {
+			if(responseMap.get("message").equals("You already have a board with that name.")) {
+				throw new PinterestBoardExistException(newBoard);
 			}
-		} else {
-			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class), 
-					BOARD_CREATION_ERROR + "bad server response");
+			else {
+				throw new PinterestRuntimeException(BOARD_CREATION_ERROR + responseMap.get("message"));
+			}
 		}
+		createdBoard = new LazyBoard(Long.valueOf(responseMap.get("id")), responseMap.get("url"), responseMap.get("name"), newBoard.getCategory(), this);
 		log.debug("Board created " + createdBoard);
 		return createdBoard;
 	}
@@ -155,8 +141,7 @@ public final class BoardAPI extends CoreAPI {
 		}
 		else {
 			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class), 
+					response, 
 					BOARDS_OBTAINING_ERROR + "bad server response");
 		}
 		
@@ -168,8 +153,7 @@ public final class BoardAPI extends CoreAPI {
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").delete(ClientResponse.class);
 		if(response.getStatus() != 200) {
 			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class), 
+					response, 
 					BOARD_DELETION_ERROR + "bad server response");
 		}
 		log.debug("Board deleted");
@@ -194,8 +178,7 @@ public final class BoardAPI extends CoreAPI {
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").post(ClientResponse.class, updateBoardForm);
 		if(response.getStatus() != 200) {
 			throw new PinterestRuntimeException(
-					response.getStatus(), 
-					response.getEntity(String.class), 
+					response, 
 					BOARD_UPDATE_ERROR + "bad server response");
 		}
 		Board updatedBoard = new LazyBoard(board.getId(), createLink(title, accessToken.getLogin()), title, description, category, this);
