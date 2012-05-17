@@ -4,6 +4,7 @@ import java.util.List;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.Pinterest;
 import ru.redcraft.pinterest4j.User;
@@ -109,8 +110,12 @@ public class PinterestImpl implements Pinterest {
 		return managerBundle.getPinManager().unlikePin(pin);
 	}
 
-	public Pin addCommentToPin(Pin pin, String comment) {
-		return managerBundle.getPinManager().addCommentToPin(pin, comment);
+	public Comment addCommentToPin(Pin pin, String comment) {
+		return managerBundle.getPinManager().addCommentToPin(pin, comment, user);
+	}
+
+	public void deleteComment(Comment comment) {
+		managerBundle.getPinManager().deleteComment(comment);
 	}
 
 }

@@ -52,7 +52,9 @@ public interface Pinterest {
 	
 	public Pin unlikePin(Pin pin);
 	
-	public Pin addCommentToPin(Pin pin, String comment);
+	public Comment addCommentToPin(Pin pin, String comment);
+	
+	public void deleteComment(Comment comment);
 	
 	//User
 	

@@ -15,8 +15,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import ru.redcraft.pinterest4j.Board;
+import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.core.CommentImpl;
 import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.core.PinBuilder;
 import ru.redcraft.pinterest4j.core.PinImpl;
@@ -44,6 +46,7 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_DELETION_ERROR = "PIN DELETION ERROR: ";
 	private static final String PIN_UPDATE_ERROR = "PIN UPDATE ERROR: ";
 	private static final String PIN_REPIN_ERROR = "PIN REPIN ERROR: ";
+	private static final String PIN_COMMENT_ERROR = "PIN COMMENT ERROR: ";
 	private static final String PIN_LIKE_ERROR = "PIN LIKE ERROR: ";
 	private static final String PINS_OBTAINING_ERROR = "PIN OBTAIN ERROR: ";
 	
@@ -285,10 +288,37 @@ public class PinAPI extends CoreAPI {
 		return new LazyPin(pin.getId(), this);
 	}
 
-	public Pin addCommentToPin(Pin pin, String comment) {
-		// TODO Auto-generated method stub
-		return null;
+	private Form createCommentForm(Pin pin, String comment) {
+		Form form = new Form();
+		form.add("text", comment);
+		form.add("path", "/pin/" + pin.getId() + "/");
+		form.add("replies", "");
+		return form;
 	}
 	
+	public Comment addCommentToPin(Pin pin, String comment, User user) {
+		log.debug(String.format("Adding comment to pin = %s with text = '%s'", pin, comment));
+		Form commentForm = createCommentForm(pin, comment);
+		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/comment/").post(ClientResponse.class, commentForm);
+		Map<String, String> responseMap = parseResponse(response, PIN_COMMENT_ERROR);
+		if(!responseMap.get("status").equals("success")) {
+			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get("message"));
+		}
+		Comment newComment = new CommentImpl(Long.valueOf(responseMap.get("id")), comment, user, pin);
+		log.debug("Comment created: " + newComment);
+		return newComment;
+	}
+	
+	public void deleteComment(Comment comment) {
+		log.debug(String.format("Deleting comment = %s", comment));
+		Form commentForm = new Form();
+		commentForm.add("comment", comment.getId());
+		ClientResponse response = getWR(Protocol.HTTP, "pin/" + comment.getPin().getId() + "/deletecomment/").post(ClientResponse.class, commentForm);
+		Map<String, String> responseMap = parseResponse(response, PIN_COMMENT_ERROR);
+		if(!responseMap.get("status").equals("success")) {
+			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get("message"));
+		}
+		log.debug("Comment deleted");
+	}
 
 }

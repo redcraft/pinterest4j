@@ -3,6 +3,7 @@ package ru.redcraft.pinterest4j.core.managers;
 import java.util.List;
 
 import ru.redcraft.pinterest4j.Board;
+import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.NewPin;
@@ -64,7 +65,11 @@ public class PinManager extends BaseManager {
 		return apiManager.getPinAPI().like(pin, false);
 	}
 
-	public Pin addCommentToPin(Pin pin, String comment) {
-		return apiManager.getPinAPI().addCommentToPin(pin, comment);
+	public Comment addCommentToPin(Pin pin, String comment, User user) {
+		return apiManager.getPinAPI().addCommentToPin(pin, comment, user);
+	}
+
+	public void deleteComment(Comment comment) {
+		apiManager.getPinAPI().deleteComment(comment);
 	}
 }

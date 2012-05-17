@@ -7,4 +7,6 @@ public interface Comment {
 	public String getText();
 	
 	public User getUser();
+	
+	public Pin getPin();
 }
