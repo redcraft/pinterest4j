@@ -2,11 +2,11 @@ package ru.redcraft.pinterest4j;
 
 public interface Comment {
 
-	public long getId();
+	long getId();
 	
-	public String getText();
+	String getText();
 	
-	public User getUser();
+	User getUser();
 	
-	public Pin getPin();
+	Pin getPin();
 }

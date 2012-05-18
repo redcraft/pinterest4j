@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.representation.Form;
 
 public final class AuthAPI extends CoreAPI {
@@ -43,7 +44,7 @@ public final class AuthAPI extends CoreAPI {
 		
 		Form loginForm = getLoginForm(login, password, csrfToken);
 		responClient = getWR(Protocol.HTTPS, "login/").cookie(csrfToken).post(ClientResponse.class, loginForm);
-		if(responClient.getStatus() != 302) {
+		if(responClient.getStatus() != Status.FOUND.getStatusCode()) {
 			throw new PinterestAuthException();
 		}
 		Cookie sessionToken = getCookieMap(responClient).get(SESSION_COOKIE);

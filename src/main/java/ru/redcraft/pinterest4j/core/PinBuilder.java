@@ -69,5 +69,9 @@ public class PinBuilder implements Pin {
 	public PinImpl build() {
 		return new PinImpl(id, description, price, link, imageURL, board, liked);
 	}
+	
+	public String getURL() {
+		return "/pin/" + Long.toString(id) + "/";
+	}
 
 }

@@ -2,8 +2,8 @@ package ru.redcraft.pinterest4j;
 
 public interface BoardCategory {
 	
-	public String getId();
+	String getId();
 
-	public String getName();
+	String getName();
 	
 }

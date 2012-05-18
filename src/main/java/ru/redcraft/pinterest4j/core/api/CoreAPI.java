@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import org.json.JSONException;
@@ -24,6 +25,10 @@ public abstract class CoreAPI {
 	
 	private static final String PINTEREST_DOMAIN = "pinterest.com";
 	private static final String COOKIE_HEADER_NAME = "Cookie";
+	
+	protected static final String RESPONSE_STATUS_FIELD = "status";
+	protected static final String RESPONSE_MESSAGE_FIELD = "message";
+	protected static final String RESPONSE_SUCCESS_STATUS = "success";
 	
 	public enum Protocol {HTTP, HTTPS};
 	
@@ -55,7 +60,7 @@ public abstract class CoreAPI {
 	
 	protected Map<String, String> parseResponse(ClientResponse response, String errorTitle) {
 		Map<String, String> resultMap = new HashMap<String, String>();
-		if(response.getStatus() == 200) {
+		if(response.getStatus() == Status.OK.getStatusCode()) {
 			try{
 				JSONObject jResponse = new JSONObject(response.getEntity(String.class));
 				Iterator<?> responseIterator = jResponse.keys();

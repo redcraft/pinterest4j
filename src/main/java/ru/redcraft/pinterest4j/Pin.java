@@ -2,18 +2,20 @@ package ru.redcraft.pinterest4j;
 
 public interface Pin {
 
-	public long getId();
+	long getId();
 	
-	public String getDescription();
+	String getURL();
 	
-	public double getPrice();
+	String getDescription();
 	
-	public String getLink();
+	double getPrice();
 	
-	public String getImageURL();
+	String getLink();
 	
-	public Board getBoard();
+	String getImageURL();
 	
-	public boolean isLiked();
+	Board getBoard();
+	
+	boolean isLiked();
 	
 }

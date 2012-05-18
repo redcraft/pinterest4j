@@ -12,52 +12,52 @@ public interface Pinterest {
 
 	//Boards
 	
-	public Board getBoardByURL(String url);
+	Board getBoardByURL(String url);
 	
-	public List<Board> getBoardsForUser(User user);
+	List<Board> getBoardsForUser(User user);
 	
-	public List<Board> getBoards();
+	List<Board> getBoards();
 	
-	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException;
+	Board createBoard(NewBoard newBoard) throws PinterestBoardExistException;
 	
-	public Board updateBoard(Board board, String title,	String description, BoardCategory category);
+	Board updateBoard(Board board, String title,	String description, BoardCategory category);
 	
-	public void deleteBoard(Board board);
+	void deleteBoard(Board board);
 	
 	//Pin
 	
-	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException;
+	Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException;
 	
-	public List<Pin> getPins(Board board);
+	List<Pin> getPins(Board board);
 	
-	public List<Pin> getPins(Board board, int page);
+	List<Pin> getPins(Board board, int page);
 	
-	public List<Pin> getPins(User user);
+	List<Pin> getPins(User user);
 	
-	public List<Pin> getPins(User user, int page);
+	List<Pin> getPins(User user, int page);
 	
-	public List<Pin> getPins();
+	List<Pin> getPins();
 	
-	public List<Pin> getPins(int page);
+	List<Pin> getPins(int page);
 	
-	public void deletePin(Pin pin);
+	void deletePin(Pin pin);
 	
-	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException;
+	Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException;
 	
-	public Pin getPinByID(long id);
+	Pin getPinByID(long id);
 	
-	public Pin repin(Pin pin, Board board, String description);
+	Pin repin(Pin pin, Board board, String description);
 	
-	public Pin likePin(Pin pin);
+	Pin likePin(Pin pin);
 	
-	public Pin unlikePin(Pin pin);
+	Pin unlikePin(Pin pin);
 	
-	public Comment addCommentToPin(Pin pin, String comment);
+	Comment addCommentToPin(Pin pin, String comment);
 	
-	public void deleteComment(Comment comment);
+	void deleteComment(Comment comment);
 	
 	//User
 	
-	public User getUserForName(String userName);
-	public User getUser();
+	User getUserForName(String userName);
+	User getUser();
 }

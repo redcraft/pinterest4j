@@ -1,6 +1,7 @@
 package ru.redcraft.pinterest4j.core.api;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.representation.Form;
 
 public final class BoardAPI extends CoreAPI {
@@ -46,7 +48,7 @@ public final class BoardAPI extends CoreAPI {
 		log.debug("Collecting board list for user = " + user);
 		List<Board> boardList = new ArrayList<Board>();
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/").get(ClientResponse.class);
-		if(response.getStatus() == 200) {
+		if(response.getStatus() == Status.OK.getStatusCode()) {
 			Document doc = Jsoup.parse(response.getEntity(String.class));
 			Elements htmlBoards = doc.select(".pinBoard");
 			for(Element htmlBoard : htmlBoards) {
@@ -84,11 +86,11 @@ public final class BoardAPI extends CoreAPI {
 		ClientResponse response = getWR(Protocol.HTTP, "board/create/").post(ClientResponse.class, newBoardForm);
 		Map<String, String> responseMap = parseResponse(response, BOARD_CREATION_ERROR);
 		if(responseMap.get("status").equals("failure")) {
-			if(responseMap.get("message").equals("You already have a board with that name.")) {
+			if(responseMap.get(RESPONSE_MESSAGE_FIELD).equals("You already have a board with that name.")) {
 				throw new PinterestBoardExistException(newBoard);
 			}
 			else {
-				throw new PinterestRuntimeException(BOARD_CREATION_ERROR + responseMap.get("message"));
+				throw new PinterestRuntimeException(BOARD_CREATION_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 			}
 		}
 		createdBoard = new LazyBoard(Long.valueOf(responseMap.get("id")), responseMap.get("url"), responseMap.get("name"), newBoard.getCategory(), this);
@@ -110,24 +112,19 @@ public final class BoardAPI extends CoreAPI {
 		builder.setURL(board.getURL());
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
 		
-		if(response.getStatus() == 200) {
+		if(response.getStatus() == Status.OK.getStatusCode()) {
 			Document doc = Jsoup.parse(response.getEntity(String.class));
 			
+			Map<String, String> metaMap = new HashMap<String, String>();
 			for(Element meta : doc.select("meta")) {
-				String propName = meta.attr("property");
-				String propContent = meta.attr("content");
-				if(propName.equals(BOARD_DESCRIPTION_PROP_NAME)) {
-					builder.setDescription(propContent);
-				} else if(propName.equals(BOARD_CATEGORY_PROP_NAME)) {
-					builder.setCategory(BoardCategoryImpl.getInstanceById(propContent));
-				} else if(propName.equals(BOARD_PINS_PROP_NAME)) {
-					builder.setPinsCount(Integer.valueOf(propContent));
-				} else if(propName.equals(BOARD_FOLLOWERS_PROP_NAME)) {
-					builder.setFollowersCount(Integer.valueOf(propContent));
-				} else if(propName.equals(BOARD_TITLE_PROP_NAME)) {
-					builder.setTitle(propContent);
-				}
+				metaMap.put(meta.attr("property"), meta.attr("content"));
 			}
+			builder.setDescription(metaMap.get(BOARD_DESCRIPTION_PROP_NAME));
+			builder.setCategory(BoardCategoryImpl.getInstanceById(metaMap.get(BOARD_CATEGORY_PROP_NAME)));
+			builder.setPinsCount(Integer.valueOf(metaMap.get(BOARD_PINS_PROP_NAME)));
+			builder.setFollowersCount(Integer.valueOf(metaMap.get(BOARD_FOLLOWERS_PROP_NAME)));
+			builder.setTitle(metaMap.get(BOARD_TITLE_PROP_NAME));
+			
 			for(Element meta : doc.select("div.BoardList").first().select("li")) {
 				if(meta.child(0).text().equals(builder.getTitle())) {
 					builder.setId(Long.valueOf(meta.attr("data")));
@@ -151,7 +148,7 @@ public final class BoardAPI extends CoreAPI {
 	public void deleteBoard(Board board) {
 		log.debug("Deleting board " + board);
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").delete(ClientResponse.class);
-		if(response.getStatus() != 200) {
+		if(response.getStatus() != Status.OK.getStatusCode()) {
 			throw new PinterestRuntimeException(
 					response, 
 					BOARD_DELETION_ERROR + "bad server response");
@@ -176,7 +173,7 @@ public final class BoardAPI extends CoreAPI {
 				board.getURL(), title, description, category));
 		Form updateBoardForm = createUpdateBoardForm(title, description, category);
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").post(ClientResponse.class, updateBoardForm);
-		if(response.getStatus() != 200) {
+		if(response.getStatus() != Status.OK.getStatusCode()) {
 			throw new PinterestRuntimeException(
 					response, 
 					BOARD_UPDATE_ERROR + "bad server response");

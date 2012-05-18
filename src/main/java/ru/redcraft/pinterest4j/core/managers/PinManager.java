@@ -17,8 +17,7 @@ public class PinManager extends BaseManager {
 	}
 
 	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException {
-		Pin pin = apiManager.getPinAPI().addPinToBoard(board, newPin);
-		return pin;
+		return apiManager.getPinAPI().addPinToBoard(board, newPin);
 	}
 
 	public List<Pin> getPins(User user) {

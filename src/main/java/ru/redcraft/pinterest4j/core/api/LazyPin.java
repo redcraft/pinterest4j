@@ -54,9 +54,13 @@ public class LazyPin implements Pin {
 		return getTarget().isLiked();
 	}
 
+	public String getURL() {
+		return "pin/" + Long.toString(id) + "/";
+	}
+	
 	@Override
 	public String toString() {
 		return "LazyPin [id=" + id + "]";
 	}
-	
+
 }

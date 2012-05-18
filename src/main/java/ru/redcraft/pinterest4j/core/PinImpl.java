@@ -53,4 +53,8 @@ public class PinImpl implements Pin {
 		return liked;
 	}
 
+	public String getURL() {
+		return "/pin/" + Long.toString(id) + "/";
+	}
+
 }

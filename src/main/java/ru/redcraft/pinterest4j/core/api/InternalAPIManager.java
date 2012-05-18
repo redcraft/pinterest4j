@@ -4,13 +4,12 @@ import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 public class InternalAPIManager {
 
-	private final PinterestAccessToken accessToken;
 	private final UserAPI userAPI;
 	private final BoardAPI boardAPI;
 	private final PinAPI pinAPI;
 	
 	public InternalAPIManager(String login, String password) throws PinterestAuthException {
-		accessToken = AuthAPI.authenticate(login, password);
+		PinterestAccessToken accessToken = AuthAPI.authenticate(login, password);
 		userAPI = new UserAPI(accessToken, this);
 		boardAPI = new BoardAPI(accessToken, this);
 		pinAPI = new PinAPI(accessToken, this);

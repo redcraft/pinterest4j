@@ -21,8 +21,7 @@ public class BoardManager extends BaseManager {
 	}
 
 	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
-		Board board = apiManager.getBoardAPI().createBoard(newBoard);
-		return board;
+		return apiManager.getBoardAPI().createBoard(newBoard);
 	}
 
 	public void deleteBoard(Board board) {
@@ -33,8 +32,7 @@ public class BoardManager extends BaseManager {
 		String newTitle = (title != null) ? title : board.getTitle();
 		String newDescription = (description != null) ? description : board.getDescription();
 		BoardCategory newCategory = (category != null) ? category : board.getCategory();
-		Board newBoard = apiManager.getBoardAPI().updateBoardInfo(board, newTitle, newDescription, newCategory);
-		return newBoard;
+		return apiManager.getBoardAPI().updateBoardInfo(board, newTitle, newDescription, newCategory);
 	}
 
 	public Board getBoardByURL(String url) {

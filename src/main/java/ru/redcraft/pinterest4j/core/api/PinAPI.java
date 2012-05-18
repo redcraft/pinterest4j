@@ -27,6 +27,7 @@ import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.representation.Form;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataBodyPart;
@@ -35,13 +36,17 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 
 public class PinAPI extends CoreAPI {
 	
+	private static final int MAX_PIN_DESCRIPTION_LENGTH = 500;
+	
 	private static final String PIN_DESCRIPTION_PROP_NAME = "og:description";
 	private static final String PIN_IMAGE_PROP_NAME = "og:image";
 	private static final String PIN_PINBOARD_PROP_NAME = "pinterestapp:pinboard";
 	private static final String PIN_LINK_PROP_NAME = "pinterestapp:source";
 	private static final String PIN_PRICE_PROP_NAME = "pinterestapp:price";
+	private static final String PIN_ID_ATTR = "data-id";
 	
 	private static final Logger log = Logger.getLogger(PinAPI.class);
+	
 	private static final String PIN_CREATION_ERROR = "PIN CREATION ERROR: ";
 	private static final String PIN_DELETION_ERROR = "PIN DELETION ERROR: ";
 	private static final String PIN_UPDATE_ERROR = "PIN UPDATE ERROR: ";
@@ -49,6 +54,8 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_COMMENT_ERROR = "PIN COMMENT ERROR: ";
 	private static final String PIN_LIKE_ERROR = "PIN LIKE ERROR: ";
 	private static final String PINS_OBTAINING_ERROR = "PIN OBTAIN ERROR: ";
+	
+	private static final String COLLECTED_PINS = "Collected pins: ";
 	
 	public PinAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
@@ -60,7 +67,7 @@ public class PinAPI extends CoreAPI {
 		if(descLength == 0) {
 			throw new PinMessageSizeException(PinMessageSizeException.MSG_ZERO_SIZE);
 		}
-		if(descLength > 500) {
+		if(descLength > MAX_PIN_DESCRIPTION_LENGTH) {
 			throw new PinMessageSizeException(PinMessageSizeException.MSG_TOO_LONG);
 		}
 		board.getPinsCount(); // Magic. Pinterest boards are lazy initiated on creation
@@ -69,8 +76,8 @@ public class PinAPI extends CoreAPI {
 				type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, multipartForm);
 		Map<String, String> responseMap = parseResponse(response, PIN_CREATION_ERROR);
 		LazyPin createdPin = null;
-		if(responseMap.get("status").equals("failure")) {
-			throw new PinterestRuntimeException(PIN_CREATION_ERROR + responseMap.get("message"));
+		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
+			throw new PinterestRuntimeException(PIN_CREATION_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		createdPin = new LazyPin(responseMap.get("url"), this);
 		log.debug("Pin created " + createdPin);
@@ -81,7 +88,7 @@ public class PinAPI extends CoreAPI {
 		FormDataMultiPart multipartForm = new FormDataMultiPart();
 		multipartForm.bodyPart(new FormDataBodyPart("board", Long.toString(boardID)));
 		multipartForm.bodyPart(new FormDataBodyPart("details", newPin.getDescription()));
-		multipartForm.bodyPart(new FormDataBodyPart("link", newPin.getLink().toString()));
+		multipartForm.bodyPart(new FormDataBodyPart("link", newPin.getLink()));
 		multipartForm.bodyPart(new FormDataBodyPart("csrfmiddlewaretoken", accessToken.getCsrfToken().getValue()));
 		multipartForm.bodyPart(new FormDataBodyPart("buyable", ""));
 		multipartForm.bodyPart(new FormDataBodyPart("tags", ""));
@@ -90,7 +97,7 @@ public class PinAPI extends CoreAPI {
 			multipartForm.bodyPart(new FormDataBodyPart("buyable", "$" + Double.toString(newPin.getPrice())));
 		}
 		if(newPin.getImageURL() != null) {
-			multipartForm.bodyPart(new FormDataBodyPart("img_url", newPin.getImageURL().toString()));
+			multipartForm.bodyPart(new FormDataBodyPart("img_url", newPin.getImageURL()));
 		}
 		else {
 			File imgFile = newPin.getImageFile();
@@ -104,14 +111,14 @@ public class PinAPI extends CoreAPI {
 		return multipartForm;
 	}
 
-	public PinImpl getCompletePin(LazyPin lazyPin) {
-		log.debug("Getting all info for lazy pin " + lazyPin);
+	public PinImpl getCompletePin(LazyPin pin) {
+		log.debug("Getting all info for lazy pin " + pin);
 		PinBuilder builder = new PinBuilder();
-		builder.setId(lazyPin.getId());
-		log.debug("Getting complete info for pin with id=" + Long.toString(lazyPin.getId()));
-		ClientResponse response = getWR(Protocol.HTTP, "pin/" + Long.toString(lazyPin.getId()) + "/", false).get(ClientResponse.class);
+		builder.setId(pin.getId());
+		log.debug("Getting complete info for pin with id=" + Long.toString(pin.getId()));
+		ClientResponse response = getWR(Protocol.HTTP, pin.getURL(), false).get(ClientResponse.class);
 		
-		if(response.getStatus() == 200) {
+		if(response.getStatus() == Status.OK.getStatusCode()) {
 			Document doc = Jsoup.parse(response.getEntity(String.class));
 			for(Element meta : doc.select("meta")) {
 				String propName = meta.attr("property");
@@ -135,8 +142,8 @@ public class PinAPI extends CoreAPI {
 				builder.setLiked(false);
 			}
 		}
-		else if(response.getStatus() == 404) {
-			throw new PinterestPinNotFoundException(lazyPin);
+		else if(response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
+			throw new PinterestPinNotFoundException(pin);
 		}
 		else {
 			throw new PinterestRuntimeException(response, PINS_OBTAINING_ERROR + "bad server response");
@@ -153,13 +160,13 @@ public class PinAPI extends CoreAPI {
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlPins = doc.select("div.pin");
 		for(Element htmlPin : htmlPins) {
-			if(htmlPin.hasAttr("data-id")) {
-				long pinID = Long.valueOf(htmlPin.attr("data-id"));
+			if(htmlPin.hasAttr(PinAPI.PIN_ID_ATTR)) {
+				long pinID = Long.valueOf(htmlPin.attr(PinAPI.PIN_ID_ATTR));
 				pinList.add(new LazyPin(pinID, this));
 			}
 		}
 		
-		log.debug("Collected pins: " + pinList.size());
+		log.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 	
@@ -173,7 +180,7 @@ public class PinAPI extends CoreAPI {
 			pinsLoaded = !pinPartialList.isEmpty();
 			pinList.addAll(pinPartialList);
 		}
-		log.debug("Collected pins: " + pinList.size());
+		log.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 	
@@ -185,13 +192,13 @@ public class PinAPI extends CoreAPI {
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlPins = doc.select("div.pin");
 		for(Element htmlPin : htmlPins) {
-			if(htmlPin.hasAttr("data-id")) {
-				long pinID = Long.valueOf(htmlPin.attr("data-id"));
+			if(htmlPin.hasAttr(PinAPI.PIN_ID_ATTR)) {
+				long pinID = Long.valueOf(htmlPin.attr(PinAPI.PIN_ID_ATTR));
 				pinList.add(new LazyPin(pinID, this));
 			}
 		}
 		
-		log.debug("Collected pins: " + pinList.size());
+		log.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 	
@@ -205,14 +212,14 @@ public class PinAPI extends CoreAPI {
 			pinsLoaded = !pinPartialList.isEmpty();
 			pinList.addAll(pinPartialList);
 		}
-		log.debug("Collected pins: " + pinList.size());
+		log.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 
 	public void deletePin(Pin pin) {
 		log.debug("Deleting pin " + pin);
-		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/delete/").entity("{}").post(ClientResponse.class);
-		if(response.getStatus() != 200) {
+		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "delete/").entity("{}").post(ClientResponse.class);
+		if(response.getStatus() != Status.OK.getStatusCode()) {
 			throw new PinterestRuntimeException(response, PIN_DELETION_ERROR + "bad server response");
 		}
 		log.debug("Pin deleted");
@@ -225,14 +232,14 @@ public class PinAPI extends CoreAPI {
 		if(descLength == 0) {
 			throw new PinMessageSizeException(PinMessageSizeException.MSG_ZERO_SIZE);
 		}
-		if(descLength > 500) {
+		if(descLength > MAX_PIN_DESCRIPTION_LENGTH) {
 			throw new PinMessageSizeException(PinMessageSizeException.MSG_TOO_LONG);
 		}
 		NewPin newPin = new NewPin(description, price, link, "", null);
 		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), newPin);
-		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/edit/").
+		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "edit/").
 				type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, multipartForm);
-		if(response.getStatus() != 200) {
+		if(response.getStatus() != Status.OK.getStatusCode()) {
 			throw new PinterestRuntimeException(response, PIN_UPDATE_ERROR + "bad server response");
 		}
 		Pin updatedPin = new LazyPin(pin.getId(), this);
@@ -258,10 +265,10 @@ public class PinAPI extends CoreAPI {
 		log.debug(String.format("Repining pin = %s on board = %s with descr = %s", pin, board, newDescription));
 		Form repinForm = createRepinForm(pin, board, newDescription);
 		Pin repinedPin = null;
-		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/repin/").post(ClientResponse.class, repinForm);
+		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "repin/").post(ClientResponse.class, repinForm);
 		Map<String, String> responseMap = parseResponse(response, PIN_REPIN_ERROR);
-		if(!responseMap.get("status").equals("success")) {
-			throw new PinterestRuntimeException(PIN_REPIN_ERROR + responseMap.get("message"));
+		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
+			throw new PinterestRuntimeException(PIN_REPIN_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}		
 		repinedPin = new LazyPin(responseMap.get("repin_url"), this);
 		log.debug("Created repined pin=" + repinedPin);
@@ -274,15 +281,15 @@ public class PinAPI extends CoreAPI {
 		Form likeForm = new Form();
 		likeForm.add("bla", "bla");
 		if(like) {
-			response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/like/").post(ClientResponse.class, likeForm);
+			response = getWR(Protocol.HTTP, pin.getURL()+ "like/").post(ClientResponse.class, likeForm);
 		}
 		else {
 			likeForm.add("unlike", 1);
-			response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/like/").post(ClientResponse.class, likeForm);
+			response = getWR(Protocol.HTTP, pin.getURL() + "like/").post(ClientResponse.class, likeForm);
 		}
 		Map<String, String> responseMap = parseResponse(response, PIN_REPIN_ERROR);
-		if(!responseMap.get("status").equals("success")) {
-			throw new PinterestRuntimeException(PIN_LIKE_ERROR + responseMap.get("message"));
+		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
+			throw new PinterestRuntimeException(PIN_LIKE_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		log.debug("Pin like mark set to " + like);
 		return new LazyPin(pin.getId(), this);
@@ -291,7 +298,7 @@ public class PinAPI extends CoreAPI {
 	private Form createCommentForm(Pin pin, String comment) {
 		Form form = new Form();
 		form.add("text", comment);
-		form.add("path", "/pin/" + pin.getId() + "/");
+		form.add("path", "/" + pin.getURL());
 		form.add("replies", "");
 		return form;
 	}
@@ -299,10 +306,10 @@ public class PinAPI extends CoreAPI {
 	public Comment addCommentToPin(Pin pin, String comment, User user) {
 		log.debug(String.format("Adding comment to pin = %s with text = '%s'", pin, comment));
 		Form commentForm = createCommentForm(pin, comment);
-		ClientResponse response = getWR(Protocol.HTTP, "pin/" + pin.getId() + "/comment/").post(ClientResponse.class, commentForm);
+		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "comment/").post(ClientResponse.class, commentForm);
 		Map<String, String> responseMap = parseResponse(response, PIN_COMMENT_ERROR);
-		if(!responseMap.get("status").equals("success")) {
-			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get("message"));
+		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
+			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		Comment newComment = new CommentImpl(Long.valueOf(responseMap.get("id")), comment, user, pin);
 		log.debug("Comment created: " + newComment);
@@ -313,10 +320,10 @@ public class PinAPI extends CoreAPI {
 		log.debug(String.format("Deleting comment = %s", comment));
 		Form commentForm = new Form();
 		commentForm.add("comment", comment.getId());
-		ClientResponse response = getWR(Protocol.HTTP, "pin/" + comment.getPin().getId() + "/deletecomment/").post(ClientResponse.class, commentForm);
+		ClientResponse response = getWR(Protocol.HTTP, comment.getPin().getURL() + "deletecomment/").post(ClientResponse.class, commentForm);
 		Map<String, String> responseMap = parseResponse(response, PIN_COMMENT_ERROR);
 		if(!responseMap.get("status").equals("success")) {
-			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get("message"));
+			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		log.debug("Comment deleted");
 	}

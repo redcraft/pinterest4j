@@ -3,20 +3,20 @@ package ru.redcraft.pinterest4j;
 
 public interface Board {
 
-	public long getId();
+	long getId();
 	
-	public String getURL();
+	String getURL();
 	
-	public String getTitle();
+	String getTitle();
 	
-	public String getDescription();
+	String getDescription();
 	
-	public BoardCategory getCategory();
+	BoardCategory getCategory();
 	
-	public int getPinsCount();
+	int getPinsCount();
 	
-	public int getPageCount();
+	int getPageCount();
 	
-	public int getFollowersCount();
+	int getFollowersCount();
 	
 }

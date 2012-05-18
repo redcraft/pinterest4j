@@ -22,7 +22,7 @@ public class PinterestImpl implements Pinterest {
 	public PinterestImpl(String login, String password) throws PinterestAuthException {
 		InternalAPIManager internalAPI = new InternalAPIManager(login, password);
 		managerBundle = new ManagerBundle(internalAPI);
-		this.user = getUserForName(login);
+		this.user = managerBundle.getUserManager().getUserForName(login);
 	}
 
 	public Board getBoardByURL(String url) {
