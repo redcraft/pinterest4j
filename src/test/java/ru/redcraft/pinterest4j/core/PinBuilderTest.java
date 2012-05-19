@@ -1,11 +1,12 @@
 package ru.redcraft.pinterest4j.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Pin;
+import ru.redcraft.pinterest4j.User;
 
 public class PinBuilderTest {
 
@@ -18,6 +19,11 @@ public class PinBuilderTest {
 		String link = "http://some_link";
 		String imageURL = "http://some_url";
 		boolean liked = true;
+		int likesCount = 23;
+		int repinsCount = 43;
+		User pinner = new UserImpl("pinner");
+		User originalPinner = new UserImpl("original_pinner");
+		boolean repined = true;
 		Board board = new BoardImpl(0, "", "", "", BoardCategoryImpl.OTHER, 0, 0, 0);
 		builder.setId(id)
 			   .setDescription(description)
@@ -25,7 +31,12 @@ public class PinBuilderTest {
 			   .setLink(link)
 			   .setImageURL(imageURL)
 			   .setBoard(board)
-			   .setLiked(liked);
+			   .setLiked(liked)
+			   .setLikesCount(likesCount)
+			   .setRepinsCount(repinsCount)
+			   .setPinner(pinner)
+			   .setOriginalPinner(originalPinner)
+			   .setRepined(repined);
 		
 		assertEquals(id, builder.getId());
 		assertEquals(description, builder.getDescription());
@@ -34,6 +45,11 @@ public class PinBuilderTest {
 		assertEquals(imageURL, builder.getImageURL());
 		assertEquals(board, builder.getBoard());
 		assertEquals(liked, builder.isLiked());
+		assertEquals(likesCount, builder.getLikesCount());
+		assertEquals(repinsCount, builder.getRepinsCount());
+		assertEquals(pinner, builder.getPinner());
+		assertEquals(originalPinner, builder.getOriginalPinner());
+		assertEquals(repined, builder.isRepined());
 		
 		Pin pin = builder.build();
 		assertEquals(id, pin.getId());
@@ -43,6 +59,11 @@ public class PinBuilderTest {
 		assertEquals(imageURL, pin.getImageURL());
 		assertEquals(board, pin.getBoard());
 		assertEquals(liked, pin.isLiked());
+		assertEquals(likesCount, pin.getLikesCount());
+		assertEquals(repinsCount, pin.getRepinsCount());
+		assertEquals(pinner, pin.getPinner());
+		assertEquals(originalPinner, pin.getOriginalPinner());
+		assertEquals(repined, pin.isRepined());
 	}
 
 }

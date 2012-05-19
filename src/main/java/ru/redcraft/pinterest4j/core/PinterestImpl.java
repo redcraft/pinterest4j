@@ -110,12 +110,16 @@ public class PinterestImpl implements Pinterest {
 		return managerBundle.getPinManager().unlikePin(pin);
 	}
 
-	public Comment addCommentToPin(Pin pin, String comment) {
+	public Comment addComment(Pin pin, String comment) {
 		return managerBundle.getPinManager().addCommentToPin(pin, comment, user);
 	}
 
 	public void deleteComment(Comment comment) {
 		managerBundle.getPinManager().deleteComment(comment);
+	}
+
+	public List<Comment> getComments(Pin pin) {
+		return managerBundle.getPinManager().getComments(pin);
 	}
 
 }

@@ -2,6 +2,7 @@ package ru.redcraft.pinterest4j.core.api;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,8 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -43,6 +46,10 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_PINBOARD_PROP_NAME = "pinterestapp:pinboard";
 	private static final String PIN_LINK_PROP_NAME = "pinterestapp:source";
 	private static final String PIN_PRICE_PROP_NAME = "pinterestapp:price";
+	private static final String PIN_PINNER_PROP_NAME = "pinterestapp:pinner";
+	private static final String PIN_LIKES_COUNT_PROP_NAME = "pinterestapp:likes";
+	private static final String PIN_REPINS_COUNT_PROP_NAME = "pinterestapp:repins";
+	private static final String PIN_COMMENTS_COUNT_PROP_NAME = "pinterestapp:comments";
 	private static final String PIN_ID_ATTR = "data-id";
 	
 	private static final Logger log = Logger.getLogger(PinAPI.class);
@@ -54,6 +61,7 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_COMMENT_ERROR = "PIN COMMENT ERROR: ";
 	private static final String PIN_LIKE_ERROR = "PIN LIKE ERROR: ";
 	private static final String PINS_OBTAINING_ERROR = "PIN OBTAIN ERROR: ";
+	private static final String COMMENTS_OBTAINING_ERROR = "COMMENTS OBTAINING ERROR";
 	
 	private static final String COLLECTED_PINS = "Collected pins: ";
 	
@@ -117,24 +125,32 @@ public class PinAPI extends CoreAPI {
 		builder.setId(pin.getId());
 		log.debug("Getting complete info for pin with id=" + Long.toString(pin.getId()));
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL(), false).get(ClientResponse.class);
-		
 		if(response.getStatus() == Status.OK.getStatusCode()) {
 			Document doc = Jsoup.parse(response.getEntity(String.class));
+			
+			Map<String, String> metaMap = new HashMap<String, String>();
 			for(Element meta : doc.select("meta")) {
-				String propName = meta.attr("property");
-				String propContent = meta.attr("content");
-				if(propName.equals(PIN_DESCRIPTION_PROP_NAME)) {
-					builder.setDescription(propContent);
-				} else if(propName.equals(PIN_IMAGE_PROP_NAME)) {
-					builder.setImageURL(propContent);
-				} else if(propName.equals(PIN_LINK_PROP_NAME)) {
-					builder.setLink(propContent);
-				} else if(propName.equals(PIN_PRICE_PROP_NAME)) {
-					builder.setPrice(Double.valueOf(propContent));
-				} else if(propName.equals(PIN_PINBOARD_PROP_NAME)) {
-					builder.setBoard(new LazyBoard(propContent.replace("http://pinterest.com", ""), apiManager.getBoardAPI()));
-				}
+				metaMap.put(meta.attr("property"), meta.attr("content"));
 			}
+			builder.setDescription(metaMap.get(PIN_DESCRIPTION_PROP_NAME));
+			builder.setImageURL(metaMap.get(PIN_IMAGE_PROP_NAME));
+			builder.setLink(metaMap.get(PIN_LINK_PROP_NAME));
+			builder.setPrice(Double.valueOf(metaMap.get(PIN_PRICE_PROP_NAME)));
+			builder.setLikesCount(Integer.valueOf(metaMap.get(PIN_LIKES_COUNT_PROP_NAME)));
+			builder.setRepinsCount(Integer.valueOf(metaMap.get(PIN_REPINS_COUNT_PROP_NAME)));
+			builder.setBoard(new LazyBoard(metaMap.get(PIN_PINBOARD_PROP_NAME).replace(PINTEREST_URL, ""), apiManager.getBoardAPI()));
+			builder.setPinner(new LazyUser(metaMap.get(PIN_PINNER_PROP_NAME).replace(PINTEREST_URL, "").replace("/", ""), apiManager.getUserAPI()));
+			
+			Elements pinners = doc.select("p#PinnerName").first().getElementsByTag("a");
+			if(pinners.size() > 1) {
+				builder.setOriginalPinner(new LazyUser(pinners.get(1).attr("href").replace("/", ""), apiManager.getUserAPI()));
+				builder.setRepined(true);
+			}
+			else {
+				builder.setOriginalPinner(builder.getPinner());
+				builder.setRepined(false);
+			}
+			
 			if(doc.select("li.unlike-button").size() == 1) {
 				builder.setLiked(true);
 			}
@@ -326,6 +342,35 @@ public class PinAPI extends CoreAPI {
 			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		log.debug("Comment deleted");
+	}
+
+	public List<Comment> getComments(Pin pin) {
+		log.debug("Getting comments for pin = " + pin);
+		List<Comment> comments = new ArrayList<Comment>();
+		ClientResponse response = getWR(Protocol.HTTP, pin.getURL()).get(ClientResponse.class);
+		if(response.getStatus() == Status.OK.getStatusCode()) {
+			Document doc = null;
+			String axajResponse = null;
+			try{
+				axajResponse = response.getEntity(String.class);
+				doc = Jsoup.parse(new JSONObject(axajResponse).getString("footer"));
+			} catch(JSONException e) {
+				throw new PinterestRuntimeException(COMMENTS_OBTAINING_ERROR + axajResponse, e);
+			}
+			for(Element comment : doc.select("div.comment")) {
+				long id = Long.valueOf(comment.getElementsByClass("DeleteComment").first().attr("data"));
+				Element contentMeta = comment.getElementsByClass("CommenterMeta").first();
+				User user = new LazyUser(contentMeta.getElementsByTag("a").first().attr("href").replace("/", ""), apiManager.getUserAPI());
+				contentMeta.getElementsByTag("a").remove();
+				String text = contentMeta.text();
+				comments.add(new CommentImpl(id, text, user, pin));
+			}
+		}
+		else {
+			throw new PinterestRuntimeException(response, COMMENTS_OBTAINING_ERROR + "bad server response");
+		}
+		log.debug("Comments extracted: " + comments);
+		return comments;
 	}
 
 }

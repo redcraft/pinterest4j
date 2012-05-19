@@ -26,6 +26,7 @@ public abstract class CoreAPI {
 	private static final String PINTEREST_DOMAIN = "pinterest.com";
 	private static final String COOKIE_HEADER_NAME = "Cookie";
 	
+	protected static final String PINTEREST_URL = "http://pinterest.com";
 	protected static final String RESPONSE_STATUS_FIELD = "status";
 	protected static final String RESPONSE_MESSAGE_FIELD = "message";
 	protected static final String RESPONSE_SUCCESS_STATUS = "success";

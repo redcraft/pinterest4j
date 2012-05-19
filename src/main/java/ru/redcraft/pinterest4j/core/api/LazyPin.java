@@ -2,6 +2,7 @@ package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Pin;
+import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.PinImpl;
 
 public class LazyPin implements Pin {
@@ -52,6 +53,26 @@ public class LazyPin implements Pin {
 	
 	public boolean isLiked() {
 		return getTarget().isLiked();
+	}
+	
+	public int getLikesCount() {
+		return getTarget().getLikesCount();
+	}
+
+	public int getRepinsCount() {
+		return getTarget().getRepinsCount();
+	}
+
+	public User getPinner() {
+		return getTarget().getPinner();
+	}
+
+	public User getOriginalPinner() {
+		return getTarget().getOriginalPinner();
+	}
+
+	public boolean isRepined() {
+		return getTarget().isRepined();
 	}
 
 	public String getURL() {

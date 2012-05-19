@@ -71,4 +71,8 @@ public class PinManager extends BaseManager {
 	public void deleteComment(Comment comment) {
 		apiManager.getPinAPI().deleteComment(comment);
 	}
+
+	public List<Comment> getComments(Pin pin) {
+		return apiManager.getPinAPI().getComments(pin);
+	}
 }

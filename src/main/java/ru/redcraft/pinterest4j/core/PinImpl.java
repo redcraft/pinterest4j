@@ -2,6 +2,7 @@ package ru.redcraft.pinterest4j.core;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Pin;
+import ru.redcraft.pinterest4j.User;
 
 public class PinImpl implements Pin {
 
@@ -12,9 +13,15 @@ public class PinImpl implements Pin {
 	private final String imageURL;
 	private final Board board;
 	private final boolean liked;
+	private final int likesCount;
+	private final int repinsCount;
+	private final User pinner;
+	private final User originalPinner;
+	private final boolean repined;
 	
 	public PinImpl(long id, String description, double price, String link, String imageUrl,
-			Board board, boolean liked) {
+			Board board, boolean liked, int likesCount, int repinsCount, User pinner, User originalPinner,
+			boolean repined) {
 		super();
 		this.id = id;
 		this.description = description;
@@ -23,6 +30,11 @@ public class PinImpl implements Pin {
 		this.imageURL = imageUrl;
 		this.board = board;
 		this.liked = liked;
+		this.likesCount = likesCount;
+		this.repinsCount = repinsCount;
+		this.pinner = pinner;
+		this.originalPinner = originalPinner;
+		this.repined = repined;
 	}
 
 	public long getId() {
@@ -51,6 +63,26 @@ public class PinImpl implements Pin {
 	
 	public boolean isLiked() {
 		return liked;
+	}
+
+	public int getLikesCount() {
+		return likesCount;
+	}
+
+	public int getRepinsCount() {
+		return repinsCount;
+	}
+
+	public User getPinner() {
+		return pinner;
+	}
+
+	public User getOriginalPinner() {
+		return originalPinner;
+	}
+
+	public boolean isRepined() {
+		return repined;
 	}
 
 	public String getURL() {

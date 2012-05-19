@@ -1,11 +1,14 @@
 package ru.redcraft.pinterest4j;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
@@ -19,13 +22,19 @@ public class PinMethodsTest extends PinterestTestBase {
 
 	private Board board1;
 	private Board board2;
+	private String testDescription;
+	private double testPrice = 10;
+	private Pin testPin;
 	
 	@Before
-	public void pinTestInitialize() throws PinterestAuthException, PinterestBoardExistException {
+	public void pinTestInitialize() throws PinterestAuthException, PinterestBoardExistException, PinMessageSizeException {
 		NewBoard newBoard = new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.CARS_AND_MOTORCYCLES);
 		board1 = pinterest1.createBoard(newBoard);
 		newBoard = new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.CARS_AND_MOTORCYCLES);
 		board2 = pinterest1.createBoard(newBoard);
+		testDescription = UUID.randomUUID().toString();
+		NewPin newPin = new NewPin(testDescription, testPrice, webLink, imageLink, null);
+		testPin = pinterest1.addPinToBoard(board2, newPin);
 	}
 	
 	@After
@@ -129,40 +138,69 @@ public class PinMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void repinTest() throws PinMessageSizeException {
-		String description = UUID.randomUUID().toString();
 		String newDescription = UUID.randomUUID().toString();
-		double newPrice = 10;
-		NewPin newPin = new NewPin(description, newPrice, webLink, imageLink, null);
-		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
-		Pin repinedPin = pinterest1.repin(createdPin, board2, newDescription);
+		Pin repinedPin = pinterest1.repin(testPin, board2, newDescription);
 		assertEquals(newDescription, repinedPin.getDescription());
-		repinedPin = pinterest1.repin(createdPin, board2, null);
-		assertEquals(description, repinedPin.getDescription());
+		repinedPin = pinterest1.repin(testPin, board2, null);
+		assertEquals(testDescription, repinedPin.getDescription());
 	}
 	
 	@Test
 	public void likeTest() throws PinMessageSizeException {
-		String description = UUID.randomUUID().toString();
-		double newPrice = 10;
-		NewPin newPin = new NewPin(description, newPrice, webLink, imageLink, null);
-		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
-		assertEquals(false, createdPin.isLiked());
-		Pin likedPin = pinterest2.likePin(createdPin);
+		assertEquals(false, testPin.isLiked());
+		Pin likedPin = pinterest2.likePin(testPin);
 		assertEquals(true, likedPin.isLiked());
 		Pin unlikedPin = pinterest2.unlikePin(likedPin);
 		assertEquals(false, unlikedPin.isLiked());
 	}
 	
 	@Test
-	public void commentTest() throws PinMessageSizeException {
-		String description = UUID.randomUUID().toString();
-		double newPrice = 10;
-		NewPin newPin = new NewPin(description, newPrice, webLink, imageLink, null);
-		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
-		String commentText = UUID.randomUUID().toString();
-		Comment createdComment = pinterest1.addCommentToPin(createdPin, commentText);
-		assertEquals(commentText, createdComment.getText());
-		assertEquals(pinterest1.getUser(), createdComment.getUser());
-		pinterest1.deleteComment(createdComment);
+	public void commentTest() throws PinMessageSizeException, InterruptedException {
+		assertEquals(0, pinterest1.getComments(testPin).size());
+		
+		String commentText1 = UUID.randomUUID().toString();
+		String commentText2 = UUID.randomUUID().toString();
+		
+		Comment createdComment1 = pinterest1.addComment(testPin, commentText1);
+		assertEquals(commentText1, createdComment1.getText());
+		assertEquals(createdComment1.getUser(), pinterest1.getUser());
+		assertEquals(1, pinterest1.getComments(testPin).size());
+		
+		Comment createdComment2 = pinterest2.addComment(testPin, commentText2);
+		List<Comment> comments = pinterest1.getComments(testPin);
+		
+		assertEquals(2, pinterest1.getComments(testPin).size());
+		assertEquals(commentText1, comments.get(0).getText());
+		assertEquals(createdComment1.getId(), comments.get(0).getId());
+		assertEquals(pinterest1.getUser(), comments.get(0).getUser());
+		assertEquals(testPin, comments.get(0).getPin());
+		
+		assertEquals(commentText2, comments.get(1).getText());
+		assertEquals(createdComment2.getId(), comments.get(1).getId());
+		assertEquals(pinterest2.getUser(), comments.get(1).getUser());
+		assertEquals(testPin, comments.get(1).getPin());
+		
+		pinterest1.deleteComment(createdComment1);
+		pinterest2.deleteComment(createdComment2);
+		assertEquals(0, pinterest1.getComments(testPin).size());
+	}
+	
+	@Test
+	public void pinCountersTest() throws PinterestBoardExistException {
+		assertEquals(0, testPin.getLikesCount());
+		assertEquals(0, testPin.getRepinsCount());
+		assertEquals(pinterest1.getUser(), testPin.getPinner());
+		assertEquals(pinterest1.getUser(), testPin.getOriginalPinner());
+		assertEquals(false, testPin.isRepined());
+		pinterest2.likePin(testPin);
+		Board repinsBoard = pinterest2.createBoard(new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.ARCHITECTURE));
+		Pin repinedPin = pinterest2.repin(testPin, repinsBoard, null);
+		Pin refreshedPin = pinterest1.getPinByID(testPin.getId());
+		assertEquals(1, refreshedPin.getLikesCount());
+		assertEquals(1, refreshedPin.getRepinsCount());
+		assertEquals(pinterest2.getUser(), repinedPin.getPinner());
+		assertEquals(pinterest1.getUser(), repinedPin.getOriginalPinner());
+		assertEquals(true, repinedPin.isRepined());
+		pinterest2.deleteBoard(repinsBoard);
 	}
 }

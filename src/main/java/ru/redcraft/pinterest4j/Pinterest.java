@@ -52,9 +52,11 @@ public interface Pinterest {
 	
 	Pin unlikePin(Pin pin);
 	
-	Comment addCommentToPin(Pin pin, String comment);
+	Comment addComment(Pin pin, String comment);
 	
 	void deleteComment(Comment comment);
+	
+	List<Comment> getComments(Pin pin);
 	
 	//User
 	

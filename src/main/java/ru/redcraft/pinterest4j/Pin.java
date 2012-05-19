@@ -18,4 +18,14 @@ public interface Pin {
 	
 	boolean isLiked();
 	
+	int getLikesCount();
+	
+	int getRepinsCount();
+	
+	User getPinner();
+	
+	User getOriginalPinner();
+	
+	boolean isRepined();
+	
 }
