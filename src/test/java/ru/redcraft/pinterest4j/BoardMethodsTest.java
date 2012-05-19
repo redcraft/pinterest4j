@@ -17,7 +17,7 @@ import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 public class BoardMethodsTest extends PinterestTestBase {
 	
 	@Test
-	public void boardLifeCircleTest() throws PinterestBoardExistException {
+	public void boardLifeCircleTest() {
 		String newTitle = UUID.randomUUID().toString();
 		BoardCategory newCategory = BoardCategoryImpl.DESIGN;
 		
@@ -64,7 +64,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void boardUpdateWithoutParameters() throws PinterestBoardExistException {
+	public void boardUpdateWithoutParameters() {
 		String newTitle = UUID.randomUUID().toString();
 		BoardCategory newCategory = BoardCategoryImpl.DESIGN;
 		NewBoard newBoard = new NewBoard(newTitle, newCategory);

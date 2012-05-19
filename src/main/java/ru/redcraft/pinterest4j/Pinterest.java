@@ -5,7 +5,6 @@ import java.util.List;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
-import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
 
 public interface Pinterest {
@@ -18,7 +17,7 @@ public interface Pinterest {
 	
 	List<Board> getBoards();
 	
-	Board createBoard(NewBoard newBoard) throws PinterestBoardExistException;
+	Board createBoard(NewBoard newBoard);
 	
 	Board updateBoard(Board board, String title,	String description, BoardCategory category);
 	

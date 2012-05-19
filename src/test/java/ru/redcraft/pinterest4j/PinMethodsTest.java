@@ -27,7 +27,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	private Pin testPin;
 	
 	@Before
-	public void pinTestInitialize() throws PinterestAuthException, PinterestBoardExistException, PinMessageSizeException {
+	public void pinTestInitialize() throws PinterestAuthException, PinMessageSizeException {
 		NewBoard newBoard = new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.CARS_AND_MOTORCYCLES);
 		board1 = pinterest1.createBoard(newBoard);
 		newBoard = new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.CARS_AND_MOTORCYCLES);
@@ -186,7 +186,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void pinCountersTest() throws PinterestBoardExistException {
+	public void pinCountersTest() {
 		assertEquals(0, testPin.getLikesCount());
 		assertEquals(0, testPin.getRepinsCount());
 		assertEquals(0, testPin.getCommentsCount());

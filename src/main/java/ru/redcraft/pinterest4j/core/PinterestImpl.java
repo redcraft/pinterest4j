@@ -12,7 +12,6 @@ import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
 import ru.redcraft.pinterest4j.core.managers.ManagerBundle;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
-import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
 public class PinterestImpl implements Pinterest {
 
@@ -41,7 +40,7 @@ public class PinterestImpl implements Pinterest {
 		return getBoardsForUser(user);
 	}
 
-	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
+	public Board createBoard(NewBoard newBoard) {
 		return managerBundle.getBoardManager().createBoard(newBoard);
 	}
 

@@ -20,7 +20,7 @@ public class BoardManager extends BaseManager {
 		return apiManager.getBoardAPI().getBoards(user);
 	}
 
-	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
+	public Board createBoard(NewBoard newBoard) {
 		return apiManager.getBoardAPI().createBoard(newBoard);
 	}
 

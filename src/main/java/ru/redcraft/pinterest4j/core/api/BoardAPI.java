@@ -79,7 +79,7 @@ public final class BoardAPI extends CoreAPI {
 		return String.format("/%s/%s/", login, encodeTitle(title));
 	}
 
-	public Board createBoard(NewBoard newBoard) throws PinterestBoardExistException {
+	public Board createBoard(NewBoard newBoard) {
 		log.debug("Creating board for user = " + accessToken.getLogin() + "using info: " + newBoard);
 		LazyBoard createdBoard = null;
 		Form newBoardForm = createNewBoardForm(newBoard);
