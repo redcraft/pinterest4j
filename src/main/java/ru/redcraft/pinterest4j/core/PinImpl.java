@@ -15,12 +15,13 @@ public class PinImpl implements Pin {
 	private final boolean liked;
 	private final int likesCount;
 	private final int repinsCount;
+	private final int commentsCount;
 	private final User pinner;
 	private final User originalPinner;
 	private final boolean repined;
 	
 	public PinImpl(long id, String description, double price, String link, String imageUrl,
-			Board board, boolean liked, int likesCount, int repinsCount, User pinner, User originalPinner,
+			Board board, boolean liked, int likesCount, int repinsCount, int commentsCount, User pinner, User originalPinner,
 			boolean repined) {
 		super();
 		this.id = id;
@@ -32,6 +33,7 @@ public class PinImpl implements Pin {
 		this.liked = liked;
 		this.likesCount = likesCount;
 		this.repinsCount = repinsCount;
+		this.commentsCount = commentsCount;
 		this.pinner = pinner;
 		this.originalPinner = originalPinner;
 		this.repined = repined;
@@ -83,6 +85,10 @@ public class PinImpl implements Pin {
 
 	public boolean isRepined() {
 		return repined;
+	}
+	
+	public int getCommentsCount() {
+		return commentsCount;
 	}
 
 	public String getURL() {

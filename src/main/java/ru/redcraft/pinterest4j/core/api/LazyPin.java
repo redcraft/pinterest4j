@@ -75,6 +75,10 @@ public class LazyPin implements Pin {
 		return getTarget().isRepined();
 	}
 
+	public int getCommentsCount() {
+		return getTarget().getCommentsCount();
+	}
+	
 	public String getURL() {
 		return "pin/" + Long.toString(id) + "/";
 	}

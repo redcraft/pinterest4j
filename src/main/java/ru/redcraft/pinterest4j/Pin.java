@@ -22,6 +22,8 @@ public interface Pin {
 	
 	int getRepinsCount();
 	
+	int getCommentsCount();
+	
 	User getPinner();
 	
 	User getOriginalPinner();

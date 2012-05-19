@@ -189,15 +189,19 @@ public class PinMethodsTest extends PinterestTestBase {
 	public void pinCountersTest() throws PinterestBoardExistException {
 		assertEquals(0, testPin.getLikesCount());
 		assertEquals(0, testPin.getRepinsCount());
+		assertEquals(0, testPin.getCommentsCount());
 		assertEquals(pinterest1.getUser(), testPin.getPinner());
 		assertEquals(pinterest1.getUser(), testPin.getOriginalPinner());
 		assertEquals(false, testPin.isRepined());
 		pinterest2.likePin(testPin);
+		pinterest1.addComment(testPin, UUID.randomUUID().toString());
+		pinterest2.addComment(testPin, UUID.randomUUID().toString());
 		Board repinsBoard = pinterest2.createBoard(new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.ARCHITECTURE));
 		Pin repinedPin = pinterest2.repin(testPin, repinsBoard, null);
 		Pin refreshedPin = pinterest1.getPinByID(testPin.getId());
 		assertEquals(1, refreshedPin.getLikesCount());
 		assertEquals(1, refreshedPin.getRepinsCount());
+		assertEquals(2, refreshedPin.getCommentsCount());
 		assertEquals(pinterest2.getUser(), repinedPin.getPinner());
 		assertEquals(pinterest1.getUser(), repinedPin.getOriginalPinner());
 		assertEquals(true, repinedPin.isRepined());

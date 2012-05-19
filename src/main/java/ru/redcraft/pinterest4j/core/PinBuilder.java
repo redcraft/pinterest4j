@@ -15,6 +15,7 @@ public class PinBuilder implements Pin {
 	private boolean liked;
 	private int likesCount;
 	private int repinsCount;
+	private int commentsCount;
 	private User pinner;
 	private User originalPinner;
 	private boolean repined;
@@ -108,8 +109,16 @@ public class PinBuilder implements Pin {
 		return this;
 	}
 	
+	public int getCommentsCount() {
+		return commentsCount;
+	}
+	public PinBuilder setCommentsCount(int commentsCount) {
+		this.commentsCount = commentsCount;
+		return this;
+	}
+	
 	public PinImpl build() {
-		return new PinImpl(id, description, price, link, imageURL, board, liked, likesCount, repinsCount, pinner, originalPinner, repined);
+		return new PinImpl(id, description, price, link, imageURL, board, liked, likesCount, repinsCount, commentsCount, pinner, originalPinner, repined);
 	}
 	
 	public String getURL() {

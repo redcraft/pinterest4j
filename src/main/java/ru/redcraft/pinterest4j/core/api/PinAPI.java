@@ -138,6 +138,7 @@ public class PinAPI extends CoreAPI {
 			builder.setPrice(Double.valueOf(metaMap.get(PIN_PRICE_PROP_NAME)));
 			builder.setLikesCount(Integer.valueOf(metaMap.get(PIN_LIKES_COUNT_PROP_NAME)));
 			builder.setRepinsCount(Integer.valueOf(metaMap.get(PIN_REPINS_COUNT_PROP_NAME)));
+			builder.setCommentsCount(Integer.valueOf(metaMap.get(PIN_COMMENTS_COUNT_PROP_NAME)));
 			builder.setBoard(new LazyBoard(metaMap.get(PIN_PINBOARD_PROP_NAME).replace(PINTEREST_URL, ""), apiManager.getBoardAPI()));
 			builder.setPinner(new LazyUser(metaMap.get(PIN_PINNER_PROP_NAME).replace(PINTEREST_URL, "").replace("/", ""), apiManager.getUserAPI()));
 			

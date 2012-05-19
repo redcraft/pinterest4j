@@ -21,6 +21,7 @@ public class PinBuilderTest {
 		boolean liked = true;
 		int likesCount = 23;
 		int repinsCount = 43;
+		int commentsCount = 55;
 		User pinner = new UserImpl("pinner");
 		User originalPinner = new UserImpl("original_pinner");
 		boolean repined = true;
@@ -36,7 +37,8 @@ public class PinBuilderTest {
 			   .setRepinsCount(repinsCount)
 			   .setPinner(pinner)
 			   .setOriginalPinner(originalPinner)
-			   .setRepined(repined);
+			   .setRepined(repined)
+			   .setCommentsCount(commentsCount);
 		
 		assertEquals(id, builder.getId());
 		assertEquals(description, builder.getDescription());
@@ -47,6 +49,7 @@ public class PinBuilderTest {
 		assertEquals(liked, builder.isLiked());
 		assertEquals(likesCount, builder.getLikesCount());
 		assertEquals(repinsCount, builder.getRepinsCount());
+		assertEquals(commentsCount, builder.getCommentsCount());
 		assertEquals(pinner, builder.getPinner());
 		assertEquals(originalPinner, builder.getOriginalPinner());
 		assertEquals(repined, builder.isRepined());
@@ -61,6 +64,7 @@ public class PinBuilderTest {
 		assertEquals(liked, pin.isLiked());
 		assertEquals(likesCount, pin.getLikesCount());
 		assertEquals(repinsCount, pin.getRepinsCount());
+		assertEquals(commentsCount, pin.getCommentsCount());
 		assertEquals(pinner, pin.getPinner());
 		assertEquals(originalPinner, pin.getOriginalPinner());
 		assertEquals(repined, pin.isRepined());
