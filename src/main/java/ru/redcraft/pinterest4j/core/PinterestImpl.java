@@ -24,20 +24,20 @@ public class PinterestImpl implements Pinterest {
 		this.user = managerBundle.getUserManager().getUserForName(login);
 	}
 
-	public Board getBoardByURL(String url) {
+	public Board getBoard(String url) {
 		return managerBundle.getBoardManager().getBoardByURL(url);
 	}
 	
-	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException {
+	public Pin addPin(Board board, NewPin newPin) throws PinMessageSizeException {
 		return managerBundle.getPinManager().addPinToBoard(board, newPin);
 	}
 
-	public List<Board> getBoardsForUser(User user) {
+	public List<Board> getBoards(User user) {
 		return managerBundle.getBoardManager().getBoards(user);
 	}
 	
 	public List<Board> getBoards() {
-		return getBoardsForUser(user);
+		return getBoards(user);
 	}
 
 	public Board createBoard(NewBoard newBoard) {
@@ -53,7 +53,7 @@ public class PinterestImpl implements Pinterest {
 		managerBundle.getBoardManager().deleteBoard(board);
 	}
 
-	public User getUserForName(String userName) {
+	public User getUser(String userName) {
 		return managerBundle.getUserManager().getUserForName(userName);
 	}
 
@@ -93,7 +93,7 @@ public class PinterestImpl implements Pinterest {
 		return user;
 	}
 
-	public Pin getPinByID(long id) {
+	public Pin getPin(long id) {
 		return managerBundle.getPinManager().getPinByID(id);
 	}
 

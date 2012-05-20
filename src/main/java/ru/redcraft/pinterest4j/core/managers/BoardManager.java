@@ -7,7 +7,6 @@ import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
-import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 
 public class BoardManager extends BaseManager {
 

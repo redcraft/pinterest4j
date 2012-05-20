@@ -11,21 +11,21 @@ public interface Pinterest {
 
 	//Boards
 	
-	Board getBoardByURL(String url);
+	Board getBoard(String url);
 	
-	List<Board> getBoardsForUser(User user);
+	List<Board> getBoards(User user);
 	
 	List<Board> getBoards();
 	
 	Board createBoard(NewBoard newBoard);
 	
-	Board updateBoard(Board board, String title,	String description, BoardCategory category);
+	Board updateBoard(Board board, String title, String description, BoardCategory category);
 	
 	void deleteBoard(Board board);
 	
 	//Pin
 	
-	Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException;
+	Pin addPin(Board board, NewPin newPin) throws PinMessageSizeException;
 	
 	List<Pin> getPins(Board board);
 	
@@ -43,7 +43,7 @@ public interface Pinterest {
 	
 	Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException;
 	
-	Pin getPinByID(long id);
+	Pin getPin(long id);
 	
 	Pin repin(Pin pin, Board board, String description);
 	
@@ -59,6 +59,6 @@ public interface Pinterest {
 	
 	//User
 	
-	User getUserForName(String userName);
+	User getUser(String userName);
 	User getUser();
 }

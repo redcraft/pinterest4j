@@ -1,7 +1,9 @@
 package ru.redcraft.pinterest4j;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.net.URISyntaxException;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -49,7 +51,12 @@ public class PinterestTestBase {
 	}
 	
 	public PinterestTestBase() {
-		ResourceBundle rb = ResourceBundle.getBundle(BUNDLE_NAME);
+		ResourceBundle rb = null;
+		try {
+			rb = new PropertyResourceBundle(new FileInputStream("/opt/redcraft/pinterest4j.properties"));
+		} catch (Exception e) {
+			rb = ResourceBundle.getBundle(BUNDLE_NAME);
+		}
 		id1 = getTestUserForPrefix(rb, "pinterest1");
 		id2 = getTestUserForPrefix(rb, "pinterest2");
 		idAutherror = getTestUserForPrefix(rb, "autherror");

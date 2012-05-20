@@ -95,12 +95,12 @@ public class BoardMethodsTest extends PinterestTestBase {
 	
 	@Test(expected=PinterestRuntimeException.class)
 	public void getBoarsExceptionTest() {
-		pinterest1.getBoardsForUser(nonexistentUser);
+		pinterest1.getBoards(nonexistentUser);
 	}
 	
 	@Test(expected=PinterestBoardNotFoundException.class)
 	public void getUnexistentBoardTest() {
-		pinterest1.getBoardByURL(UUID.randomUUID().toString());
+		pinterest1.getBoard(UUID.randomUUID().toString());
 	}
 	
 }

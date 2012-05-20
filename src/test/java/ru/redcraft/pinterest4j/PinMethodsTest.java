@@ -15,7 +15,6 @@ import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
-import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
 
 public class PinMethodsTest extends PinterestTestBase {
@@ -34,7 +33,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		board2 = pinterest1.createBoard(newBoard);
 		testDescription = UUID.randomUUID().toString();
 		NewPin newPin = new NewPin(testDescription, testPrice, webLink, imageLink, null);
-		testPin = pinterest1.addPinToBoard(board2, newPin);
+		testPin = pinterest1.addPin(board2, newPin);
 	}
 	
 	@After
@@ -49,7 +48,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		String newDescription = UUID.randomUUID().toString();
 		NewPin newPin = new NewPin(newDescription, 0, webLink, null, imageFile);
 		for(int i = 0; i < pinsCount; ++i) {
-			pinterest1.addPinToBoard(board1, newPin);
+			pinterest1.addPin(board1, newPin);
 		}
 		assertEquals(pinsCount, pinterest1.getPins(board1).size());
 		assertEquals(0, pinterest1.getPins(board1, 2).size());
@@ -65,7 +64,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		String newDescription = UUID.randomUUID().toString();
 		double newPrice = 10;
 		NewPin newPin = new NewPin(newDescription, newPrice, webLink, imageLink, null);
-		Pin createdPin = pinterest1.addPinToBoard(board1, newPin);
+		Pin createdPin = pinterest1.addPin(board1, newPin);
 		boolean pinCreated = false;
 		for(Pin pin : pinterest1.getPins(board1)) {
 			if(pin.getDescription().equals(newDescription)) {
@@ -120,7 +119,7 @@ public class PinMethodsTest extends PinterestTestBase {
 				"sssssssssssssssssssssssssss";
 		double newPrice = 10;
 		NewPin newPin = new NewPin(newDescription, newPrice, webLink, imageLink, null);
-		pinterest1.addPinToBoard(board1, newPin);
+		pinterest1.addPin(board1, newPin);
 	}
 	
 	@Test(expected=PinMessageSizeException.class)
@@ -128,12 +127,12 @@ public class PinMethodsTest extends PinterestTestBase {
 		String newDescription = "";
 		double newPrice = 10;
 		NewPin newPin = new NewPin(newDescription, newPrice, webLink, imageLink, null);
-		pinterest1.addPinToBoard(board1, newPin);
+		pinterest1.addPin(board1, newPin);
 	}
 	
 	@Test(expected=PinterestPinNotFoundException.class)
 	public void pinNotFoundExceptoinTest() {
-		pinterest1.getPinByID(13);
+		pinterest1.getPin(13);
 	}
 	
 	@Test
@@ -198,7 +197,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		pinterest2.addComment(testPin, UUID.randomUUID().toString());
 		Board repinsBoard = pinterest2.createBoard(new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.ARCHITECTURE));
 		Pin repinedPin = pinterest2.repin(testPin, repinsBoard, null);
-		Pin refreshedPin = pinterest1.getPinByID(testPin.getId());
+		Pin refreshedPin = pinterest1.getPin(testPin.getId());
 		assertEquals(1, refreshedPin.getLikesCount());
 		assertEquals(1, refreshedPin.getRepinsCount());
 		assertEquals(2, refreshedPin.getCommentsCount());
