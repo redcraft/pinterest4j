@@ -15,7 +15,6 @@ import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.BoardBuilder;
-import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
 import ru.redcraft.pinterest4j.core.BoardImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
@@ -120,7 +119,7 @@ public final class BoardAPI extends CoreAPI {
 				metaMap.put(meta.attr("property"), meta.attr("content"));
 			}
 			builder.setDescription(metaMap.get(BOARD_DESCRIPTION_PROP_NAME));
-			builder.setCategory(BoardCategoryImpl.getInstanceById(metaMap.get(BOARD_CATEGORY_PROP_NAME)));
+			builder.setCategory(BoardCategory.valueOf(metaMap.get(BOARD_CATEGORY_PROP_NAME).toUpperCase()));
 			builder.setPinsCount(Integer.valueOf(metaMap.get(BOARD_PINS_PROP_NAME)));
 			builder.setFollowersCount(Integer.valueOf(metaMap.get(BOARD_FOLLOWERS_PROP_NAME)));
 			builder.setTitle(metaMap.get(BOARD_TITLE_PROP_NAME));

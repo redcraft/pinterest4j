@@ -10,7 +10,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
@@ -27,9 +26,9 @@ public class PinMethodsTest extends PinterestTestBase {
 	
 	@Before
 	public void pinTestInitialize() throws PinterestAuthException, PinMessageSizeException {
-		NewBoard newBoard = new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.CARS_AND_MOTORCYCLES);
+		NewBoard newBoard = new NewBoard(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
 		board1 = pinterest1.createBoard(newBoard);
-		newBoard = new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.CARS_AND_MOTORCYCLES);
+		newBoard = new NewBoard(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
 		board2 = pinterest1.createBoard(newBoard);
 		testDescription = UUID.randomUUID().toString();
 		NewPin newPin = new NewPin(testDescription, testPrice, webLink, imageLink, null);
@@ -195,7 +194,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		pinterest2.likePin(testPin);
 		pinterest1.addComment(testPin, UUID.randomUUID().toString());
 		pinterest2.addComment(testPin, UUID.randomUUID().toString());
-		Board repinsBoard = pinterest2.createBoard(new NewBoard(UUID.randomUUID().toString(), BoardCategoryImpl.ARCHITECTURE));
+		Board repinsBoard = pinterest2.createBoard(new NewBoard(UUID.randomUUID().toString(), BoardCategory.ARCHITECTURE));
 		Pin repinedPin = pinterest2.repin(testPin, repinsBoard, null);
 		Pin refreshedPin = pinterest1.getPin(testPin.getId());
 		assertEquals(1, refreshedPin.getLikesCount());

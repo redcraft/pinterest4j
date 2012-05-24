@@ -59,5 +59,5 @@ public class BoardImpl implements Board {
 	public int getFollowersCount() {
 		return followersCount;
 	}
-
+	
 }

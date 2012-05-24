@@ -2,6 +2,7 @@ package ru.redcraft.pinterest4j.core;
 
 import ru.redcraft.pinterest4j.BoardCategory;
 
+
 public class NewBoard {
 
 	private final String title;

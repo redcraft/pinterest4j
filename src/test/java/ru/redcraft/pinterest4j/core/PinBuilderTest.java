@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.Board;
+import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.Utils;
@@ -28,7 +29,7 @@ public class PinBuilderTest {
 		User pinner = Utils.getNonexistentUser();
 		User originalPinner = Utils.getNonexistentUser();
 		boolean repined = false;
-		Board board = new BoardImpl(0, "", "", "", BoardCategoryImpl.OTHER, 0, 0, 0);
+		Board board = new BoardImpl(0, "", "", "", BoardCategory.OTHER, 0, 0, 0);
 		builder.setId(id)
 			   .setDescription(description)
 			   .setPrice(price)

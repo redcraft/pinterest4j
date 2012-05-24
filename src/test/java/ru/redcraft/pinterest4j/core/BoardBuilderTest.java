@@ -1,6 +1,6 @@
 package ru.redcraft.pinterest4j.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 
@@ -18,7 +18,7 @@ public class BoardBuilderTest {
 		String url = UUID.randomUUID().toString();
 		String title = UUID.randomUUID().toString();
 		String description = UUID.randomUUID().toString();
-		BoardCategory category = BoardCategoryImpl.OTHER;
+		BoardCategory category = BoardCategory.OTHER;
 		Integer pinsCount = (int) Math.random() * 100;
 		Integer pageCount = (int) Math.random() * 100;
 		Integer followersCount = (int) Math.random() * 100;

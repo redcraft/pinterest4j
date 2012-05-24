@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import ru.redcraft.pinterest4j.core.BoardCategoryImpl;
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
@@ -19,7 +18,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 	@Test
 	public void boardLifeCircleTest() {
 		String newTitle = UUID.randomUUID().toString();
-		BoardCategory newCategory = BoardCategoryImpl.DESIGN;
+		BoardCategory newCategory = BoardCategory.DESIGN;
 		
 		//Create
 		NewBoard newBoard = new NewBoard(newTitle, newCategory);
@@ -37,7 +36,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 		//Update
 		newTitle = UUID.randomUUID().toString();
 		String newDescription = UUID.randomUUID().toString();
-		newCategory = BoardCategoryImpl.CARS_AND_MOTORCYCLES;
+		newCategory = BoardCategory.CARS_MOTORCYCLES;
 		Board updatedBoard = pinterest1.updateBoard(createdBoard, newTitle, newDescription, newCategory);
 		boards = pinterest1.getBoards();
 		boolean boardUpdated = false;
@@ -66,7 +65,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 	@Test
 	public void boardUpdateWithoutParameters() {
 		String newTitle = UUID.randomUUID().toString();
-		BoardCategory newCategory = BoardCategoryImpl.DESIGN;
+		BoardCategory newCategory = BoardCategory.DESIGN;
 		NewBoard newBoard = new NewBoard(newTitle, newCategory);
 		Board createdBoard = pinterest1.createBoard(newBoard);
 		Board updatedBoard = pinterest1.updateBoard(createdBoard, null, null, null);
@@ -79,7 +78,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 	@Test
 	public void boardExistExceptionTest() {
 		String newTitle = UUID.randomUUID().toString();
-		BoardCategory newCategory = BoardCategoryImpl.DESIGN;
+		BoardCategory newCategory = BoardCategory.DESIGN;
 		NewBoard newBoard = new NewBoard(newTitle, newCategory);
 		Board createdBoard = null;
 		boolean exceptionRised = false;
@@ -91,6 +90,18 @@ public class BoardMethodsTest extends PinterestTestBase {
 			pinterest1.deleteBoard(createdBoard);
 		}
 		assertTrue("No exception rised", exceptionRised);
+	}
+	
+	@Test
+	public void getBoardByURLTest() {
+		String newTitle = UUID.randomUUID().toString();
+		BoardCategory newCategory = BoardCategory.DESIGN;
+		
+		//Create
+		NewBoard newBoard = new NewBoard(newTitle, newCategory);
+		Board createdBoard = pinterest1.createBoard(newBoard);
+		Board createdByURLBoard = pinterest1.getBoard(createdBoard.getURL());
+		assertEquals(createdBoard.getURL(), createdByURLBoard.getURL());
 	}
 	
 	@Test(expected=PinterestRuntimeException.class)
