@@ -2,6 +2,8 @@ package ru.redcraft.pinterest4j.core;
 
 import static org.junit.Assert.*;
 
+import java.util.UUID;
+
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.Board;
@@ -12,14 +14,14 @@ public class BoardBuilderTest {
 	@Test
 	public void test() {
 		BoardBuilder builder = new BoardBuilder();
-		Long id = 1234567890L;
-		String url = "http://some_url";
-		String title = "some_title";
-		String description = "some_description";
+		Long id = (long) Math.random() * 100000;
+		String url = UUID.randomUUID().toString();
+		String title = UUID.randomUUID().toString();
+		String description = UUID.randomUUID().toString();
 		BoardCategory category = BoardCategoryImpl.OTHER;
-		Integer pinsCount = 10;
-		Integer pageCount = 2;
-		Integer followersCount = 3;
+		Integer pinsCount = (int) Math.random() * 100;
+		Integer pageCount = (int) Math.random() * 100;
+		Integer followersCount = (int) Math.random() * 100;
 		builder.setId(id)
 			   .setURL(url)
 			   .setTitle(title)

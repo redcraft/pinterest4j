@@ -1,6 +1,7 @@
 package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.core.UserImpl;
 
 public class UserAPI extends CoreAPI {
 
@@ -8,7 +9,7 @@ public class UserAPI extends CoreAPI {
 		super(accessToken, apiManager);
 	}
 	
-	public User getCompleteUser(User user) {
+	public UserImpl getCompleteUser(User user) {
 		return null;
 	}
 	

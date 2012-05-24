@@ -2,29 +2,32 @@ package ru.redcraft.pinterest4j.core;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.UUID;
+
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.Utils;
 
 public class PinBuilderTest {
 
 	@Test
 	public void test() {
 		PinBuilder builder = new PinBuilder();
-		long id = 123456789;
-		String description = "some_description";
-		double price = 10;
-		String link = "http://some_link";
-		String imageURL = "http://some_url";
+		long id = (long) Math.random() * 100;
+		String description = UUID.randomUUID().toString();
+		double price = Math.random() * 100;
+		String link = UUID.randomUUID().toString();
+		String imageURL = UUID.randomUUID().toString();
 		boolean liked = true;
-		int likesCount = 23;
-		int repinsCount = 43;
-		int commentsCount = 55;
-		User pinner = new UserImpl("pinner");
-		User originalPinner = new UserImpl("original_pinner");
-		boolean repined = true;
+		int likesCount = (int) Math.random() * 100;
+		int repinsCount = (int) Math.random() * 100;
+		int commentsCount = (int) Math.random() * 100;
+		User pinner = Utils.getNonexistentUser();
+		User originalPinner = Utils.getNonexistentUser();
+		boolean repined = false;
 		Board board = new BoardImpl(0, "", "", "", BoardCategoryImpl.OTHER, 0, 0, 0);
 		builder.setId(id)
 			   .setDescription(description)
@@ -53,6 +56,7 @@ public class PinBuilderTest {
 		assertEquals(pinner, builder.getPinner());
 		assertEquals(originalPinner, builder.getOriginalPinner());
 		assertEquals(repined, builder.isRepined());
+		assertEquals("/pin/" + id + "/", builder.getURL());
 		
 		Pin pin = builder.build();
 		assertEquals(id, pin.getId());
@@ -68,6 +72,7 @@ public class PinBuilderTest {
 		assertEquals(pinner, pin.getPinner());
 		assertEquals(originalPinner, pin.getOriginalPinner());
 		assertEquals(repined, pin.isRepined());
+		assertEquals("/pin/" + id + "/", pin.getURL());
 	}
 
 }

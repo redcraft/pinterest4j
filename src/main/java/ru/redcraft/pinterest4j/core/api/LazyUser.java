@@ -1,21 +1,74 @@
 package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.core.UserImpl;
 
 public class LazyUser  implements User {
 	
 	private final String userName;
 	private final UserAPI userAPI;
+	private UserImpl target = null;
 	
 	LazyUser(String userName, UserAPI userAPI) {
 		this.userName = userName;
 		this.userAPI = userAPI;
 	}
 	
+	private UserImpl getTarget() {
+		if(target == null) {
+			target = userAPI.getCompleteUser(this);
+		}
+		return target;
+	}
+	
 	public String getUserName() {
 		return userName;
 	}
 
+	public String getDescription() {
+		return getTarget().getDescription();
+	}
+
+	public String getImageURL() {
+		return getTarget().getImageURL();
+	}
+
+	public String getTwitterURL() {
+		return getTarget().getTwitterURL();
+	}
+
+	public String getFacebookURL() {
+		return getTarget().getFacebookURL();
+	}
+
+	public String getSiteURL() {
+		return getTarget().getSiteURL();
+	}
+
+	public String getLocation() {
+		return getTarget().getLocation();
+	}
+
+	public int getBoardsCount() {
+		return getTarget().getBoardsCount();
+	}
+
+	public int getPinsCount() {
+		return getTarget().getPinsCount();
+	}
+
+	public int getLikesCount() {
+		return getTarget().getLikesCount();
+	}
+
+	public int getFollowersCount() {
+		return getTarget().getFollowersCount();
+	}
+
+	public int getFollowingCount() {
+		return getTarget().getFollowingCount();
+	}
+	
 	@Override
 	public String toString() {
 		return "LazyUser [userName=" + userName + "]";
@@ -51,6 +104,5 @@ public class LazyUser  implements User {
 		}
 		return true;
 	}
-	
-	
+
 }

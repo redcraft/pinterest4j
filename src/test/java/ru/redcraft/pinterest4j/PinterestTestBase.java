@@ -5,12 +5,10 @@ import java.io.FileInputStream;
 import java.net.URISyntaxException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.junit.Before;
 
-import ru.redcraft.pinterest4j.core.UserImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 public class PinterestTestBase {
@@ -62,7 +60,7 @@ public class PinterestTestBase {
 		idAutherror = getTestUserForPrefix(rb, "autherror");
 		imageLink = rb.getString("pin.image.link");
 		webLink = rb.getString("pin.link");
-		nonexistentUser = new UserImpl(UUID.randomUUID().toString());
+		nonexistentUser = Utils.getNonexistentUser();
 		try {
 			imageFile = new File(ClassLoader.getSystemResource("pin_image.jpg").toURI());
 		} catch(URISyntaxException e) {
