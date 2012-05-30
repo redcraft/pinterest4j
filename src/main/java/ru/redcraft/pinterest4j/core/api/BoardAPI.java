@@ -138,7 +138,7 @@ public final class BoardAPI extends CoreAPI {
 		else {
 			throw new PinterestRuntimeException(
 					response, 
-					BOARDS_OBTAINING_ERROR + "bad server response");
+					BOARDS_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
 		}
 		
 		return builder.build();
@@ -150,7 +150,7 @@ public final class BoardAPI extends CoreAPI {
 		if(response.getStatus() != Status.OK.getStatusCode()) {
 			throw new PinterestRuntimeException(
 					response, 
-					BOARD_DELETION_ERROR + "bad server response");
+					BOARD_DELETION_ERROR + BAD_SERVER_RESPONSE);
 		}
 		log.debug("Board deleted");
 	}
@@ -175,7 +175,7 @@ public final class BoardAPI extends CoreAPI {
 		if(response.getStatus() != Status.OK.getStatusCode()) {
 			throw new PinterestRuntimeException(
 					response, 
-					BOARD_UPDATE_ERROR + "bad server response");
+					BOARD_UPDATE_ERROR + BAD_SERVER_RESPONSE);
 		}
 		Board updatedBoard = new LazyBoard(board.getId(), createLink(title, accessToken.getLogin()), title, description, category, this);
 		log.debug("Board updated");

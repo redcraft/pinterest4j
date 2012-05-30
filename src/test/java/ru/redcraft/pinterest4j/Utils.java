@@ -7,7 +7,7 @@ import ru.redcraft.pinterest4j.core.UserImpl;
 public abstract class Utils {
 
 	static public UserImpl getNonexistentUser(String name) {
-		return new UserImpl(name, null, null, null, null, null, null,
+		return new UserImpl(name, null, null, null, null, null, null, null,
 				0, 0, 0, 0, 0);
 	}
 	

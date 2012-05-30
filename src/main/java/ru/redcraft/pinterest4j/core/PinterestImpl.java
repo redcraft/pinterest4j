@@ -121,4 +121,8 @@ public class PinterestImpl implements Pinterest {
 		return managerBundle.getPinManager().getComments(pin);
 	}
 
+	public User updateUser(UserSettings settings) {
+		return managerBundle.getUserManager().updateUser(settings);
+	}
+
 }

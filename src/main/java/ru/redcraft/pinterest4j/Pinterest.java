@@ -4,6 +4,7 @@ import java.util.List;
 
 import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.core.NewPin;
+import ru.redcraft.pinterest4j.core.UserSettings;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 
 
@@ -61,4 +62,6 @@ public interface Pinterest {
 	
 	User getUser(String userName);
 	User getUser();
+	User updateUser(UserSettings settings);
+	
 }

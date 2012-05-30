@@ -1,6 +1,7 @@
 package ru.redcraft.pinterest4j.core.managers;
 
 import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.core.UserSettings;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
 
 public class UserManager extends BaseManager {
@@ -11,5 +12,9 @@ public class UserManager extends BaseManager {
 	
 	public User getUserForName(String userName) {
 		return apiManager.getUserAPI().getUserForName(userName);
+	}
+
+	public User updateUser(UserSettings settings) {
+		return apiManager.getUserAPI().updateUser(settings);
 	}
 }

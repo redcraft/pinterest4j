@@ -11,6 +11,7 @@ public class UserBuilderTest {
 	@Test
 	public void test() {
 		String userName = UUID.randomUUID().toString();
+		String fullName = UUID.randomUUID().toString();
 		String description = UUID.randomUUID().toString();
 		String imageURL = UUID.randomUUID().toString();
 		String twitterURL = UUID.randomUUID().toString();
@@ -25,6 +26,7 @@ public class UserBuilderTest {
 		
 		UserBuilder builder = new UserBuilder();
 		builder.setUserName(userName)
+			   .setFullName(fullName)
 			   .setDescription(description)
 			   .setImageURL(imageURL)
 			   .setTwitterURL(twitterURL)
@@ -38,6 +40,7 @@ public class UserBuilderTest {
 			   .setFollowingCount(followingCount);
 		
 		assertEquals(userName, builder.getUserName());
+		assertEquals(fullName, builder.getFullName());
 		assertEquals(description, builder.getDescription());
 		assertEquals(imageURL, builder.getImageURL());
 		assertEquals(twitterURL, builder.getTwitterURL());
@@ -53,6 +56,7 @@ public class UserBuilderTest {
 		UserImpl user = builder.build();
 		
 		assertEquals(userName, user.getUserName());
+		assertEquals(fullName, user.getFullName());
 		assertEquals(description, user.getDescription());
 		assertEquals(imageURL, user.getImageURL());
 		assertEquals(twitterURL, user.getTwitterURL());

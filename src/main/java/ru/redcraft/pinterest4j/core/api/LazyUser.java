@@ -24,6 +24,10 @@ public class LazyUser  implements User {
 	public String getUserName() {
 		return userName;
 	}
+	
+	public String getFullName() {
+		return getTarget().getFullName();
+	}
 
 	public String getDescription() {
 		return getTarget().getDescription();

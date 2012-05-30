@@ -170,12 +170,12 @@ public class PinMethodsTest extends PinterestTestBase {
 		assertEquals(2, pinterest1.getComments(testPin).size());
 		assertEquals(commentText1, comments.get(0).getText());
 		assertEquals(createdComment1.getId(), comments.get(0).getId());
-		assertEquals(pinterest1.getUser(), comments.get(0).getUser());
+		assertEquals(pinterest1.getUser().getUserName(), comments.get(0).getUser().getUserName());
 		assertEquals(testPin, comments.get(0).getPin());
 		
 		assertEquals(commentText2, comments.get(1).getText());
 		assertEquals(createdComment2.getId(), comments.get(1).getId());
-		assertEquals(pinterest2.getUser(), comments.get(1).getUser());
+		assertEquals(pinterest2.getUser().getUserName(), comments.get(1).getUser().getUserName());
 		assertEquals(testPin, comments.get(1).getPin());
 		
 		pinterest1.deleteComment(createdComment1);
@@ -188,8 +188,8 @@ public class PinMethodsTest extends PinterestTestBase {
 		assertEquals(0, testPin.getLikesCount());
 		assertEquals(0, testPin.getRepinsCount());
 		assertEquals(0, testPin.getCommentsCount());
-		assertEquals(pinterest1.getUser(), testPin.getPinner());
-		assertEquals(pinterest1.getUser(), testPin.getOriginalPinner());
+		assertEquals(pinterest1.getUser().getUserName(), testPin.getPinner().getUserName());
+		assertEquals(pinterest1.getUser().getUserName(), testPin.getOriginalPinner().getUserName());
 		assertEquals(false, testPin.isRepined());
 		pinterest2.likePin(testPin);
 		pinterest1.addComment(testPin, UUID.randomUUID().toString());
@@ -200,8 +200,8 @@ public class PinMethodsTest extends PinterestTestBase {
 		assertEquals(1, refreshedPin.getLikesCount());
 		assertEquals(1, refreshedPin.getRepinsCount());
 		assertEquals(2, refreshedPin.getCommentsCount());
-		assertEquals(pinterest2.getUser(), repinedPin.getPinner());
-		assertEquals(pinterest1.getUser(), repinedPin.getOriginalPinner());
+		assertEquals(pinterest2.getUser().getUserName(), repinedPin.getPinner().getUserName());
+		assertEquals(pinterest1.getUser().getUserName(), repinedPin.getOriginalPinner().getUserName());
 		assertEquals(true, repinedPin.isRepined());
 		pinterest2.deleteBoard(repinsBoard);
 	}

@@ -1,12 +1,10 @@
 package ru.redcraft.pinterest4j.core.api;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
@@ -32,7 +30,6 @@ import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.representation.Form;
-import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
@@ -108,13 +105,7 @@ public class PinAPI extends CoreAPI {
 			multipartForm.bodyPart(new FormDataBodyPart("img_url", newPin.getImageURL()));
 		}
 		else {
-			File imgFile = newPin.getImageFile();
-			String[] mimeInfo = new MimetypesFileTypeMap().getContentType(imgFile).split("/");
-			MediaType imageType = new MediaType(mimeInfo[0], mimeInfo[1]);
-			FormDataBodyPart f = new FormDataBodyPart(
-		                FormDataContentDisposition.name("img").fileName(imgFile.getName()).build(),
-		                imgFile, imageType);
-			multipartForm.bodyPart(f);
+			multipartForm.bodyPart(createImageBodyPart(newPin.getImageFile()));
 		}
 		return multipartForm;
 	}
@@ -163,7 +154,7 @@ public class PinAPI extends CoreAPI {
 			throw new PinterestPinNotFoundException(pin);
 		}
 		else {
-			throw new PinterestRuntimeException(response, PINS_OBTAINING_ERROR + "bad server response");
+			throw new PinterestRuntimeException(response, PINS_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
 		}
 		
 		return builder.build();
@@ -237,7 +228,7 @@ public class PinAPI extends CoreAPI {
 		log.debug("Deleting pin " + pin);
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "delete/").entity("{}").post(ClientResponse.class);
 		if(response.getStatus() != Status.OK.getStatusCode()) {
-			throw new PinterestRuntimeException(response, PIN_DELETION_ERROR + "bad server response");
+			throw new PinterestRuntimeException(response, PIN_DELETION_ERROR + BAD_SERVER_RESPONSE);
 		}
 		log.debug("Pin deleted");
 	}
@@ -257,7 +248,7 @@ public class PinAPI extends CoreAPI {
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "edit/").
 				type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, multipartForm);
 		if(response.getStatus() != Status.OK.getStatusCode()) {
-			throw new PinterestRuntimeException(response, PIN_UPDATE_ERROR + "bad server response");
+			throw new PinterestRuntimeException(response, PIN_UPDATE_ERROR + BAD_SERVER_RESPONSE);
 		}
 		Pin updatedPin = new LazyPin(pin.getId(), this);
 		log.debug("Pin updated");
@@ -368,7 +359,7 @@ public class PinAPI extends CoreAPI {
 			}
 		}
 		else {
-			throw new PinterestRuntimeException(response, COMMENTS_OBTAINING_ERROR + "bad server response");
+			throw new PinterestRuntimeException(response, COMMENTS_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
 		}
 		log.debug("Comments extracted: " + comments);
 		return comments;

@@ -4,6 +4,8 @@ public interface User {
 
 	String getUserName();
 	
+	String getFullName();
+	
 	String getDescription();
 	
 	String getImageURL();

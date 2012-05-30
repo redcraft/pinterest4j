@@ -5,6 +5,7 @@ import ru.redcraft.pinterest4j.User;
 public class UserBuilder implements User {
 
 	private  String userName;
+	private  String fullName;
 	private  String description;
 	private  String imageURL;
 	private  String twitterURL;
@@ -22,6 +23,13 @@ public class UserBuilder implements User {
 	}
 	public UserBuilder setUserName(String userName) {
 		this.userName = userName;
+		return this;
+	}
+	public String getFullName() {
+		return fullName;
+	}
+	public UserBuilder setFullName(String fullName) {
+		this.fullName = fullName;
 		return this;
 	}
 	public String getDescription() {
@@ -103,7 +111,7 @@ public class UserBuilder implements User {
 	}
 	
 	public UserImpl build() {
-		return new UserImpl(userName, description, imageURL, twitterURL, facebookURL, siteURL, location,
+		return new UserImpl(userName, fullName, description, imageURL, twitterURL, facebookURL, siteURL, location,
 				boardsCount, pinsCount, likesCount, followersCount, followingCount);
 	}
 	
