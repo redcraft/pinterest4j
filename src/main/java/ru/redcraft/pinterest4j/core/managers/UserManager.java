@@ -11,10 +11,10 @@ public class UserManager extends BaseManager {
 	}
 	
 	public User getUserForName(String userName) {
-		return apiManager.getUserAPI().getUserForName(userName);
+		return getApiManager().getUserAPI().getUserForName(userName);
 	}
 
 	public User updateUser(UserSettings settings) {
-		return apiManager.getUserAPI().updateUser(settings);
+		return getApiManager().getUserAPI().updateUser(settings);
 	}
 }

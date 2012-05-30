@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.core.UserSettings;
+import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
 public class UserMethodsTest extends PinterestTestBase {
 
@@ -47,5 +48,10 @@ public class UserMethodsTest extends PinterestTestBase {
 		assertEquals(pinterest1Facebook, newUser.getFacebookURL());
 		assertEquals(website, newUser.getSiteURL());
 		assertEquals(location, newUser.getLocation());
+	}
+	
+	@Test(expected=PinterestUserNotFoundException.class)
+	public void getUnexistentUser() {
+		pinterest1.getUser(UUID.randomUUID().toString());
 	}
 }

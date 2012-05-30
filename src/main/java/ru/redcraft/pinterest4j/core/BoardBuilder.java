@@ -5,19 +5,19 @@ import ru.redcraft.pinterest4j.BoardCategory;
 
 public class BoardBuilder implements Board {
 
-	private Long id;
+	private long id;
 	private String url;
 	private String title;
 	private String description;
 	private BoardCategory category;
-	private Integer pinsCount;
-	private Integer pageCount;
-	private Integer followersCount;
+	private int pinsCount;
+	private int pageCount;
+	private int followersCount;
 	
 	public long getId() {
 		return id;
 	}
-	public BoardBuilder setId(Long id) {
+	public BoardBuilder setId(long id) {
 		this.id = id;
 		return this;
 	}
@@ -52,21 +52,21 @@ public class BoardBuilder implements Board {
 	public int getPinsCount() {
 		return pinsCount;
 	}
-	public BoardBuilder setPinsCount(Integer pinsCount) {
+	public BoardBuilder setPinsCount(int pinsCount) {
 		this.pinsCount = pinsCount;
 		return this;
 	}
 	public int getPageCount() {
 		return pageCount;
 	}
-	public BoardBuilder setPageCount(Integer pageCount) {
+	public BoardBuilder setPageCount(int pageCount) {
 		this.pageCount = pageCount;
 		return this;
 	}
 	public int getFollowersCount() {
 		return followersCount;
 	}
-	public BoardBuilder setFollowersCount(Integer followersCount) {
+	public BoardBuilder setFollowersCount(int followersCount) {
 		this.followersCount = followersCount;
 		return this;
 	}

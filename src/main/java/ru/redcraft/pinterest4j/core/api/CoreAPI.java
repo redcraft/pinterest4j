@@ -25,8 +25,8 @@ import com.sun.jersey.multipart.FormDataBodyPart;
 
 public abstract class CoreAPI {
 
-	protected final PinterestAccessToken accessToken; 
-	protected final InternalAPIManager apiManager;
+	private final PinterestAccessToken accessToken; 
+	private final InternalAPIManager apiManager;
 	
 	private static final String PINTEREST_DOMAIN = "pinterest.com";
 	private static final String COOKIE_HEADER_NAME = "Cookie";
@@ -48,6 +48,14 @@ public abstract class CoreAPI {
 		this.apiManager = apiManager;
 	}
 	
+	protected PinterestAccessToken getAccessToken() {
+		return accessToken;
+	}
+
+	protected InternalAPIManager getApiManager() {
+		return apiManager;
+	}
+
 	protected WebResource.Builder getWR(Protocol protocol, String url) {
 		return getWR(protocol, url, true);
 	}

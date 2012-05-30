@@ -31,7 +31,7 @@ public class UserAPI extends CoreAPI {
 	private static final String USER_PINS_PROP_NAME = "pinterestapp:pins";
 	private static final String USER_IMAGE_PROP_NAME = "og:image";
 	
-	private static final Logger log = Logger.getLogger(UserAPI.class);
+	private static final Logger LOG = Logger.getLogger(UserAPI.class);
 	
 	private static final String USER_OBTAINING_ERROR = "USER OBTAINING ERROR: ";
 	
@@ -40,7 +40,7 @@ public class UserAPI extends CoreAPI {
 	}
 	
 	public UserImpl getCompleteUser(User user) {
-		log.debug("Getting all info for lazy user " + user);
+		LOG.debug("Getting all info for lazy user " + user);
 		UserBuilder builder = new UserBuilder();
 		builder.setUserName(user.getUserName());
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/").get(ClientResponse.class);
@@ -119,7 +119,7 @@ public class UserAPI extends CoreAPI {
 	private FormDataMultiPart createUserForm(UserSettings settings) {
 		FormDataMultiPart multipartForm = new FormDataMultiPart();
 		AdditionalUserSettings adtSettings = getUserAdtSettings();
-		multipartForm.bodyPart(new FormDataBodyPart("csrfmiddlewaretoken", accessToken.getCsrfToken().getValue())); 
+		multipartForm.bodyPart(new FormDataBodyPart("csrfmiddlewaretoken", getAccessToken().getCsrfToken().getValue())); 
 		multipartForm.bodyPart(new FormDataBodyPart("email", adtSettings.getEmail()));
 		multipartForm.bodyPart(new FormDataBodyPart("gender", adtSettings.getGender().name().toLowerCase()));
 		multipartForm.bodyPart(new FormDataBodyPart("username", adtSettings.getUserName()));
@@ -146,13 +146,13 @@ public class UserAPI extends CoreAPI {
 	}
 	
 	public User updateUser(UserSettings settings) {
-		log.debug(String.format("Updating user=%s with settings=%s", accessToken.getLogin(), settings));
+		LOG.debug(String.format("Updating user=%s with settings=%s", getAccessToken().getLogin(), settings));
 		FormDataMultiPart userUpdateForm = createUserForm(settings);
 		ClientResponse response = getWR(Protocol.HTTPS, "settings/", false).type(MediaType.MULTIPART_FORM_DATA)
 																   .post(ClientResponse.class, userUpdateForm);
-		log.debug(response.getEntity(String.class) + response.getStatus());
-		User newUser = getUserForName(accessToken.getLogin());
-		log.debug("User updated. New user info: " + newUser);
+		LOG.debug(response.getEntity(String.class) + response.getStatus());
+		User newUser = getUserForName(getAccessToken().getLogin());
+		LOG.debug("User updated. New user info: " + newUser);
 		return newUser;
 	}
 }

@@ -49,7 +49,7 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_COMMENTS_COUNT_PROP_NAME = "pinterestapp:comments";
 	private static final String PIN_ID_ATTR = "data-id";
 	
-	private static final Logger log = Logger.getLogger(PinAPI.class);
+	private static final Logger LOG = Logger.getLogger(PinAPI.class);
 	
 	private static final String PIN_CREATION_ERROR = "PIN CREATION ERROR: ";
 	private static final String PIN_DELETION_ERROR = "PIN DELETION ERROR: ";
@@ -67,7 +67,7 @@ public class PinAPI extends CoreAPI {
 	}
 
 	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException {
-		log.debug("Creating new pin on board " + board + " with new pin: " + newPin);
+		LOG.debug("Creating new pin on board " + board + " with new pin: " + newPin);
 		int descLength = newPin.getDescription().length();
 		if(descLength == 0) {
 			throw new PinMessageSizeException(PinMessageSizeException.MSG_ZERO_SIZE);
@@ -85,7 +85,7 @@ public class PinAPI extends CoreAPI {
 			throw new PinterestRuntimeException(PIN_CREATION_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		createdPin = new LazyPin(responseMap.get("url"), this);
-		log.debug("Pin created " + createdPin);
+		LOG.debug("Pin created " + createdPin);
 		return createdPin;
 	}
 	
@@ -94,7 +94,7 @@ public class PinAPI extends CoreAPI {
 		multipartForm.bodyPart(new FormDataBodyPart("board", Long.toString(boardID)));
 		multipartForm.bodyPart(new FormDataBodyPart("details", newPin.getDescription()));
 		multipartForm.bodyPart(new FormDataBodyPart("link", newPin.getLink()));
-		multipartForm.bodyPart(new FormDataBodyPart("csrfmiddlewaretoken", accessToken.getCsrfToken().getValue()));
+		multipartForm.bodyPart(new FormDataBodyPart("csrfmiddlewaretoken", getAccessToken().getCsrfToken().getValue()));
 		multipartForm.bodyPart(new FormDataBodyPart("buyable", ""));
 		multipartForm.bodyPart(new FormDataBodyPart("tags", ""));
 		multipartForm.bodyPart(new FormDataBodyPart("replies", ""));
@@ -111,10 +111,10 @@ public class PinAPI extends CoreAPI {
 	}
 
 	public PinImpl getCompletePin(LazyPin pin) {
-		log.debug("Getting all info for lazy pin " + pin);
+		LOG.debug("Getting all info for lazy pin " + pin);
 		PinBuilder builder = new PinBuilder();
 		builder.setId(pin.getId());
-		log.debug("Getting complete info for pin with id=" + Long.toString(pin.getId()));
+		LOG.debug("Getting complete info for pin with id=" + Long.toString(pin.getId()));
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL(), false).get(ClientResponse.class);
 		if(response.getStatus() == Status.OK.getStatusCode()) {
 			Document doc = Jsoup.parse(response.getEntity(String.class));
@@ -130,12 +130,12 @@ public class PinAPI extends CoreAPI {
 			builder.setLikesCount(Integer.valueOf(metaMap.get(PIN_LIKES_COUNT_PROP_NAME)));
 			builder.setRepinsCount(Integer.valueOf(metaMap.get(PIN_REPINS_COUNT_PROP_NAME)));
 			builder.setCommentsCount(Integer.valueOf(metaMap.get(PIN_COMMENTS_COUNT_PROP_NAME)));
-			builder.setBoard(new LazyBoard(metaMap.get(PIN_PINBOARD_PROP_NAME).replace(PINTEREST_URL, ""), apiManager.getBoardAPI()));
-			builder.setPinner(new LazyUser(metaMap.get(PIN_PINNER_PROP_NAME).replace(PINTEREST_URL, "").replace("/", ""), apiManager.getUserAPI()));
+			builder.setBoard(new LazyBoard(metaMap.get(PIN_PINBOARD_PROP_NAME).replace(PINTEREST_URL, ""), getApiManager().getBoardAPI()));
+			builder.setPinner(new LazyUser(metaMap.get(PIN_PINNER_PROP_NAME).replace(PINTEREST_URL, "").replace("/", ""), getApiManager().getUserAPI()));
 			
 			Elements pinners = doc.select("p#PinnerName").first().getElementsByTag("a");
 			if(pinners.size() > 1) {
-				builder.setOriginalPinner(new LazyUser(pinners.get(1).attr("href").replace("/", ""), apiManager.getUserAPI()));
+				builder.setOriginalPinner(new LazyUser(pinners.get(1).attr("href").replace("/", ""), getApiManager().getUserAPI()));
 				builder.setRepined(true);
 			}
 			else {
@@ -161,7 +161,7 @@ public class PinAPI extends CoreAPI {
 	}
 	
 	public List<Pin> getPins(User user, int page) {
-		log.debug("Getting pin list for user " + user + " on page " + page);
+		LOG.debug("Getting pin list for user " + user + " on page " + page);
 		List<Pin> pinList = new ArrayList<Pin>();
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/pins/?page=" + page).get(ClientResponse.class);
 		
@@ -174,12 +174,12 @@ public class PinAPI extends CoreAPI {
 			}
 		}
 		
-		log.debug(COLLECTED_PINS + pinList.size());
+		LOG.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 	
 	public List<Pin> getPins(User user) {
-		log.debug("Getting pin list for user " + user);
+		LOG.debug("Getting pin list for user " + user);
 		List<Pin> pinList = new ArrayList<Pin>();
 		List<Pin> pinPartialList = null;
 		boolean pinsLoaded = true;
@@ -188,12 +188,12 @@ public class PinAPI extends CoreAPI {
 			pinsLoaded = !pinPartialList.isEmpty();
 			pinList.addAll(pinPartialList);
 		}
-		log.debug(COLLECTED_PINS + pinList.size());
+		LOG.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 	
 	public List<Pin> getPins(Board board, int page) {
-		log.debug("Getting pin list for board " + board + " on page " + page);
+		LOG.debug("Getting pin list for board " + board + " on page " + page);
 		List<Pin> pinList = new ArrayList<Pin>();
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "?page=" + page).get(ClientResponse.class);
 		
@@ -206,12 +206,12 @@ public class PinAPI extends CoreAPI {
 			}
 		}
 		
-		log.debug(COLLECTED_PINS + pinList.size());
+		LOG.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 	
 	public List<Pin> getPins(Board board) {
-		log.debug("Getting pin list for board " + board);
+		LOG.debug("Getting pin list for board " + board);
 		List<Pin> pinList = new ArrayList<Pin>();
 		List<Pin> pinPartialList = null;
 		boolean pinsLoaded = true;
@@ -220,21 +220,21 @@ public class PinAPI extends CoreAPI {
 			pinsLoaded = !pinPartialList.isEmpty();
 			pinList.addAll(pinPartialList);
 		}
-		log.debug(COLLECTED_PINS + pinList.size());
+		LOG.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 
 	public void deletePin(Pin pin) {
-		log.debug("Deleting pin " + pin);
+		LOG.debug("Deleting pin " + pin);
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "delete/").entity("{}").post(ClientResponse.class);
 		if(response.getStatus() != Status.OK.getStatusCode()) {
 			throw new PinterestRuntimeException(response, PIN_DELETION_ERROR + BAD_SERVER_RESPONSE);
 		}
-		log.debug("Pin deleted");
+		LOG.debug("Pin deleted");
 	}
 
 	public Pin updatePin(Pin pin, String description, double price, String link, Board board) throws PinMessageSizeException {
-		log.debug(String.format("Updating pin=%s with desc=%s, price=%f, link = %s, board=%s",
+		LOG.debug(String.format("Updating pin=%s with desc=%s, price=%f, link = %s, board=%s",
 				pin, description, price, link, board));
 		int descLength = description.length();
 		if(descLength == 0) {
@@ -251,7 +251,7 @@ public class PinAPI extends CoreAPI {
 			throw new PinterestRuntimeException(response, PIN_UPDATE_ERROR + BAD_SERVER_RESPONSE);
 		}
 		Pin updatedPin = new LazyPin(pin.getId(), this);
-		log.debug("Pin updated");
+		LOG.debug("Pin updated");
 		return updatedPin;
 	}
 
@@ -264,13 +264,13 @@ public class PinAPI extends CoreAPI {
 		form.add("board", board.getId());
 		form.add("id", pin.getId());
 		form.add("details", description);
-		form.add("csrfmiddlewaretoken", accessToken.getCsrfToken().getValue());
+		form.add("csrfmiddlewaretoken", getAccessToken().getCsrfToken().getValue());
 		return form;
 	}
 	
 	public Pin repin(Pin pin, Board board, String description) {
 		String newDescription = (description != null) ? description : pin.getDescription();
-		log.debug(String.format("Repining pin = %s on board = %s with descr = %s", pin, board, newDescription));
+		LOG.debug(String.format("Repining pin = %s on board = %s with descr = %s", pin, board, newDescription));
 		Form repinForm = createRepinForm(pin, board, newDescription);
 		Pin repinedPin = null;
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "repin/").post(ClientResponse.class, repinForm);
@@ -279,12 +279,12 @@ public class PinAPI extends CoreAPI {
 			throw new PinterestRuntimeException(PIN_REPIN_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}		
 		repinedPin = new LazyPin(responseMap.get("repin_url"), this);
-		log.debug("Created repined pin=" + repinedPin);
+		LOG.debug("Created repined pin=" + repinedPin);
 		return repinedPin;
 	}
 	
 	public Pin like(Pin pin, boolean like) {
-		log.debug(String.format("Setting like of pin = %s to = %s", pin, like));
+		LOG.debug(String.format("Setting like of pin = %s to = %s", pin, like));
 		ClientResponse response = null;
 		Form likeForm = new Form();
 		likeForm.add("bla", "bla");
@@ -299,7 +299,7 @@ public class PinAPI extends CoreAPI {
 		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
 			throw new PinterestRuntimeException(PIN_LIKE_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
-		log.debug("Pin like mark set to " + like);
+		LOG.debug("Pin like mark set to " + like);
 		return new LazyPin(pin.getId(), this);
 	}
 
@@ -312,7 +312,7 @@ public class PinAPI extends CoreAPI {
 	}
 	
 	public Comment addCommentToPin(Pin pin, String comment, User user) {
-		log.debug(String.format("Adding comment to pin = %s with text = '%s'", pin, comment));
+		LOG.debug(String.format("Adding comment to pin = %s with text = '%s'", pin, comment));
 		Form commentForm = createCommentForm(pin, comment);
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "comment/").post(ClientResponse.class, commentForm);
 		Map<String, String> responseMap = parseResponse(response, PIN_COMMENT_ERROR);
@@ -320,12 +320,12 @@ public class PinAPI extends CoreAPI {
 			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		Comment newComment = new CommentImpl(Long.valueOf(responseMap.get("id")), comment, user, pin);
-		log.debug("Comment created: " + newComment);
+		LOG.debug("Comment created: " + newComment);
 		return newComment;
 	}
 	
 	public void deleteComment(Comment comment) {
-		log.debug(String.format("Deleting comment = %s", comment));
+		LOG.debug(String.format("Deleting comment = %s", comment));
 		Form commentForm = new Form();
 		commentForm.add("comment", comment.getId());
 		ClientResponse response = getWR(Protocol.HTTP, comment.getPin().getURL() + "deletecomment/").post(ClientResponse.class, commentForm);
@@ -333,11 +333,11 @@ public class PinAPI extends CoreAPI {
 		if(!responseMap.get("status").equals("success")) {
 			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
-		log.debug("Comment deleted");
+		LOG.debug("Comment deleted");
 	}
 
 	public List<Comment> getComments(Pin pin) {
-		log.debug("Getting comments for pin = " + pin);
+		LOG.debug("Getting comments for pin = " + pin);
 		List<Comment> comments = new ArrayList<Comment>();
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL()).get(ClientResponse.class);
 		if(response.getStatus() == Status.OK.getStatusCode()) {
@@ -352,7 +352,7 @@ public class PinAPI extends CoreAPI {
 			for(Element comment : doc.select("div.comment")) {
 				long id = Long.valueOf(comment.getElementsByClass("DeleteComment").first().attr("data"));
 				Element contentMeta = comment.getElementsByClass("CommenterMeta").first();
-				User user = new LazyUser(contentMeta.getElementsByTag("a").first().attr("href").replace("/", ""), apiManager.getUserAPI());
+				User user = new LazyUser(contentMeta.getElementsByTag("a").first().attr("href").replace("/", ""), getApiManager().getUserAPI());
 				contentMeta.getElementsByTag("a").remove();
 				String text = contentMeta.text();
 				comments.add(new CommentImpl(id, text, user, pin));
@@ -361,7 +361,7 @@ public class PinAPI extends CoreAPI {
 		else {
 			throw new PinterestRuntimeException(response, COMMENTS_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
 		}
-		log.debug("Comments extracted: " + comments);
+		LOG.debug("Comments extracted: " + comments);
 		return comments;
 	}
 
