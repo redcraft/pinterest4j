@@ -71,7 +71,7 @@ public final class BoardAPI extends CoreAPI {
 	}
 	
 	public static String encodeTitle(String title) {
-		return title.replace('_', ' ').replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase();
+		return title.replace('_', ' ').replaceAll("[^a-zA-Z0-9]+", "-").toLowerCase(PINTEREST_LOCALE);
 	}
 	
 	public static String createLink(String title, String login) {
@@ -119,7 +119,7 @@ public final class BoardAPI extends CoreAPI {
 				metaMap.put(meta.attr("property"), meta.attr("content"));
 			}
 			builder.setDescription(metaMap.get(BOARD_DESCRIPTION_PROP_NAME));
-			builder.setCategory(BoardCategory.valueOf(metaMap.get(BOARD_CATEGORY_PROP_NAME).toUpperCase()));
+			builder.setCategory(BoardCategory.valueOf(metaMap.get(BOARD_CATEGORY_PROP_NAME).toUpperCase(PINTEREST_LOCALE)));
 			builder.setPinsCount(Integer.valueOf(metaMap.get(BOARD_PINS_PROP_NAME)));
 			builder.setFollowersCount(Integer.valueOf(metaMap.get(BOARD_FOLLOWERS_PROP_NAME)));
 			builder.setTitle(metaMap.get(BOARD_TITLE_PROP_NAME));

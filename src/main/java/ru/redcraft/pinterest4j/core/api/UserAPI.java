@@ -121,7 +121,7 @@ public class UserAPI extends CoreAPI {
 		AdditionalUserSettings adtSettings = getUserAdtSettings();
 		multipartForm.bodyPart(new FormDataBodyPart("csrfmiddlewaretoken", getAccessToken().getCsrfToken().getValue())); 
 		multipartForm.bodyPart(new FormDataBodyPart("email", adtSettings.getEmail()));
-		multipartForm.bodyPart(new FormDataBodyPart("gender", adtSettings.getGender().name().toLowerCase()));
+		multipartForm.bodyPart(new FormDataBodyPart("gender", adtSettings.getGender().name().toLowerCase(PINTEREST_LOCALE)));
 		multipartForm.bodyPart(new FormDataBodyPart("username", adtSettings.getUserName()));
 		
 		multipartForm.bodyPart(new FormDataBodyPart("first_name", 

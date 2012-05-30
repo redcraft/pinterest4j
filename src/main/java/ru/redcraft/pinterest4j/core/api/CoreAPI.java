@@ -3,6 +3,7 @@ package ru.redcraft.pinterest4j.core.api;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -40,6 +41,8 @@ public abstract class CoreAPI {
 	protected static final String VALUE_TAG_ATTR = "value";
 	protected static final String CHECKED_TAG_ATTR = "checked";
 	
+	protected static final Locale PINTEREST_LOCALE = Locale.ENGLISH;
+	
 	public enum Protocol {HTTP, HTTPS};
 	
 	
@@ -64,23 +67,7 @@ public abstract class CoreAPI {
 		WebResource.Builder wr = null;
 		ClientConfig config = new DefaultClientConfig();
 		Client client = Client.create(config);
-		String requestURL = String.format("%s://%s/%s", protocol.name().toLowerCase(), PINTEREST_DOMAIN, url);
-		wr = client.resource(UriBuilder.fromUri(requestURL).build()).getRequestBuilder();
-		if(accessToken != null) {
-			wr = wr.header(COOKIE_HEADER_NAME, accessToken.generateCookieHeader());
-			wr = wr.header("X-CSRFToken", accessToken.getCsrfToken().getValue());
-			if(useAJAX) {
-				wr = wr.header("X-Requested-With", "XMLHttpRequest");
-			}
-		}
-		return wr;
-	}
-	
-	protected WebResource.Builder getWRX(Protocol protocol, String url, boolean useAJAX) {
-		WebResource.Builder wr = null;
-		ClientConfig config = new DefaultClientConfig();
-		Client client = Client.create(config);
-		String requestURL = String.format("%s://%s/%s", protocol.name().toLowerCase(), "127.0.0.1:3333", url);
+		String requestURL = String.format("%s://%s/%s", protocol.name().toLowerCase(PINTEREST_LOCALE), PINTEREST_DOMAIN, url);
 		wr = client.resource(UriBuilder.fromUri(requestURL).build()).getRequestBuilder();
 		if(accessToken != null) {
 			wr = wr.header(COOKIE_HEADER_NAME, accessToken.generateCookieHeader());
