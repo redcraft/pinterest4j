@@ -2,7 +2,9 @@ package ru.redcraft.pinterest4j.core;
 
 import java.io.File;
 
-public class NewPin {
+import ru.redcraft.pinterest4j.NewPin;
+
+public class NewPinImpl implements NewPin {
 
 	private final String description;
 	private final double price;
@@ -10,7 +12,7 @@ public class NewPin {
 	private final String imageURL;
 	private final File imageFile;
 	
-	public NewPin(String description, double price, String link, String imageURL, File imageFile) {
+	public NewPinImpl(String description, double price, String link, String imageURL, File imageFile) {
 		super();
 		this.description = description;
 		this.link = link;

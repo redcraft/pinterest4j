@@ -5,6 +5,9 @@ import java.util.List;
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.Comment;
+import ru.redcraft.pinterest4j.NewBoard;
+import ru.redcraft.pinterest4j.NewPin;
+import ru.redcraft.pinterest4j.NewUserSettings;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.Pinterest;
 import ru.redcraft.pinterest4j.User;
@@ -121,7 +124,7 @@ public class PinterestImpl implements Pinterest {
 		return managerBundle.getPinManager().getComments(pin);
 	}
 
-	public User updateUser(UserSettings settings) {
+	public User updateUser(NewUserSettings settings) {
 		return managerBundle.getUserManager().updateUser(settings);
 	}
 

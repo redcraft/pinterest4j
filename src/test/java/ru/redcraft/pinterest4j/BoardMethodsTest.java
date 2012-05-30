@@ -8,7 +8,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import ru.redcraft.pinterest4j.core.NewBoard;
+import ru.redcraft.pinterest4j.core.NewBoardImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
@@ -21,7 +21,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 		BoardCategory newCategory = BoardCategory.DESIGN;
 		
 		//Create
-		NewBoard newBoard = new NewBoard(newTitle, newCategory);
+		NewBoardImpl newBoard = new NewBoardImpl(newTitle, newCategory);
 		Board createdBoard = pinterest1.createBoard(newBoard);
 		List<Board> boards = pinterest1.getBoards();
 		boolean boardCreated = false;
@@ -66,7 +66,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 	public void boardUpdateWithoutParameters() {
 		String newTitle = UUID.randomUUID().toString();
 		BoardCategory newCategory = BoardCategory.DESIGN;
-		NewBoard newBoard = new NewBoard(newTitle, newCategory);
+		NewBoardImpl newBoard = new NewBoardImpl(newTitle, newCategory);
 		Board createdBoard = pinterest1.createBoard(newBoard);
 		Board updatedBoard = pinterest1.updateBoard(createdBoard, null, null, null);
 		assertEquals(newTitle, updatedBoard.getTitle());
@@ -79,7 +79,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 	public void boardExistExceptionTest() {
 		String newTitle = UUID.randomUUID().toString();
 		BoardCategory newCategory = BoardCategory.DESIGN;
-		NewBoard newBoard = new NewBoard(newTitle, newCategory);
+		NewBoardImpl newBoard = new NewBoardImpl(newTitle, newCategory);
 		Board createdBoard = null;
 		boolean exceptionRised = false;
 		try {
@@ -98,7 +98,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 		BoardCategory newCategory = BoardCategory.DESIGN;
 		
 		//Create
-		NewBoard newBoard = new NewBoard(newTitle, newCategory);
+		NewBoardImpl newBoard = new NewBoardImpl(newTitle, newCategory);
 		Board createdBoard = pinterest1.createBoard(newBoard);
 		Board createdByURLBoard = pinterest1.getBoard(createdBoard.getURL());
 		assertEquals(createdBoard.getURL(), createdByURLBoard.getURL());

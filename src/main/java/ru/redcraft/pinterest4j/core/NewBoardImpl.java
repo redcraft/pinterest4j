@@ -1,14 +1,15 @@
 package ru.redcraft.pinterest4j.core;
 
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.NewBoard;
 
 
-public class NewBoard {
+public class NewBoardImpl implements NewBoard {
 
 	private final String title;
 	private final BoardCategory category;
 	
-	public NewBoard(String title, BoardCategory category) {
+	public NewBoardImpl(String title, BoardCategory category) {
 		this.title = title;
 		this.category = category;
 	}

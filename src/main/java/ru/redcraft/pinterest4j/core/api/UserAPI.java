@@ -10,10 +10,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import ru.redcraft.pinterest4j.NewUserSettings;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.UserBuilder;
 import ru.redcraft.pinterest4j.core.UserImpl;
-import ru.redcraft.pinterest4j.core.UserSettings;
 import ru.redcraft.pinterest4j.core.api.AdditionalUserSettings.Gender;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
@@ -116,7 +116,7 @@ public class UserAPI extends CoreAPI {
 		return adtSettings;
 	}
 	
-	private FormDataMultiPart createUserForm(UserSettings settings) {
+	private FormDataMultiPart createUserForm(NewUserSettings settings) {
 		FormDataMultiPart multipartForm = new FormDataMultiPart();
 		AdditionalUserSettings adtSettings = getUserAdtSettings();
 		multipartForm.bodyPart(new FormDataBodyPart("csrfmiddlewaretoken", getAccessToken().getCsrfToken().getValue())); 
@@ -145,7 +145,7 @@ public class UserAPI extends CoreAPI {
 		return multipartForm;
 	}
 	
-	public User updateUser(UserSettings settings) {
+	public User updateUser(NewUserSettings settings) {
 		LOG.debug(String.format("Updating user=%s with settings=%s", getAccessToken().getLogin(), settings));
 		FormDataMultiPart userUpdateForm = createUserForm(settings);
 		ClientResponse response = getWR(Protocol.HTTPS, "settings/", false).type(MediaType.MULTIPART_FORM_DATA)

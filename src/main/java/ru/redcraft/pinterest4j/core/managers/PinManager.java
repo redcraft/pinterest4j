@@ -4,9 +4,9 @@ import java.util.List;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Comment;
+import ru.redcraft.pinterest4j.NewPin;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.NewPin;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 

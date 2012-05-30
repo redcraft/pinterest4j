@@ -4,8 +4,8 @@ import java.util.List;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.NewBoard;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
 
 public class BoardManager extends BaseManager {

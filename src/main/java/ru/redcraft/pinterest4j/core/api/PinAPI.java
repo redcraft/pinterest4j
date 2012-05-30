@@ -17,10 +17,11 @@ import org.jsoup.select.Elements;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Comment;
+import ru.redcraft.pinterest4j.NewPin;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.CommentImpl;
-import ru.redcraft.pinterest4j.core.NewPin;
+import ru.redcraft.pinterest4j.core.NewPinImpl;
 import ru.redcraft.pinterest4j.core.PinBuilder;
 import ru.redcraft.pinterest4j.core.PinImpl;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
@@ -243,7 +244,7 @@ public class PinAPI extends CoreAPI {
 		if(descLength > MAX_PIN_DESCRIPTION_LENGTH) {
 			throw new PinMessageSizeException(PinMessageSizeException.MSG_TOO_LONG);
 		}
-		NewPin newPin = new NewPin(description, price, link, "", null);
+		NewPinImpl newPin = new NewPinImpl(description, price, link, "", null);
 		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), newPin);
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "edit/").
 				type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, multipartForm);

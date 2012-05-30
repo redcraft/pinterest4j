@@ -13,10 +13,10 @@ import org.jsoup.select.Elements;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.NewBoard;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.BoardBuilder;
 import ru.redcraft.pinterest4j.core.BoardImpl;
-import ru.redcraft.pinterest4j.core.NewBoard;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;

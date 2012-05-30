@@ -8,6 +8,7 @@ import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
 
+import ru.redcraft.pinterest4j.core.PinterestImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 public class PinterestTestBase {
@@ -61,8 +62,8 @@ public class PinterestTestBase {
 		idAutherror = getTestUserForPrefix(rb, "autherror");
 		
 		try {
-			pinterest1 = PinterestFactory.getInstance(id1.getLogin(), id1.getPassword());
-			pinterest2 = PinterestFactory.getInstance(id2.getLogin(), id2.getPassword());
+			pinterest1 = new PinterestImpl(id1.getLogin(), id1.getPassword());
+			pinterest2 = new PinterestImpl(id2.getLogin(), id2.getPassword());
 		} catch (PinterestAuthException e) {
 			log.error("Can't auth users", e);
 			throw new RuntimeException(e);

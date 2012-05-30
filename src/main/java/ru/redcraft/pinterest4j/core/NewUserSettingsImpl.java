@@ -2,7 +2,9 @@ package ru.redcraft.pinterest4j.core;
 
 import java.io.File;
 
-public class UserSettings {
+import ru.redcraft.pinterest4j.NewUserSettings;
+
+public class NewUserSettingsImpl implements NewUserSettings {
 
 	private String firstName;
 	private String lastName;
@@ -15,7 +17,7 @@ public class UserSettings {
 		return firstName;
 	}
 
-	public UserSettings setFirstName(String firstName) {
+	public NewUserSettingsImpl setFirstName(String firstName) {
 		this.firstName = firstName;
 		return this;
 	}
@@ -24,7 +26,7 @@ public class UserSettings {
 		return lastName;
 	}
 
-	public UserSettings setLastName(String lastName) {
+	public NewUserSettingsImpl setLastName(String lastName) {
 		this.lastName = lastName;
 		return this;
 	}
@@ -33,7 +35,7 @@ public class UserSettings {
 		return about;
 	}
 
-	public UserSettings setDescription(String about) {
+	public NewUserSettingsImpl setDescription(String about) {
 		this.about = about;
 		return this;
 	}
@@ -42,7 +44,7 @@ public class UserSettings {
 		return location;
 	}
 
-	public UserSettings setLocation(String location) {
+	public NewUserSettingsImpl setLocation(String location) {
 		this.location = location;
 		return this;
 	}
@@ -51,7 +53,7 @@ public class UserSettings {
 		return website;
 	}
 
-	public UserSettings setWebsite(String website) {
+	public NewUserSettingsImpl setWebsite(String website) {
 		this.website = website;
 		return this;
 	}
@@ -60,7 +62,7 @@ public class UserSettings {
 		return image;
 	}
 
-	public UserSettings setImage(File image) {
+	public NewUserSettingsImpl setImage(File image) {
 		this.image = image;
 		return this;
 	}

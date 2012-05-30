@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.junit.Test;
 
-import ru.redcraft.pinterest4j.core.UserSettings;
+import ru.redcraft.pinterest4j.core.NewUserSettingsImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
 public class UserMethodsTest extends PinterestTestBase {
@@ -15,7 +15,7 @@ public class UserMethodsTest extends PinterestTestBase {
 	public void updateUserSettingsWithEmptyValuesTest() {
 		String description = UUID.randomUUID().toString();
 		User user = pinterest1.getUser();
-		UserSettings settings = new UserSettings();
+		NewUserSettingsImpl settings = new NewUserSettingsImpl();
 		settings.setDescription(description);
 		User newUser = pinterest1.updateUser(settings);
 		assertEquals(description, newUser.getDescription());
@@ -28,7 +28,7 @@ public class UserMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void updateUserSettingsTest() {
-		UserSettings settings = new UserSettings();
+		NewUserSettingsImpl settings = new NewUserSettingsImpl();
 		String firstName = UUID.randomUUID().toString();
 		String lastName = UUID.randomUUID().toString();
 		String description = UUID.randomUUID().toString();
