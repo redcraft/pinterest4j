@@ -74,7 +74,7 @@ public class UserAPI extends CoreAPI {
 			builder.setLikesCount(Integer.valueOf(doc.select("div#ContextBar").first().getElementsByTag("li").get(2).getElementsByTag("strong").first().text()));
 		}
 		else if(response.getStatus() ==  Status.NOT_FOUND.getStatusCode()) {
-			throw new PinterestUserNotFoundException(user);
+			throw new PinterestUserNotFoundException(user.getUserName());
 		}
 		else {
 			throw new PinterestRuntimeException(

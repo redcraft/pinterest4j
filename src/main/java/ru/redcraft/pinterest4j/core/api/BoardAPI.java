@@ -86,7 +86,7 @@ public final class BoardAPI extends CoreAPI {
 		Map<String, String> responseMap = parseResponse(response, BOARD_CREATION_ERROR);
 		if(responseMap.get("status").equals("failure")) {
 			if(responseMap.get(RESPONSE_MESSAGE_FIELD).equals("You already have a board with that name.")) {
-				throw new PinterestBoardExistException(newBoard);
+				throw new PinterestBoardExistException(newBoard.getTitle());
 			}
 			else {
 				throw new PinterestRuntimeException(BOARD_CREATION_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
@@ -133,7 +133,7 @@ public final class BoardAPI extends CoreAPI {
 			builder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
 		}
 		else if(response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
-			throw new PinterestBoardNotFoundException(board);
+			throw new PinterestBoardNotFoundException(board.getURL());
 		}
 		else {
 			throw new PinterestRuntimeException(

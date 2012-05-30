@@ -151,7 +151,7 @@ public class PinAPI extends CoreAPI {
 			}
 		}
 		else if(response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
-			throw new PinterestPinNotFoundException(pin);
+			throw new PinterestPinNotFoundException(pin.getId());
 		}
 		else {
 			throw new PinterestRuntimeException(response, PINS_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
