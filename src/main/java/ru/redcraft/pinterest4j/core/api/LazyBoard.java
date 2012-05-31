@@ -105,7 +105,7 @@ public class LazyBoard implements Board {
 	public int getFollowersCount() {
 		return getTarget().getFollowersCount();
 	}
-
+	
 	@Override
 	public String toString() {
 		return "LazyBoard [url=" + url + "]";

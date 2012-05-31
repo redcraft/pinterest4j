@@ -38,6 +38,7 @@ public final class BoardAPI extends CoreAPI {
 	private static final String BOARD_CREATION_ERROR = "PINBOARD CREATION ERROR: ";
 	private static final String BOARD_DELETION_ERROR = "PINBOARD DELETION ERROR: ";
 	private static final String BOARD_UPDATE_ERROR = "PINBOARD UPDATE ERROR: ";
+	private static final String BOARD_FOLLOW_ERROR = "PINBOARD FOLLOW ERROR: ";
 	
 	public BoardAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
@@ -105,32 +106,11 @@ public final class BoardAPI extends CoreAPI {
 		return form;
 	}
 	
-	public BoardImpl getCompleteBoard(LazyBoard board) {
-		LOG.debug("Getting all info for lazy board " + board);
-		BoardBuilder builder = new BoardBuilder();
-		builder.setURL(board.getURL());
+	private Document getBoardInfoPage(Board board) {
+		Document doc = null;
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
-		
 		if(response.getStatus() == Status.OK.getStatusCode()) {
-			Document doc = Jsoup.parse(response.getEntity(String.class));
-			
-			Map<String, String> metaMap = new HashMap<String, String>();
-			for(Element meta : doc.select("meta")) {
-				metaMap.put(meta.attr("property"), meta.attr("content"));
-			}
-			builder.setDescription(metaMap.get(BOARD_DESCRIPTION_PROP_NAME));
-			builder.setCategory(BoardCategory.valueOf(metaMap.get(BOARD_CATEGORY_PROP_NAME).toUpperCase(PINTEREST_LOCALE)));
-			builder.setPinsCount(Integer.valueOf(metaMap.get(BOARD_PINS_PROP_NAME)));
-			builder.setFollowersCount(Integer.valueOf(metaMap.get(BOARD_FOLLOWERS_PROP_NAME)));
-			builder.setTitle(metaMap.get(BOARD_TITLE_PROP_NAME));
-			
-			for(Element meta : doc.select("div.BoardList").first().select("li")) {
-				if(meta.child(0).text().equals(builder.getTitle())) {
-					builder.setId(Long.valueOf(meta.attr("data")));
-					break;
-				}
-			}
-			builder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
+			doc = Jsoup.parse(response.getEntity(String.class));
 		}
 		else if(response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
 			throw new PinterestBoardNotFoundException(board.getURL());
@@ -140,7 +120,35 @@ public final class BoardAPI extends CoreAPI {
 					response, 
 					BOARDS_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
 		}
+		return doc;
+	}
+	
+	public BoardImpl getCompleteBoard(LazyBoard board) {
+		LOG.debug("Getting all info for lazy board " + board);
 		
+		BoardBuilder builder = new BoardBuilder();
+		builder.setURL(board.getURL());
+		
+		Document doc = getBoardInfoPage(board);
+		
+		Map<String, String> metaMap = new HashMap<String, String>();
+		for(Element meta : doc.select("meta")) {
+			metaMap.put(meta.attr("property"), meta.attr("content"));
+		}
+		builder.setDescription(metaMap.get(BOARD_DESCRIPTION_PROP_NAME));
+		builder.setCategory(BoardCategory.valueOf(metaMap.get(BOARD_CATEGORY_PROP_NAME).toUpperCase(PINTEREST_LOCALE)));
+		builder.setPinsCount(Integer.valueOf(metaMap.get(BOARD_PINS_PROP_NAME)));
+		builder.setFollowersCount(Integer.valueOf(metaMap.get(BOARD_FOLLOWERS_PROP_NAME)));
+		builder.setTitle(metaMap.get(BOARD_TITLE_PROP_NAME));
+		
+		for(Element meta : doc.select("div.BoardList").first().select("li")) {
+			if(meta.child(0).text().equals(builder.getTitle())) {
+				builder.setId(Long.valueOf(meta.attr("data")));
+				break;
+			}
+		}
+		builder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
+			
 		return builder.build();
 	}
 
@@ -184,6 +192,27 @@ public final class BoardAPI extends CoreAPI {
 
 	public Board getBoardByURL(String url) {
 		return getCompleteBoard(new LazyBoard(url, this));
+	}
+
+	public Board followBoard(Board board, boolean follow) {
+		LOG.debug(String.format("Setting follow on board = %s to = %s", board, follow));
+		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "follow/").post(ClientResponse.class, getSwitchForm("unfollow", follow));
+		Map<String, String> responseMap = parseResponse(response, BOARD_FOLLOW_ERROR);
+		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
+			throw new PinterestRuntimeException(BOARD_FOLLOW_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
+		}
+		LOG.debug("Board follow mark set to " + follow);
+		return new LazyBoard(board.getURL(), this);
+	}
+
+	public boolean isFollowing(Board board) {
+		LOG.debug(String.format("Checking board %s for following", board));
+		boolean followed = false;
+		if(getBoardInfoPage(board).select("a.unfollowbutton").size() == 1) {
+			followed = true;
+		}
+		LOG.debug("Following status is " + followed);
+		return followed;
 	}
 	
 }

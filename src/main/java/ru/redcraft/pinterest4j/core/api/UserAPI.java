@@ -34,45 +34,17 @@ public class UserAPI extends CoreAPI {
 	private static final Logger LOG = Logger.getLogger(UserAPI.class);
 	
 	private static final String USER_OBTAINING_ERROR = "USER OBTAINING ERROR: ";
+	private static final String USER_FOLLOW_ERROR = "USER FOLLOW ERROR: ";
 	
 	public UserAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
 	}
 	
-	public UserImpl getCompleteUser(User user) {
-		LOG.debug("Getting all info for lazy user " + user);
-		UserBuilder builder = new UserBuilder();
-		builder.setUserName(user.getUserName());
+	private Document getUserInfoPage(User user) {
+		Document doc = null;
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/").get(ClientResponse.class);
-		
 		if(response.getStatus() == Status.OK.getStatusCode()) {
-			Document doc = Jsoup.parse(response.getEntity(String.class));
-			
-			Map<String, String> metaMap = new HashMap<String, String>();
-			for(Element meta : doc.select("meta")) {
-				metaMap.put(meta.attr("property"), meta.attr("content"));
-			}
-			builder.setFollowingCount(Integer.valueOf(metaMap.get(USER_FOLLOWING_PROP_NAME)));
-			builder.setFollowersCount(Integer.valueOf(metaMap.get(USER_FOLLOWERS_PROP_NAME)));
-			builder.setBoardsCount(Integer.valueOf(metaMap.get(USER_BOARDS_PROP_NAME)));
-			builder.setPinsCount(Integer.valueOf(metaMap.get(USER_PINS_PROP_NAME)));
-			builder.setImageURL(metaMap.get(USER_IMAGE_PROP_NAME));
-			
-			Element userInfo = doc.select("div.content").first();
-			builder.setFullName(userInfo.getElementsByTag("h1").first().text());
-			
-			Element description = userInfo.getElementsByTag("p").first();
-			builder.setDescription(description != null ? description.text() : null);
-			Element twitter = userInfo.select("a.twitter").first();
-			builder.setTwitterURL(twitter != null ? twitter.attr("href") : null);
-			Element facebook = userInfo.select("a.facebook").first();
-			builder.setFacebookURL(facebook != null ? facebook.attr("href") : null);
-			Element website = userInfo.select("a.website").first();
-			builder.setSiteURL(website != null ? website.attr("href") : null);
-			Element location = userInfo.select("li#ProfileLocation").first();
-			builder.setLocation(location != null ? location.text() : null);
-			
-			builder.setLikesCount(Integer.valueOf(doc.select("div#ContextBar").first().getElementsByTag("li").get(2).getElementsByTag("strong").first().text()));
+			doc = Jsoup.parse(response.getEntity(String.class));
 		}
 		else if(response.getStatus() ==  Status.NOT_FOUND.getStatusCode()) {
 			throw new PinterestUserNotFoundException(user.getUserName());
@@ -82,6 +54,41 @@ public class UserAPI extends CoreAPI {
 					response, 
 					USER_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
 		}
+		return doc;
+	}
+	
+	public UserImpl getCompleteUser(User user) {
+		LOG.debug("Getting all info for lazy user " + user);
+		UserBuilder builder = new UserBuilder();
+		builder.setUserName(user.getUserName());
+		
+		Document doc = getUserInfoPage(user);
+		
+		Map<String, String> metaMap = new HashMap<String, String>();
+		for(Element meta : doc.select("meta")) {
+			metaMap.put(meta.attr("property"), meta.attr("content"));
+		}
+		builder.setFollowingCount(Integer.valueOf(metaMap.get(USER_FOLLOWING_PROP_NAME)));
+		builder.setFollowersCount(Integer.valueOf(metaMap.get(USER_FOLLOWERS_PROP_NAME)));
+		builder.setBoardsCount(Integer.valueOf(metaMap.get(USER_BOARDS_PROP_NAME)));
+		builder.setPinsCount(Integer.valueOf(metaMap.get(USER_PINS_PROP_NAME)));
+		builder.setImageURL(metaMap.get(USER_IMAGE_PROP_NAME));
+		
+		Element userInfo = doc.select("div.content").first();
+		builder.setFullName(userInfo.getElementsByTag("h1").first().text());
+		
+		Element description = userInfo.getElementsByTag("p").first();
+		builder.setDescription(description != null ? description.text() : null);
+		Element twitter = userInfo.select("a.twitter").first();
+		builder.setTwitterURL(twitter != null ? twitter.attr("href") : null);
+		Element facebook = userInfo.select("a.facebook").first();
+		builder.setFacebookURL(facebook != null ? facebook.attr("href") : null);
+		Element website = userInfo.select("a.website").first();
+		builder.setSiteURL(website != null ? website.attr("href") : null);
+		Element location = userInfo.select("li#ProfileLocation").first();
+		builder.setLocation(location != null ? location.text() : null);
+		
+		builder.setLikesCount(Integer.valueOf(doc.select("div#ContextBar").first().getElementsByTag("li").get(2).getElementsByTag("strong").first().text()));
 		
 		return builder.build();
 	}
@@ -156,4 +163,26 @@ public class UserAPI extends CoreAPI {
 		LOG.debug("User updated. New user info: " + newUser);
 		return newUser;
 	}
+
+	public User followUser(User user, boolean follow) {
+		LOG.debug(String.format("Setting follow on user = %s to = %s", user, follow));
+		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/follow/").post(ClientResponse.class, getSwitchForm("unfollow", follow));
+		Map<String, String> responseMap = parseResponse(response, USER_FOLLOW_ERROR);
+		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
+			throw new PinterestRuntimeException(USER_FOLLOW_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
+		}
+		LOG.debug("Board follow mark set to " + follow);
+		return new LazyUser(user.getUserName(), this);
+	}
+
+	public boolean isFollowing(User user) {
+		LOG.debug("Checking following status for user=" + user);
+		boolean followed = false;
+		if(getUserInfoPage(user).select("a.unfollowuserbutton").size() == 1) {
+			followed = true;
+		}
+		LOG.debug("Following state is " + followed);
+		return followed;
+	}
+	
 }

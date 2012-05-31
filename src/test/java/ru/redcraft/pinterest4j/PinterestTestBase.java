@@ -65,7 +65,7 @@ public class PinterestTestBase {
 			pinterest1 = new PinterestImpl(id1.getLogin(), id1.getPassword());
 			pinterest2 = new PinterestImpl(id2.getLogin(), id2.getPassword());
 		} catch (PinterestAuthException e) {
-			log.error("Can't auth users", e);
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 		
@@ -78,7 +78,7 @@ public class PinterestTestBase {
 		try {
 			imageFile = new File(ClassLoader.getSystemResource("pin_image.jpg").toURI());
 		} catch(URISyntaxException e) {
-			log.error("Can't load image file", e);
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
 	}

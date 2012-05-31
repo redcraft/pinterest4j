@@ -89,5 +89,5 @@ public class UserImpl implements User {
 	public int getFollowingCount() {
 		return followingCount;
 	}
-
+	
 }

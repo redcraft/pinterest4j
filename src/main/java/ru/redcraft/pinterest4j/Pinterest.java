@@ -21,6 +21,12 @@ public interface Pinterest {
 	
 	void deleteBoard(Board board);
 	
+	Board followBoard(Board board);
+	
+	Board unfollowBoard(Board board);
+	
+	boolean isFollowing(Board board);
+	
 	//Pin
 	
 	Pin addPin(Board board, NewPin newPin) throws PinMessageSizeException;
@@ -58,7 +64,15 @@ public interface Pinterest {
 	//User
 	
 	User getUser(String userName);
+	
 	User getUser();
+	
 	User updateUser(NewUserSettings settings);
+	
+	User followUser(User user);
+	
+	User unfollowUser(User user);
+	
+	boolean isFollowing(User user);
 	
 }

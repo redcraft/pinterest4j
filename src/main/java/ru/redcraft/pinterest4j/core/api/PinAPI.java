@@ -289,17 +289,8 @@ public class PinAPI extends CoreAPI {
 	
 	public Pin like(Pin pin, boolean like) {
 		LOG.debug(String.format("Setting like of pin = %s to = %s", pin, like));
-		ClientResponse response = null;
-		Form likeForm = new Form();
-		likeForm.add("bla", "bla");
-		if(like) {
-			response = getWR(Protocol.HTTP, pin.getURL()+ "like/").post(ClientResponse.class, likeForm);
-		}
-		else {
-			likeForm.add("unlike", 1);
-			response = getWR(Protocol.HTTP, pin.getURL() + "like/").post(ClientResponse.class, likeForm);
-		}
-		Map<String, String> responseMap = parseResponse(response, PIN_REPIN_ERROR);
+		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "like/").post(ClientResponse.class, getSwitchForm("unlike", like));
+		Map<String, String> responseMap = parseResponse(response, PIN_LIKE_ERROR);
 		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
 			throw new PinterestRuntimeException(PIN_LIKE_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}

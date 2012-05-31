@@ -133,4 +133,28 @@ public class PinterestImpl implements Pinterest {
 		return internalAPI.getUserAPI().updateUser(settings);
 	}
 
+	public Board followBoard(Board board) {
+		return internalAPI.getBoardAPI().followBoard(board, true);
+	}
+	
+	public Board unfollowBoard(Board board) {
+		return internalAPI.getBoardAPI().followBoard(board, false);
+	}
+
+	public User followUser(User user) {
+		return internalAPI.getUserAPI().followUser(user, true);
+	}
+	
+	public User unfollowUser(User user) {
+		return internalAPI.getUserAPI().followUser(user, false);
+	}
+
+	public boolean isFollowing(Board board) {
+		return internalAPI.getBoardAPI().isFollowing(board);
+	}
+
+	public boolean isFollowing(User user) {
+		return internalAPI.getUserAPI().isFollowing(user);
+	}
+
 }

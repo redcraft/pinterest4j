@@ -21,6 +21,7 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.representation.Form;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataBodyPart;
 
@@ -109,5 +110,15 @@ public abstract class CoreAPI {
 	                imgFile, imageType);
 		return f;
 	}
+	
+	protected Form getSwitchForm(String parameter, boolean state) {
+		Form switchForm = new Form();
+		switchForm.add("bla", "bla");
+		if(!state) {
+			switchForm.add(parameter, 1);
+		}
+		return switchForm;
+	}
+	
 	
 }

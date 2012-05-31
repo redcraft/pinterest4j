@@ -1,6 +1,8 @@
 package ru.redcraft.pinterest4j;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.UUID;
 
@@ -60,5 +62,17 @@ public class UserMethodsTest extends PinterestTestBase {
 	@Test(expected=PinterestUserNotFoundException.class)
 	public void getUnexistentUser() {
 		pinterest1.getUser(UUID.randomUUID().toString());
+	}
+	
+	@Test
+	public void followUserTest() {
+		User pinterest1User = pinterest2.unfollowUser(pinterest1.getUser());
+		int followersCount = pinterest1User.getFollowersCount();
+		User followedUser = pinterest2.followUser(pinterest1User);
+		assertEquals(followersCount + 1, followedUser.getFollowersCount());
+		assertTrue("Is not following", pinterest2.isFollowing(followedUser));
+		User unfollowedUser = pinterest2.unfollowUser(followedUser); 
+		assertEquals(followersCount, unfollowedUser.getFollowersCount());
+		assertFalse("Is still following", pinterest2.isFollowing(unfollowedUser));
 	}
 }
