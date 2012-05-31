@@ -51,5 +51,5 @@ public class BoardBuilderTest {
 		assertEquals(pinsCount, Integer.valueOf(board.getPinsCount()));
 		assertEquals(followersCount, Integer.valueOf(board.getFollowersCount()));
 	}
-
+	
 }

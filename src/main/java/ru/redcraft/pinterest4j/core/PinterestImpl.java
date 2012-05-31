@@ -109,12 +109,12 @@ public class PinterestImpl implements Pinterest {
 		return internalAPI.getPinAPI().repin(pin, board, description);
 	}
 
-	public Pin likePin(Pin pin) {
-		return internalAPI.getPinAPI().like(pin, true);
+	public void likePin(Pin pin) {
+		internalAPI.getPinAPI().like(pin, true);
 	}
 
-	public Pin unlikePin(Pin pin) {
-		return internalAPI.getPinAPI().like(pin, false);
+	public void unlikePin(Pin pin) {
+		internalAPI.getPinAPI().like(pin, false);
 	}
 
 	public Comment addComment(Pin pin, String comment) {
@@ -133,20 +133,20 @@ public class PinterestImpl implements Pinterest {
 		return internalAPI.getUserAPI().updateUser(settings);
 	}
 
-	public Board followBoard(Board board) {
-		return internalAPI.getBoardAPI().followBoard(board, true);
+	public void followBoard(Board board) {
+		internalAPI.getBoardAPI().followBoard(board, true);
 	}
 	
-	public Board unfollowBoard(Board board) {
-		return internalAPI.getBoardAPI().followBoard(board, false);
+	public void unfollowBoard(Board board) {
+		internalAPI.getBoardAPI().followBoard(board, false);
 	}
 
-	public User followUser(User user) {
-		return internalAPI.getUserAPI().followUser(user, true);
+	public void followUser(User user) {
+		internalAPI.getUserAPI().followUser(user, true);
 	}
 	
-	public User unfollowUser(User user) {
-		return internalAPI.getUserAPI().followUser(user, false);
+	public void unfollowUser(User user) {
+		internalAPI.getUserAPI().followUser(user, false);
 	}
 
 	public boolean isFollowing(Board board) {
@@ -155,6 +155,10 @@ public class PinterestImpl implements Pinterest {
 
 	public boolean isFollowing(User user) {
 		return internalAPI.getUserAPI().isFollowing(user);
+	}
+
+	public boolean isLiked(Pin pin) {
+		return internalAPI.getPinAPI().isLiked(pin);
 	}
 
 }

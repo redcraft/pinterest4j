@@ -14,11 +14,22 @@ public class LazyUser  implements User {
 		this.userAPI = userAPI;
 	}
 	
+	LazyUser(UserImpl user, UserAPI userAPI) {
+		this.userName = user.getUserName();
+		this.target = user;
+		this.userAPI = userAPI;
+	}
+	
 	private UserImpl getTarget() {
 		if(target == null) {
-			target = userAPI.getCompleteUser(this);
+			refresh();
 		}
 		return target;
+	}
+	
+	public User refresh() {
+		target = userAPI.getCompleteUser(userName);
+		return this;
 	}
 	
 	public String getUserName() {

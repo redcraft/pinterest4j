@@ -28,6 +28,10 @@ public class BoardImpl implements Board {
 		this.followersCount = followersCount;
 	}
 
+	public Board refresh() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public long getId() {
 		return id;
 	}

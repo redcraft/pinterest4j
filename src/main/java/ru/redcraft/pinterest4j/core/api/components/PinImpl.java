@@ -12,7 +12,6 @@ public class PinImpl implements Pin {
 	private final String link;
 	private final String imageURL;
 	private final Board board;
-	private final boolean liked;
 	private final int likesCount;
 	private final int repinsCount;
 	private final int commentsCount;
@@ -21,7 +20,7 @@ public class PinImpl implements Pin {
 	private final boolean repined;
 	
 	public PinImpl(long id, String description, double price, String link, String imageUrl,
-			Board board, boolean liked, int likesCount, int repinsCount, int commentsCount, User pinner, User originalPinner,
+			Board board, int likesCount, int repinsCount, int commentsCount, User pinner, User originalPinner,
 			boolean repined) {
 		super();
 		this.id = id;
@@ -30,7 +29,6 @@ public class PinImpl implements Pin {
 		this.link = link;
 		this.imageURL = imageUrl;
 		this.board = board;
-		this.liked = liked;
 		this.likesCount = likesCount;
 		this.repinsCount = repinsCount;
 		this.commentsCount = commentsCount;
@@ -39,6 +37,10 @@ public class PinImpl implements Pin {
 		this.repined = repined;
 	}
 
+	public Pin refresh() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public long getId() {
 		return id;
 	}
@@ -63,10 +65,6 @@ public class PinImpl implements Pin {
 		return board;
 	}
 	
-	public boolean isLiked() {
-		return liked;
-	}
-
 	public int getLikesCount() {
 		return likesCount;
 	}

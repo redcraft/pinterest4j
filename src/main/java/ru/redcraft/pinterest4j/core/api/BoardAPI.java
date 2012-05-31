@@ -106,14 +106,14 @@ public final class BoardAPI extends CoreAPI {
 		return form;
 	}
 	
-	private Document getBoardInfoPage(Board board) {
+	private Document getBoardInfoPage(String boardURL) {
 		Document doc = null;
-		ClientResponse response = getWR(Protocol.HTTP, board.getURL()).get(ClientResponse.class);
+		ClientResponse response = getWR(Protocol.HTTP, boardURL).get(ClientResponse.class);
 		if(response.getStatus() == Status.OK.getStatusCode()) {
 			doc = Jsoup.parse(response.getEntity(String.class));
 		}
 		else if(response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
-			throw new PinterestBoardNotFoundException(board.getURL());
+			throw new PinterestBoardNotFoundException(boardURL);
 		}
 		else {
 			throw new PinterestRuntimeException(
@@ -123,13 +123,13 @@ public final class BoardAPI extends CoreAPI {
 		return doc;
 	}
 	
-	public BoardImpl getCompleteBoard(LazyBoard board) {
-		LOG.debug("Getting all info for lazy board " + board);
+	public BoardImpl getCompleteBoard(String boardURL) {
+		LOG.debug("Getting all info for board url " + boardURL);
 		
 		BoardBuilder builder = new BoardBuilder();
-		builder.setURL(board.getURL());
+		builder.setURL(boardURL);
 		
-		Document doc = getBoardInfoPage(board);
+		Document doc = getBoardInfoPage(boardURL);
 		
 		Map<String, String> metaMap = new HashMap<String, String>();
 		for(Element meta : doc.select("meta")) {
@@ -191,10 +191,10 @@ public final class BoardAPI extends CoreAPI {
 	}
 
 	public Board getBoardByURL(String url) {
-		return getCompleteBoard(new LazyBoard(url, this));
+		return new LazyBoard(getCompleteBoard(url), this);
 	}
 
-	public Board followBoard(Board board, boolean follow) {
+	public void followBoard(Board board, boolean follow) {
 		LOG.debug(String.format("Setting follow on board = %s to = %s", board, follow));
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "follow/").post(ClientResponse.class, getSwitchForm("unfollow", follow));
 		Map<String, String> responseMap = parseResponse(response, BOARD_FOLLOW_ERROR);
@@ -202,13 +202,12 @@ public final class BoardAPI extends CoreAPI {
 			throw new PinterestRuntimeException(BOARD_FOLLOW_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		LOG.debug("Board follow mark set to " + follow);
-		return new LazyBoard(board.getURL(), this);
 	}
 
 	public boolean isFollowing(Board board) {
 		LOG.debug(String.format("Checking board %s for following", board));
 		boolean followed = false;
-		if(getBoardInfoPage(board).select("a.unfollowbutton").size() == 1) {
+		if(getBoardInfoPage(board.getURL()).select("a.unfollowbutton").size() == 1) {
 			followed = true;
 		}
 		LOG.debug("Following status is " + followed);

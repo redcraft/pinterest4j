@@ -2,6 +2,7 @@ package ru.redcraft.pinterest4j;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.util.List;
 import java.util.UUID;
@@ -154,11 +155,11 @@ public class PinMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void likeTest() {
-		assertEquals(false, testPin.isLiked());
-		Pin likedPin = pinterest2.likePin(testPin);
-		assertEquals(true, likedPin.isLiked());
-		Pin unlikedPin = pinterest2.unlikePin(likedPin);
-		assertEquals(false, unlikedPin.isLiked());
+		assertFalse("Pin is liked", pinterest2.isLiked(testPin));
+		pinterest2.likePin(testPin);
+		assertTrue("Pin is not liked", pinterest2.isLiked(testPin));
+		pinterest2.unlikePin(testPin);
+		assertFalse("Pin is liked", pinterest2.isLiked(testPin));
 	}
 	
 	@Test

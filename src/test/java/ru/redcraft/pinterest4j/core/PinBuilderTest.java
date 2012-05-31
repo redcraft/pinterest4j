@@ -24,7 +24,6 @@ public class PinBuilderTest {
 		double price = Math.random() * 100;
 		String link = UUID.randomUUID().toString();
 		String imageURL = UUID.randomUUID().toString();
-		boolean liked = true;
 		int likesCount = (int) Math.random() * 100;
 		int repinsCount = (int) Math.random() * 100;
 		int commentsCount = (int) Math.random() * 100;
@@ -38,7 +37,6 @@ public class PinBuilderTest {
 			   .setLink(link)
 			   .setImageURL(imageURL)
 			   .setBoard(board)
-			   .setLiked(liked)
 			   .setLikesCount(likesCount)
 			   .setRepinsCount(repinsCount)
 			   .setPinner(pinner)
@@ -52,7 +50,6 @@ public class PinBuilderTest {
 		assertEquals(link, builder.getLink());
 		assertEquals(imageURL, builder.getImageURL());
 		assertEquals(board, builder.getBoard());
-		assertEquals(liked, builder.isLiked());
 		assertEquals(likesCount, builder.getLikesCount());
 		assertEquals(repinsCount, builder.getRepinsCount());
 		assertEquals(commentsCount, builder.getCommentsCount());
@@ -68,7 +65,6 @@ public class PinBuilderTest {
 		assertEquals(link, pin.getLink());
 		assertEquals(imageURL, pin.getImageURL());
 		assertEquals(board, pin.getBoard());
-		assertEquals(liked, pin.isLiked());
 		assertEquals(likesCount, pin.getLikesCount());
 		assertEquals(repinsCount, pin.getRepinsCount());
 		assertEquals(commentsCount, pin.getCommentsCount());

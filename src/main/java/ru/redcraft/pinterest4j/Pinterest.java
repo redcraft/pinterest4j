@@ -21,9 +21,9 @@ public interface Pinterest {
 	
 	void deleteBoard(Board board);
 	
-	Board followBoard(Board board);
+	void followBoard(Board board);
 	
-	Board unfollowBoard(Board board);
+	void unfollowBoard(Board board);
 	
 	boolean isFollowing(Board board);
 	
@@ -51,9 +51,11 @@ public interface Pinterest {
 	
 	Pin repin(Pin pin, Board board, String description);
 	
-	Pin likePin(Pin pin);
+	void likePin(Pin pin);
 	
-	Pin unlikePin(Pin pin);
+	void unlikePin(Pin pin);
+	
+	boolean isLiked(Pin pin);
 	
 	Comment addComment(Pin pin, String comment);
 	
@@ -69,9 +71,9 @@ public interface Pinterest {
 	
 	User updateUser(NewUserSettings settings);
 	
-	User followUser(User user);
+	void followUser(User user);
 	
-	User unfollowUser(User user);
+	void unfollowUser(User user);
 	
 	boolean isFollowing(User user);
 	

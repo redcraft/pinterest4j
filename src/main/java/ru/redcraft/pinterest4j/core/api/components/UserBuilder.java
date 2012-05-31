@@ -18,6 +18,10 @@ public class UserBuilder implements User {
 	private  int followersCount;
 	private  int followingCount;
 	
+	public User refresh() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getUserName() {
 		return userName;
 	}

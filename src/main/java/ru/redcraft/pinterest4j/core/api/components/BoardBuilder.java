@@ -14,6 +14,10 @@ public class BoardBuilder implements Board {
 	private int pageCount;
 	private int followersCount;
 	
+	public Board refresh() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public long getId() {
 		return id;
 	}

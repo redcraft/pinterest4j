@@ -40,14 +40,14 @@ public class UserAPI extends CoreAPI {
 		super(accessToken, apiManager);
 	}
 	
-	private Document getUserInfoPage(User user) {
+	private Document getUserInfoPage(String userName) {
 		Document doc = null;
-		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/").get(ClientResponse.class);
+		ClientResponse response = getWR(Protocol.HTTP, userName + "/").get(ClientResponse.class);
 		if(response.getStatus() == Status.OK.getStatusCode()) {
 			doc = Jsoup.parse(response.getEntity(String.class));
 		}
 		else if(response.getStatus() ==  Status.NOT_FOUND.getStatusCode()) {
-			throw new PinterestUserNotFoundException(user.getUserName());
+			throw new PinterestUserNotFoundException(userName);
 		}
 		else {
 			throw new PinterestRuntimeException(
@@ -57,12 +57,12 @@ public class UserAPI extends CoreAPI {
 		return doc;
 	}
 	
-	public UserImpl getCompleteUser(User user) {
-		LOG.debug("Getting all info for lazy user " + user);
+	public UserImpl getCompleteUser(String userName) {
+		LOG.debug("Getting all info for username " + userName);
 		UserBuilder builder = new UserBuilder();
-		builder.setUserName(user.getUserName());
+		builder.setUserName(userName);
 		
-		Document doc = getUserInfoPage(user);
+		Document doc = getUserInfoPage(userName);
 		
 		Map<String, String> metaMap = new HashMap<String, String>();
 		for(Element meta : doc.select("meta")) {
@@ -94,7 +94,7 @@ public class UserAPI extends CoreAPI {
 	}
 	
 	public User getUserForName(String userName) {
-		return getCompleteUser(new LazyUser(userName, this));
+		return new LazyUser(getCompleteUser(userName), this);
 	}
 
 	private AdditionalUserSettings getUserAdtSettings() {
@@ -164,7 +164,7 @@ public class UserAPI extends CoreAPI {
 		return newUser;
 	}
 
-	public User followUser(User user, boolean follow) {
+	public void followUser(User user, boolean follow) {
 		LOG.debug(String.format("Setting follow on user = %s to = %s", user, follow));
 		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/follow/").post(ClientResponse.class, getSwitchForm("unfollow", follow));
 		Map<String, String> responseMap = parseResponse(response, USER_FOLLOW_ERROR);
@@ -172,13 +172,12 @@ public class UserAPI extends CoreAPI {
 			throw new PinterestRuntimeException(USER_FOLLOW_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		LOG.debug("Board follow mark set to " + follow);
-		return new LazyUser(user.getUserName(), this);
 	}
 
 	public boolean isFollowing(User user) {
 		LOG.debug("Checking following status for user=" + user);
 		boolean followed = false;
-		if(getUserInfoPage(user).select("a.unfollowuserbutton").size() == 1) {
+		if(getUserInfoPage(user.getUserName()).select("a.unfollowuserbutton").size() == 1) {
 			followed = true;
 		}
 		LOG.debug("Following state is " + followed);

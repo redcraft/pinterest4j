@@ -66,13 +66,16 @@ public class UserMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void followUserTest() {
-		User pinterest1User = pinterest2.unfollowUser(pinterest1.getUser());
-		int followersCount = pinterest1User.getFollowersCount();
-		User followedUser = pinterest2.followUser(pinterest1User);
-		assertEquals(followersCount + 1, followedUser.getFollowersCount());
-		assertTrue("Is not following", pinterest2.isFollowing(followedUser));
-		User unfollowedUser = pinterest2.unfollowUser(followedUser); 
-		assertEquals(followersCount, unfollowedUser.getFollowersCount());
-		assertFalse("Is still following", pinterest2.isFollowing(unfollowedUser));
+		pinterest2.unfollowUser(pinterest1.getUser());
+		int followersCountForUser1 = pinterest1.getUser().refresh().getFollowersCount();
+		int followingCountForUser2 = pinterest2.getUser().getFollowingCount();
+		pinterest2.followUser(pinterest1.getUser());
+		assertEquals(followersCountForUser1 + 1, pinterest1.getUser().refresh().getFollowersCount());
+		assertEquals(followingCountForUser2 + 1, pinterest2.getUser().refresh().getFollowingCount());
+		assertTrue("Is not following", pinterest2.isFollowing(pinterest1.getUser()));
+		pinterest2.unfollowUser(pinterest1.getUser()); 
+		assertEquals(followersCountForUser1, pinterest1.getUser().refresh().getFollowersCount());
+		assertEquals(followingCountForUser2, pinterest2.getUser().refresh().getFollowingCount());
+		assertFalse("Is still following", pinterest2.isFollowing(pinterest1.getUser()));
 	}
 }

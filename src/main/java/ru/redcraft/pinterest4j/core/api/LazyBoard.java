@@ -19,6 +19,12 @@ public class LazyBoard implements Board {
 		this.boardAPI = boardAPI;
 	}
 	
+	LazyBoard(BoardImpl board, BoardAPI boardAPI) {
+		this.url = board.getURL();
+		this.target = board;
+		this.boardAPI = boardAPI;
+	}
+	
 	LazyBoard(long id, String url, String title, BoardCategory category, BoardAPI boardAPI) {
 		super();
 		this.id = id;
@@ -49,9 +55,14 @@ public class LazyBoard implements Board {
 
 	private Board getTarget() {
 		if(target == null) {
-			target = boardAPI.getCompleteBoard(this);
+			refresh();
 		}
 		return target;
+	}
+	
+	public Board refresh() {
+		target = boardAPI.getCompleteBoard(url);
+		return this;
 	}
 	
 	public long getId() {

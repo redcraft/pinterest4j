@@ -2,6 +2,8 @@ package ru.redcraft.pinterest4j;
 
 public interface Pin {
 
+	Pin refresh();
+	
 	long getId();
 	
 	String getURL();
@@ -15,8 +17,6 @@ public interface Pin {
 	String getImageURL();
 	
 	Board getBoard();
-	
-	boolean isLiked();
 	
 	int getLikesCount();
 	

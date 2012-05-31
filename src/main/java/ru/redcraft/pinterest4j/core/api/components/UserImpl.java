@@ -38,6 +38,10 @@ public class UserImpl implements User {
 		this.followingCount = followingCount;
 	}
 
+	public User refresh() {
+		throw new UnsupportedOperationException();
+	}
+	
 	public String getUserName() {
 		return userName;
 	}

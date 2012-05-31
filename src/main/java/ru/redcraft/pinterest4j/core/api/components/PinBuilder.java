@@ -12,13 +12,16 @@ public class PinBuilder implements Pin {
 	private String link;
 	private String imageURL;
 	private Board board;
-	private boolean liked;
 	private int likesCount;
 	private int repinsCount;
 	private int commentsCount;
 	private User pinner;
 	private User originalPinner;
 	private boolean repined;
+	
+	public Pin refresh() {
+		throw new UnsupportedOperationException();
+	}
 	
 	public long getId() {
 		return id;
@@ -61,15 +64,6 @@ public class PinBuilder implements Pin {
 	}
 	public PinBuilder setBoard(Board board) {
 		this.board = board;
-		return this;
-	}
-	
-	public boolean isLiked() {
-		return liked;
-	}
-	
-	public PinBuilder setLiked(boolean liked) {
-		this.liked = liked;
 		return this;
 	}
 	
@@ -118,7 +112,7 @@ public class PinBuilder implements Pin {
 	}
 	
 	public PinImpl build() {
-		return new PinImpl(id, description, price, link, imageURL, board, liked, likesCount, repinsCount, commentsCount, pinner, originalPinner, repined);
+		return new PinImpl(id, description, price, link, imageURL, board, likesCount, repinsCount, commentsCount, pinner, originalPinner, repined);
 	}
 	
 	public String getURL() {

@@ -16,15 +16,26 @@ public class LazyPin implements Pin {
 		this.pinAPI = pinAPI;
 	}
 	
+	LazyPin(PinImpl pin, PinAPI pinAPI) {
+		this.id = pin.getId();
+		this.target = pin;
+		this.pinAPI = pinAPI;
+	}
+	
 	LazyPin(String url, PinAPI pinAPI) {
 		this(Long.valueOf(url.replace("/pin/", "").replace("/", "")), pinAPI);
 	}
 	
 	private PinImpl getTarget() {
 		if(target == null) {
-			target = pinAPI.getCompletePin(this);
+			refresh();
 		}
 		return target;
+	}
+	
+	public Pin refresh() {
+		target = pinAPI.getCompletePin(id);
+		return this;
 	}
 	
 	public long getId() {
@@ -49,10 +60,6 @@ public class LazyPin implements Pin {
 
 	public double getPrice() {
 		return getTarget().getPrice();
-	}
-	
-	public boolean isLiked() {
-		return getTarget().isLiked();
 	}
 	
 	public int getLikesCount() {

@@ -111,12 +111,12 @@ public class BoardMethodsTest extends PinterestTestBase {
 		NewBoard newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.ARCHITECTURE);
 		Board board = pinterest1.createBoard(newBoard);
 		assertEquals(0, board.getFollowersCount());
-		Board followedBoard = pinterest2.followBoard(board);
-		assertEquals(1, followedBoard.getFollowersCount());
-		assertTrue("Board not followed", pinterest2.isFollowing(followedBoard));
-		Board unfollowedBoard = pinterest2.unfollowBoard(followedBoard);
-		assertEquals(0, unfollowedBoard.getFollowersCount());
-		assertFalse("Board still followed", pinterest2.isFollowing(followedBoard));
+		pinterest2.followBoard(board);
+		assertEquals(1, board.refresh().getFollowersCount());
+		assertTrue("Board not followed", pinterest2.isFollowing(board));
+		pinterest2.unfollowBoard(board);
+		assertEquals(0, board.refresh().getFollowersCount());
+		assertFalse("Board still followed", pinterest2.isFollowing(board));
 		pinterest1.deleteBoard(board);
 	}
 	

@@ -4,6 +4,8 @@ package ru.redcraft.pinterest4j;
 
 public interface Board {
 
+	Board refresh();
+	
 	long getId();
 	
 	String getURL();

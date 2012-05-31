@@ -115,53 +115,52 @@ public class PinAPI extends CoreAPI {
 		return multipartForm;
 	}
 
-	public PinImpl getCompletePin(LazyPin pin) {
-		LOG.debug("Getting all info for lazy pin " + pin);
-		PinBuilder builder = new PinBuilder();
-		builder.setId(pin.getId());
-		LOG.debug("Getting complete info for pin with id=" + Long.toString(pin.getId()));
-		ClientResponse response = getWR(Protocol.HTTP, pin.getURL(), false).get(ClientResponse.class);
+	
+	private Document getPinInfoPage(long id) {
+		Document doc = null;
+		ClientResponse response = getWR(Protocol.HTTP, "pin/" + Long.toString(id) + "/", false).get(ClientResponse.class);
 		if(response.getStatus() == Status.OK.getStatusCode()) {
-			Document doc = Jsoup.parse(response.getEntity(String.class));
-			
-			Map<String, String> metaMap = new HashMap<String, String>();
-			for(Element meta : doc.select("meta")) {
-				metaMap.put(meta.attr("property"), meta.attr("content"));
-			}
-			builder.setDescription(metaMap.get(PIN_DESCRIPTION_PROP_NAME));
-			builder.setImageURL(metaMap.get(PIN_IMAGE_PROP_NAME));
-			builder.setLink(metaMap.get(PIN_LINK_PROP_NAME));
-			builder.setPrice(Double.valueOf(metaMap.get(PIN_PRICE_PROP_NAME)));
-			builder.setLikesCount(Integer.valueOf(metaMap.get(PIN_LIKES_COUNT_PROP_NAME)));
-			builder.setRepinsCount(Integer.valueOf(metaMap.get(PIN_REPINS_COUNT_PROP_NAME)));
-			builder.setCommentsCount(Integer.valueOf(metaMap.get(PIN_COMMENTS_COUNT_PROP_NAME)));
-			builder.setBoard(new LazyBoard(metaMap.get(PIN_PINBOARD_PROP_NAME).replace(PINTEREST_URL, ""), getApiManager().getBoardAPI()));
-			builder.setPinner(new LazyUser(metaMap.get(PIN_PINNER_PROP_NAME).replace(PINTEREST_URL, "").replace("/", ""), getApiManager().getUserAPI()));
-			
-			Elements pinners = doc.select("p#PinnerName").first().getElementsByTag("a");
-			if(pinners.size() > 1) {
-				builder.setOriginalPinner(new LazyUser(pinners.get(1).attr("href").replace("/", ""), getApiManager().getUserAPI()));
-				builder.setRepined(true);
-			}
-			else {
-				builder.setOriginalPinner(builder.getPinner());
-				builder.setRepined(false);
-			}
-			
-			if(doc.select("li.unlike-button").size() == 1) {
-				builder.setLiked(true);
-			}
-			else {
-				builder.setLiked(false);
-			}
+			doc = Jsoup.parse(response.getEntity(String.class));
 		}
 		else if(response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
-			throw new PinterestPinNotFoundException(pin.getId());
+			throw new PinterestPinNotFoundException(id);
 		}
 		else {
 			throw new PinterestRuntimeException(response, PINS_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
 		}
+		return doc;
+	}
+	
+	public PinImpl getCompletePin(long id) {
+		LOG.debug("Getting all info for pin with id " + id);
+		PinBuilder builder = new PinBuilder();
+		builder.setId(id);
+		Document doc = getPinInfoPage(id);
 		
+		Map<String, String> metaMap = new HashMap<String, String>();
+		for(Element meta : doc.select("meta")) {
+			metaMap.put(meta.attr("property"), meta.attr("content"));
+		}
+		builder.setDescription(metaMap.get(PIN_DESCRIPTION_PROP_NAME));
+		builder.setImageURL(metaMap.get(PIN_IMAGE_PROP_NAME));
+		builder.setLink(metaMap.get(PIN_LINK_PROP_NAME));
+		builder.setPrice(Double.valueOf(metaMap.get(PIN_PRICE_PROP_NAME)));
+		builder.setLikesCount(Integer.valueOf(metaMap.get(PIN_LIKES_COUNT_PROP_NAME)));
+		builder.setRepinsCount(Integer.valueOf(metaMap.get(PIN_REPINS_COUNT_PROP_NAME)));
+		builder.setCommentsCount(Integer.valueOf(metaMap.get(PIN_COMMENTS_COUNT_PROP_NAME)));
+		builder.setBoard(new LazyBoard(metaMap.get(PIN_PINBOARD_PROP_NAME).replace(PINTEREST_URL, ""), getApiManager().getBoardAPI()));
+		builder.setPinner(new LazyUser(metaMap.get(PIN_PINNER_PROP_NAME).replace(PINTEREST_URL, "").replace("/", ""), getApiManager().getUserAPI()));
+		
+		Elements pinners = doc.select("p#PinnerName").first().getElementsByTag("a");
+		if(pinners.size() > 1) {
+			builder.setOriginalPinner(new LazyUser(pinners.get(1).attr("href").replace("/", ""), getApiManager().getUserAPI()));
+			builder.setRepined(true);
+		}
+		else {
+			builder.setOriginalPinner(builder.getPinner());
+			builder.setRepined(false);
+		}
+			
 		return builder.build();
 	}
 	
@@ -260,7 +259,7 @@ public class PinAPI extends CoreAPI {
 	}
 
 	public Pin getPinByID(long id) {
-		return getCompletePin(new LazyPin(id, this));
+		return new LazyPin(getCompletePin(id), this);
 	}
 
 	private Form createRepinForm(Pin pin, Board board, String description) {
@@ -287,7 +286,7 @@ public class PinAPI extends CoreAPI {
 		return repinedPin;
 	}
 	
-	public Pin like(Pin pin, boolean like) {
+	public void like(Pin pin, boolean like) {
 		LOG.debug(String.format("Setting like of pin = %s to = %s", pin, like));
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "like/").post(ClientResponse.class, getSwitchForm("unlike", like));
 		Map<String, String> responseMap = parseResponse(response, PIN_LIKE_ERROR);
@@ -295,7 +294,6 @@ public class PinAPI extends CoreAPI {
 			throw new PinterestRuntimeException(PIN_LIKE_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
 		LOG.debug("Pin like mark set to " + like);
-		return new LazyPin(pin.getId(), this);
 	}
 
 	private Form createCommentForm(Pin pin, String comment) {
@@ -358,6 +356,16 @@ public class PinAPI extends CoreAPI {
 		}
 		LOG.debug("Comments extracted: " + comments);
 		return comments;
+	}
+
+	public boolean isLiked(Pin pin) {
+		LOG.debug("Checking liked status for pin=" + pin);
+		boolean liked = false;
+		if(getPinInfoPage(pin.getId()).select("li.unlike-button").size() == 1) {
+			liked = true;
+		}
+		LOG.debug("Liked state is " + liked);
+		return liked;
 	}
 
 }
