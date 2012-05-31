@@ -11,6 +11,8 @@ import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.Utils;
+import ru.redcraft.pinterest4j.core.api.components.BoardImpl;
+import ru.redcraft.pinterest4j.core.api.components.PinBuilder;
 
 public class PinBuilderTest {
 

@@ -28,6 +28,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 		for(Board board : boards) {
 			if(board.getTitle().equals(newTitle) && board.getCategory().equals(newCategory)) {
 				boardCreated = true;
+				board.getCategory().getName();
 				break;
 			}
 		}

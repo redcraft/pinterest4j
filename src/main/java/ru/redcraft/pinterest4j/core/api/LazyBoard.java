@@ -2,7 +2,7 @@ package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
-import ru.redcraft.pinterest4j.core.BoardImpl;
+import ru.redcraft.pinterest4j.core.api.components.BoardImpl;
 
 public class LazyBoard implements Board {
 

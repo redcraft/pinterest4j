@@ -7,8 +7,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.activation.MimetypesFileTypeMap;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import org.json.JSONException;

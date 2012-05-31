@@ -12,31 +12,29 @@ import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.Pinterest;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
-import ru.redcraft.pinterest4j.core.managers.ManagerBundle;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 public class PinterestImpl implements Pinterest {
 
 	private final User user;
-	private final ManagerBundle managerBundle;
+	private final InternalAPIManager internalAPI;
 	
 	public PinterestImpl(String login, String password) throws PinterestAuthException {
-		InternalAPIManager internalAPI = new InternalAPIManager(login, password);
-		managerBundle = new ManagerBundle(internalAPI);
-		this.user = managerBundle.getUserManager().getUserForName(login);
+		internalAPI = new InternalAPIManager(login, password);
+		this.user = internalAPI.getUserAPI().getUserForName(login);
 	}
 
 	public Board getBoard(String url) {
-		return managerBundle.getBoardManager().getBoardByURL(url);
+		return internalAPI.getBoardAPI().getBoardByURL(url);
 	}
 	
 	public Pin addPin(Board board, NewPin newPin) throws PinMessageSizeException {
-		return managerBundle.getPinManager().addPinToBoard(board, newPin);
+		return internalAPI.getPinAPI().addPinToBoard(board, newPin);
 	}
 
 	public List<Board> getBoards(User user) {
-		return managerBundle.getBoardManager().getBoards(user);
+		return internalAPI.getBoardAPI().getBoards(user);
 	}
 	
 	public List<Board> getBoards() {
@@ -44,52 +42,59 @@ public class PinterestImpl implements Pinterest {
 	}
 
 	public Board createBoard(NewBoard newBoard) {
-		return managerBundle.getBoardManager().createBoard(newBoard);
+		return internalAPI.getBoardAPI().createBoard(newBoard);
 	}
 
 	public Board updateBoard(Board board, String title, String description,
 			BoardCategory category) {
-		return managerBundle.getBoardManager().updateBoard(board, title, description, category);
+		String newTitle = (title != null) ? title : board.getTitle();
+		String newDescription = (description != null) ? description : board.getDescription();
+		BoardCategory newCategory = (category != null) ? category : board.getCategory();
+		return internalAPI.getBoardAPI().updateBoard(board, newTitle, newDescription, newCategory);
 	}
 
 	public void deleteBoard(Board board) {
-		managerBundle.getBoardManager().deleteBoard(board);
+		internalAPI.getBoardAPI().deleteBoard(board);
 	}
 
 	public User getUser(String userName) {
-		return managerBundle.getUserManager().getUserForName(userName);
+		return internalAPI.getUserAPI().getUserForName(userName);
 	}
 
 	public List<Pin> getPins(Board board) {
-		return managerBundle.getPinManager().getPins(board);
+		return internalAPI.getPinAPI().getPins(board);
 	}
 
 	public List<Pin> getPins(Board board, int page) {
-		return managerBundle.getPinManager().getPins(board, page);
+		return internalAPI.getPinAPI().getPins(board, page);
 	}
 	
 	public List<Pin> getPins(User user) {
-		return managerBundle.getPinManager().getPins(user);
+		return internalAPI.getPinAPI().getPins(user);
 	}
 	
 	public List<Pin> getPins(User user, int page) {
-		return managerBundle.getPinManager().getPins(user, page);
+		return internalAPI.getPinAPI().getPins(user, page);
 	}
 	
 	public List<Pin> getPins() {
-		return managerBundle.getPinManager().getPins(user);
+		return internalAPI.getPinAPI().getPins(user);
 	}
 
 	public List<Pin> getPins(int page) {
-		return managerBundle.getPinManager().getPins(user, page);
+		return internalAPI.getPinAPI().getPins(user, page);
 	}
 
 	public void deletePin(Pin pin) {
-		managerBundle.getPinManager().deletePin(pin);
+		internalAPI.getPinAPI().deletePin(pin);
 	}
 
 	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException {
-		return managerBundle.getPinManager().updatePin(pin, description, price, link, board);
+		String newDescription = (description != null) ? description : pin.getDescription();
+		double newPrice = (price != null) ? price : pin.getPrice();
+		String newLink = (link != null) ? link : pin.getLink();
+		Board newBoard = (board != null) ? board : pin.getBoard();
+		return internalAPI.getPinAPI().updatePin(pin, newDescription, newPrice, newLink, newBoard);
 	}
 
 	public User getUser() {
@@ -97,35 +102,35 @@ public class PinterestImpl implements Pinterest {
 	}
 
 	public Pin getPin(long id) {
-		return managerBundle.getPinManager().getPinByID(id);
+		return internalAPI.getPinAPI().getPinByID(id);
 	}
 
 	public Pin repin(Pin pin, Board board, String description) {
-		return managerBundle.getPinManager().repin(pin, board, description);
+		return internalAPI.getPinAPI().repin(pin, board, description);
 	}
 
 	public Pin likePin(Pin pin) {
-		return managerBundle.getPinManager().likePin(pin);
+		return internalAPI.getPinAPI().like(pin, true);
 	}
 
 	public Pin unlikePin(Pin pin) {
-		return managerBundle.getPinManager().unlikePin(pin);
+		return internalAPI.getPinAPI().like(pin, false);
 	}
 
 	public Comment addComment(Pin pin, String comment) {
-		return managerBundle.getPinManager().addCommentToPin(pin, comment, user);
+		return internalAPI.getPinAPI().addCommentToPin(pin, comment, user);
 	}
 
 	public void deleteComment(Comment comment) {
-		managerBundle.getPinManager().deleteComment(comment);
+		internalAPI.getPinAPI().deleteComment(comment);
 	}
 
 	public List<Comment> getComments(Pin pin) {
-		return managerBundle.getPinManager().getComments(pin);
+		return internalAPI.getPinAPI().getComments(pin);
 	}
 
 	public User updateUser(NewUserSettings settings) {
-		return managerBundle.getUserManager().updateUser(settings);
+		return internalAPI.getUserAPI().updateUser(settings);
 	}
 
 }

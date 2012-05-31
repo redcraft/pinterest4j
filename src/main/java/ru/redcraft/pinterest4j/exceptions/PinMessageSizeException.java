@@ -1,6 +1,6 @@
 package ru.redcraft.pinterest4j.exceptions;
 
-public class PinMessageSizeException extends PinterestException {
+public class PinMessageSizeException extends PinterestRuntimeException {
 
 	private static final long serialVersionUID = -170707100325210641L;
 	public static final String MSG_TOO_LONG = "Description message is greater then 500 characters";

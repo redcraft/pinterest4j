@@ -25,7 +25,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	private Pin testPin;
 	
 	@Before
-	public void pinTestInitialize() throws PinterestAuthException, PinMessageSizeException {
+	public void pinTestInitialize() throws PinterestAuthException {
 		NewBoardImpl newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
 		board1 = pinterest1.createBoard(newBoard);
 		newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
@@ -42,7 +42,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void getPinsTest() throws PinMessageSizeException {
+	public void getPinsTest() {
 		int pinsCount = 3;
 		String newDescription = UUID.randomUUID().toString();
 		NewPinImpl newPin = new NewPinImpl(newDescription, 0, webLink, null, imageFile);
@@ -56,7 +56,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void pinLifeCircleTest() throws InterruptedException, PinMessageSizeException {
+	public void pinLifeCircleTest() throws InterruptedException {
 		
 		//Create
 		
@@ -106,8 +106,17 @@ public class PinMethodsTest extends PinterestTestBase {
 		
 	}
 	
+	@Test
+	public void updatePinUsingEmptyaParamsTest() {
+		Pin updatedPin = pinterest1.updatePin(testPin, null, null, null, null);
+		assertEquals(testDescription, updatedPin.getDescription());
+		assertEquals(testPrice, updatedPin.getPrice(), 0);
+		assertEquals(webLink, updatedPin.getLink());
+		assertEquals(board2.getURL(), updatedPin.getBoard().getURL());
+	}
+	
 	@Test(expected=PinMessageSizeException.class)
-	public void pinDescriptionTooLongTest() throws PinMessageSizeException {
+	public void pinDescriptionTooLongTest() {
 		String newDescription = "ssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
 				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
 				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
@@ -122,7 +131,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test(expected=PinMessageSizeException.class)
-	public void pinDescriptionZeroSizeTest() throws PinMessageSizeException {
+	public void pinDescriptionZeroSizeTest() {
 		String newDescription = "";
 		double newPrice = 10;
 		NewPinImpl newPin = new NewPinImpl(newDescription, newPrice, webLink, imageLink, null);
@@ -135,7 +144,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void repinTest() throws PinMessageSizeException {
+	public void repinTest() {
 		String newDescription = UUID.randomUUID().toString();
 		Pin repinedPin = pinterest1.repin(testPin, board2, newDescription);
 		assertEquals(newDescription, repinedPin.getDescription());
@@ -144,7 +153,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void likeTest() throws PinMessageSizeException {
+	public void likeTest() {
 		assertEquals(false, testPin.isLiked());
 		Pin likedPin = pinterest2.likePin(testPin);
 		assertEquals(true, likedPin.isLiked());
@@ -153,7 +162,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void commentTest() throws PinMessageSizeException, InterruptedException {
+	public void commentTest() throws InterruptedException {
 		assertEquals(0, pinterest1.getComments(testPin).size());
 		
 		String commentText1 = UUID.randomUUID().toString();

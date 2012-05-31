@@ -50,6 +50,13 @@ public class UserMethodsTest extends PinterestTestBase {
 		assertEquals(location, newUser.getLocation());
 	}
 	
+	@Test
+	public void getUserByNameTest() {
+		User user = pinterest1.getUser(id2.getLogin());
+		assertEquals(pinterest2.getUser().getUserName(), user.getUserName());
+		assertEquals(pinterest2.getUser().getFullName(), user.getFullName());
+	}
+	
 	@Test(expected=PinterestUserNotFoundException.class)
 	public void getUnexistentUser() {
 		pinterest1.getUser(UUID.randomUUID().toString());

@@ -12,9 +12,9 @@ import org.jsoup.nodes.Element;
 
 import ru.redcraft.pinterest4j.NewUserSettings;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.UserBuilder;
-import ru.redcraft.pinterest4j.core.UserImpl;
 import ru.redcraft.pinterest4j.core.api.AdditionalUserSettings.Gender;
+import ru.redcraft.pinterest4j.core.api.components.UserBuilder;
+import ru.redcraft.pinterest4j.core.api.components.UserImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
@@ -60,8 +60,9 @@ public class UserAPI extends CoreAPI {
 			
 			Element userInfo = doc.select("div.content").first();
 			builder.setFullName(userInfo.getElementsByTag("h1").first().text());
-			builder.setDescription(userInfo.getElementsByTag("p").first().text());
 			
+			Element description = userInfo.getElementsByTag("p").first();
+			builder.setDescription(description != null ? description.text() : null);
 			Element twitter = userInfo.select("a.twitter").first();
 			builder.setTwitterURL(twitter != null ? twitter.attr("href") : null);
 			Element facebook = userInfo.select("a.facebook").first();

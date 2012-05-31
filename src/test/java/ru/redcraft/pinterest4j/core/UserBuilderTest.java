@@ -6,6 +6,9 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import ru.redcraft.pinterest4j.core.api.components.UserBuilder;
+import ru.redcraft.pinterest4j.core.api.components.UserImpl;
+
 public class UserBuilderTest {
 
 	@Test

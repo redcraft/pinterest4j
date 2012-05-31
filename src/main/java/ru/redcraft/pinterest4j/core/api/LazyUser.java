@@ -1,7 +1,7 @@
 package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.UserImpl;
+import ru.redcraft.pinterest4j.core.api.components.UserImpl;
 
 public class LazyUser  implements User {
 	

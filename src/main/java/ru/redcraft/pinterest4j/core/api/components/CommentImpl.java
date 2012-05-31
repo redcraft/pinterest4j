@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest4j.core;
+package ru.redcraft.pinterest4j.core.api.components;
 
 import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.Pin;

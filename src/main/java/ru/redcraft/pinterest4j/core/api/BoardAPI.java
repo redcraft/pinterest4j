@@ -15,8 +15,8 @@ import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.NewBoard;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.BoardBuilder;
-import ru.redcraft.pinterest4j.core.BoardImpl;
+import ru.redcraft.pinterest4j.core.api.components.BoardBuilder;
+import ru.redcraft.pinterest4j.core.api.components.BoardImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
@@ -167,7 +167,7 @@ public final class BoardAPI extends CoreAPI {
 		return form;
 	}
 	
-	public Board updateBoardInfo(Board board, String title, String description, BoardCategory category) {
+	public Board updateBoard(Board board, String title, String description, BoardCategory category) {
 		LOG.debug(String.format("Updating board with uri = %s with title=%s, desc=%s, cat=%s",
 				board.getURL(), title, description, category));
 		Form updateBoardForm = createUpdateBoardForm(title, description, category);

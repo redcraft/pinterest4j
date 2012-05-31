@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.core.api.components.BoardBuilder;
 
 public class BoardBuilderTest {
 

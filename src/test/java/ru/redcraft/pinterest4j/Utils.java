@@ -2,7 +2,7 @@ package ru.redcraft.pinterest4j;
 
 import java.util.UUID;
 
-import ru.redcraft.pinterest4j.core.UserImpl;
+import ru.redcraft.pinterest4j.core.api.components.UserImpl;
 
 public abstract class Utils {
 
