@@ -1,5 +1,6 @@
 package ru.redcraft.pinterest4j.core.api;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,6 @@ import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.NewPin;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.NewPinImpl;
 import ru.redcraft.pinterest4j.core.api.components.CommentImpl;
 import ru.redcraft.pinterest4j.core.api.components.PinBuilder;
 import ru.redcraft.pinterest4j.core.api.components.PinImpl;
@@ -91,22 +91,26 @@ public class PinAPI extends CoreAPI {
 	}
 	
 	private FormDataMultiPart createPinAddForm(long boardID, NewPin newPin) {
+		return createPinAddForm(boardID, newPin.getDescription(), newPin.getPrice(), newPin.getLink(), newPin.getImageURL(), newPin.getImageFile());
+	}
+	
+	private FormDataMultiPart createPinAddForm(long boardID, String description, double price, String link, String imageUrl, File imageFile) {
 		FormDataMultiPart multipartForm = new FormDataMultiPart();
 		multipartForm.bodyPart(new FormDataBodyPart("board", Long.toString(boardID)));
-		multipartForm.bodyPart(new FormDataBodyPart("details", newPin.getDescription()));
-		multipartForm.bodyPart(new FormDataBodyPart("link", newPin.getLink()));
+		multipartForm.bodyPart(new FormDataBodyPart("details", description));
+		multipartForm.bodyPart(new FormDataBodyPart("link", link));
 		multipartForm.bodyPart(new FormDataBodyPart("csrfmiddlewaretoken", getAccessToken().getCsrfToken().getValue()));
 		multipartForm.bodyPart(new FormDataBodyPart("buyable", ""));
 		multipartForm.bodyPart(new FormDataBodyPart("tags", ""));
 		multipartForm.bodyPart(new FormDataBodyPart("replies", ""));
-		if(newPin.getPrice() != 0) {
-			multipartForm.bodyPart(new FormDataBodyPart("buyable", "$" + Double.toString(newPin.getPrice())));
+		if(price != 0) {
+			multipartForm.bodyPart(new FormDataBodyPart("buyable", "$" + Double.toString(price)));
 		}
-		if(newPin.getImageURL() != null) {
-			multipartForm.bodyPart(new FormDataBodyPart("img_url", newPin.getImageURL()));
+		if(imageUrl != null) {
+			multipartForm.bodyPart(new FormDataBodyPart("img_url", imageUrl));
 		}
 		else {
-			multipartForm.bodyPart(createImageBodyPart(newPin.getImageFile()));
+			multipartForm.bodyPart(createImageBodyPart(imageFile));
 		}
 		return multipartForm;
 	}
@@ -244,8 +248,7 @@ public class PinAPI extends CoreAPI {
 		if(descLength > MAX_PIN_DESCRIPTION_LENGTH) {
 			throw new PinMessageSizeException(PinMessageSizeException.MSG_TOO_LONG);
 		}
-		NewPinImpl newPin = new NewPinImpl(description, price, link, "", null);
-		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), newPin);
+		FormDataMultiPart multipartForm = createPinAddForm(board.getId(), description, price, link, "", null);
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "edit/").
 				type(MediaType.MULTIPART_FORM_DATA).post(ClientResponse.class, multipartForm);
 		if(response.getStatus() != Status.OK.getStatusCode()) {
