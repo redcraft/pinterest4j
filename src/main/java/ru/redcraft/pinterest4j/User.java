@@ -25,6 +25,10 @@ public interface User extends PinsProvider, FollowersProvider, Refreshable<User>
 	
 	int getLikesCount();
 	
+	List<Pin> getLikes(int page);
+	
+	Iterable<Pin> getLikes();
+	
 	List<Board> getBoards();
 	
 	int getFollowingCount();

@@ -134,4 +134,44 @@ public class UserMethodsTest extends PinterestTestBase {
 		pinterest1.deleteBoard(board);
 	}
 	
+	@Test
+	public void likesCountersTest() {
+		int userLikesCount = pinterest1.getUser().getLikesCount();
+		int userRealLikesCount = 0;
+		for(Pin pin : pinterest1.getUser().getLikes()) {
+			pin.getId();
+			++userRealLikesCount;
+		}
+		int pinCountToCreate = 3;
+		NewBoardImpl newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
+		Board board = pinterest2.createBoard(newBoard);
+		
+		String newDescription = UUID.randomUUID().toString();
+		NewPinImpl newPin = new NewPinImpl(newDescription, 0, webLink, null, imageFile);
+		for(int i = 0; i < pinCountToCreate; ++i) {
+			pinterest1.likePin(pinterest2.addPin(board, newPin));
+		}
+		assertEquals(userLikesCount + pinCountToCreate, pinterest1.getUser().refresh().getLikesCount());
+		
+		int page = 1;
+		List<Pin> pins = pinterest1.getUser().getLikes(page);
+		int counter = pins.size();
+		
+		while(pins.size() > 0) {
+			++page;
+			pins = pinterest1.getUser().getLikes(page);
+			counter += pins.size();
+		}
+		assertEquals(userRealLikesCount + pinCountToCreate, counter);
+		
+		counter = 0;
+		for(Pin pin : pinterest1.getUser().getLikes()) {
+			pin.getId();
+			++counter;
+		}
+		assertEquals(userRealLikesCount + pinCountToCreate, counter);
+		
+		pinterest2.deleteBoard(board);
+	}
+	
 }

@@ -10,6 +10,7 @@ import java.util.UUID;
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.core.NewBoardImpl;
+import ru.redcraft.pinterest4j.core.NewPinImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 
@@ -122,6 +123,40 @@ public class BoardMethodsTest extends PinterestTestBase {
 	@Test(expected=PinterestBoardNotFoundException.class)
 	public void getUnexistentBoardTest() {
 		pinterest1.getBoard(UUID.randomUUID().toString());
+	}
+	
+	@Test
+	public void pinCountersTest() {
+		int pinCountToCreate = 3;
+		NewBoardImpl newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
+		Board board = pinterest1.createBoard(newBoard);
+		
+		String newDescription = UUID.randomUUID().toString();
+		NewPinImpl newPin = new NewPinImpl(newDescription, 0, webLink, null, imageFile);
+		for(int i = 0; i < pinCountToCreate; ++i) {
+			pinterest1.addPin(board, newPin);
+		}
+		assertEquals(pinCountToCreate, board.refresh().getPinsCount());
+		
+		int page = 1;
+		List<Pin> pins = board.getPins(page);
+		int counter = pins.size();
+		
+		while(pins.size() > 0) {
+			++page;
+			pins = board.getPins(page);
+			counter += pins.size();
+		}
+		assertEquals(pinCountToCreate, counter);
+		
+		counter = 0;
+		for(Pin pin : board.getPins()) {
+			pin.getId();
+			++counter;
+		}
+		assertEquals(pinCountToCreate, counter);
+		
+		pinterest1.deleteBoard(board);
 	}
 	
 }

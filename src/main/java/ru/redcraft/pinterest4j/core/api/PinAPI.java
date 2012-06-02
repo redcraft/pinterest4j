@@ -163,10 +163,11 @@ public class PinAPI extends CoreAPI {
 		return builder;
 	}
 	
-	public List<Pin> getPins(User user, int page) {
-		LOG.debug("Getting pin list for user " + user + " on page " + page);
+	public List<Pin> getPins(User user, int page, boolean likes) {
+		LOG.debug("Getting pin list for user " + user + " on page " + page + "with filter likes " + likes);
 		List<Pin> pinList = new ArrayList<Pin>();
-		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/pins/?page=" + page).get(ClientResponse.class);
+		String filter = likes ? "&filter=likes" : "";
+		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/pins/?page=" + page + filter).get(ClientResponse.class);
 		
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlPins = doc.select("div.pin");
