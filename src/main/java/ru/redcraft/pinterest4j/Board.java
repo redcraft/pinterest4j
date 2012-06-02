@@ -1,11 +1,8 @@
 package ru.redcraft.pinterest4j;
 
 
+public interface Board extends PinsProvider, FollowersProvider, Refreshable<Board> {
 
-public interface Board {
-
-	Board refresh();
-	
 	long getId();
 	
 	String getURL();
@@ -16,10 +13,6 @@ public interface Board {
 	
 	BoardCategory getCategory();
 	
-	int getPinsCount();
-	
 	int getPageCount();
-	
-	int getFollowersCount();
 	
 }

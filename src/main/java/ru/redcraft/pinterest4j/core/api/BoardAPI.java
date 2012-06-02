@@ -16,7 +16,6 @@ import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.NewBoard;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.api.components.BoardBuilder;
-import ru.redcraft.pinterest4j.core.api.components.BoardImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
@@ -57,7 +56,7 @@ public final class BoardAPI extends CoreAPI {
 					long id = Long.valueOf(stringID);
 					String url = htmlBoard.select("a.link").first().attr("href");
 					String name = htmlBoard.select("h3.serif").first().select("a").text();
-					LazyBoard board = new LazyBoard(id, url, name, this);
+					LazyBoard board = new LazyBoard(id, url, name, getApiManager());
 					boardList.add(board);
 				}
 			}
@@ -93,7 +92,8 @@ public final class BoardAPI extends CoreAPI {
 				throw new PinterestRuntimeException(BOARD_CREATION_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 			}
 		}
-		createdBoard = new LazyBoard(Long.valueOf(responseMap.get("id")), responseMap.get("url"), responseMap.get("name"), newBoard.getCategory(), this);
+		createdBoard = new LazyBoard(
+				Long.valueOf(responseMap.get("id")), responseMap.get("url"), responseMap.get("name"), newBoard.getCategory(), getApiManager());
 		LOG.debug("Board created " + createdBoard);
 		return createdBoard;
 	}
@@ -123,7 +123,7 @@ public final class BoardAPI extends CoreAPI {
 		return doc;
 	}
 	
-	public BoardImpl getCompleteBoard(String boardURL) {
+	public BoardBuilder getCompleteBoard(String boardURL) {
 		LOG.debug("Getting all info for board url " + boardURL);
 		
 		BoardBuilder builder = new BoardBuilder();
@@ -149,7 +149,7 @@ public final class BoardAPI extends CoreAPI {
 		}
 		builder.setPageCount(Integer.valueOf(doc.select("a.MoreGrid").first().attr("href").replace("?page=", "")) - 1);
 			
-		return builder.build();
+		return builder;
 	}
 
 	public void deleteBoard(Board board) {
@@ -185,13 +185,14 @@ public final class BoardAPI extends CoreAPI {
 					response, 
 					BOARD_UPDATE_ERROR + BAD_SERVER_RESPONSE);
 		}
-		Board updatedBoard = new LazyBoard(board.getId(), createLink(title, getAccessToken().getLogin()), title, description, category, this);
+		Board updatedBoard = new LazyBoard(
+				board.getId(), createLink(title, getAccessToken().getLogin()), title, description, category, getApiManager());
 		LOG.debug("Board updated");
 		return updatedBoard;
 	}
 
 	public Board getBoardByURL(String url) {
-		return new LazyBoard(getCompleteBoard(url), this);
+		return new LazyBoard(getCompleteBoard(url), getApiManager());
 	}
 
 	public void followBoard(Board board, boolean follow) {

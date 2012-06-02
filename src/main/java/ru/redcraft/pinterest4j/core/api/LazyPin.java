@@ -1,40 +1,33 @@
 package ru.redcraft.pinterest4j.core.api;
 
+import java.util.List;
+
 import ru.redcraft.pinterest4j.Board;
+import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.api.components.PinImpl;
+import ru.redcraft.pinterest4j.core.api.components.PinBuilder;
 
-public class LazyPin implements Pin {
+public class LazyPin extends PinterestEntity<Pin, PinBuilder> implements Pin {
 
 	private final long id;
-	private final PinAPI pinAPI;
-	private PinImpl target = null;
 	
-	LazyPin(long id, PinAPI pinAPI) {
+	LazyPin(long id, InternalAPIManager apiManager) {
+		super(apiManager);
 		this.id = id;
-		this.pinAPI = pinAPI;
 	}
 	
-	LazyPin(PinImpl pin, PinAPI pinAPI) {
-		this.id = pin.getId();
-		this.target = pin;
-		this.pinAPI = pinAPI;
+	LazyPin(PinBuilder pinBuilder, InternalAPIManager apiManager) {
+		super(pinBuilder, apiManager);
+		this.id = pinBuilder.getId();
 	}
 	
-	LazyPin(String url, PinAPI pinAPI) {
-		this(Long.valueOf(url.replace("/pin/", "").replace("/", "")), pinAPI);
-	}
-	
-	private PinImpl getTarget() {
-		if(target == null) {
-			refresh();
-		}
-		return target;
+	LazyPin(String url, InternalAPIManager apiManager) {
+		this(Long.valueOf(url.replace("/pin/", "").replace("/", "")), apiManager);
 	}
 	
 	public Pin refresh() {
-		target = pinAPI.getCompletePin(id);
+		setTarget(getApiManager().getPinAPI().getCompletePin(id));
 		return this;
 	}
 	
@@ -93,6 +86,10 @@ public class LazyPin implements Pin {
 	@Override
 	public String toString() {
 		return "LazyPin [id=" + id + "]";
+	}
+
+	public List<Comment> getComments() {
+		return getApiManager().getPinAPI().getComments(this);
 	}
 
 }

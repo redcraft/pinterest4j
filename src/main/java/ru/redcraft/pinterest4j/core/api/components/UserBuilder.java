@@ -1,8 +1,7 @@
 package ru.redcraft.pinterest4j.core.api.components;
 
-import ru.redcraft.pinterest4j.User;
 
-public class UserBuilder implements User {
+public class UserBuilder {
 
 	private  String userName;
 	private  String fullName;
@@ -17,10 +16,6 @@ public class UserBuilder implements User {
 	private  int likesCount;
 	private  int followersCount;
 	private  int followingCount;
-	
-	public User refresh() {
-		throw new UnsupportedOperationException();
-	}
 	
 	public String getUserName() {
 		return userName;
@@ -112,11 +107,6 @@ public class UserBuilder implements User {
 	public UserBuilder setFollowingCount(int followingCount) {
 		this.followingCount = followingCount;
 		return this;
-	}
-	
-	public UserImpl build() {
-		return new UserImpl(userName, fullName, description, imageURL, twitterURL, facebookURL, siteURL, location,
-				boardsCount, pinsCount, likesCount, followersCount, followingCount);
 	}
 	
 }

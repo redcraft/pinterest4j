@@ -12,7 +12,6 @@ import org.junit.Test;
 import ru.redcraft.pinterest4j.core.NewBoardImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
-import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
 public class BoardMethodsTest extends PinterestTestBase {
 	
@@ -24,7 +23,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 		//Create
 		NewBoardImpl newBoard = new NewBoardImpl(newTitle, newCategory);
 		Board createdBoard = pinterest1.createBoard(newBoard);
-		List<Board> boards = pinterest1.getBoards();
+		List<Board> boards = pinterest1.getUser().getBoards();
 		boolean boardCreated = false;
 		for(Board board : boards) {
 			if(board.getTitle().equals(newTitle) && board.getCategory().equals(newCategory)) {
@@ -40,7 +39,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 		String newDescription = UUID.randomUUID().toString();
 		newCategory = BoardCategory.CARS_MOTORCYCLES;
 		Board updatedBoard = pinterest1.updateBoard(createdBoard, newTitle, newDescription, newCategory);
-		boards = pinterest1.getBoards();
+		boards = pinterest1.getUser().getBoards();
 		boolean boardUpdated = false;
 		for(Board board : boards) {
 			if(board.getTitle().equals(newTitle) && board.getCategory().equals(newCategory) &&
@@ -53,7 +52,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 		
 		//Delete
 		pinterest1.deleteBoard(updatedBoard);
-		boards = pinterest1.getBoards();
+		boards = pinterest1.getUser().getBoards();
 		boolean boardDeleted = true;
 		for(Board board : boards) {
 			if(board.getTitle().equals(newTitle)) {
@@ -118,11 +117,6 @@ public class BoardMethodsTest extends PinterestTestBase {
 		assertEquals(0, board.refresh().getFollowersCount());
 		assertFalse("Board still followed", pinterest2.isFollowing(board));
 		pinterest1.deleteBoard(board);
-	}
-	
-	@Test(expected=PinterestRuntimeException.class)
-	public void getBoarsExceptionTest() {
-		pinterest1.getBoards(nonexistentUser);
 	}
 	
 	@Test(expected=PinterestBoardNotFoundException.class)

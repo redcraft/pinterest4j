@@ -1,10 +1,9 @@
 package ru.redcraft.pinterest4j.core.api.components;
 
 import ru.redcraft.pinterest4j.Board;
-import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
 
-public class PinBuilder implements Pin {
+public class PinBuilder {
 
 	private long id;
 	private String description;
@@ -18,10 +17,6 @@ public class PinBuilder implements Pin {
 	private User pinner;
 	private User originalPinner;
 	private boolean repined;
-	
-	public Pin refresh() {
-		throw new UnsupportedOperationException();
-	}
 	
 	public long getId() {
 		return id;
@@ -111,12 +106,4 @@ public class PinBuilder implements Pin {
 		return this;
 	}
 	
-	public PinImpl build() {
-		return new PinImpl(id, description, price, link, imageURL, board, likesCount, repinsCount, commentsCount, pinner, originalPinner, repined);
-	}
-	
-	public String getURL() {
-		return "/pin/" + Long.toString(id) + "/";
-	}
-
 }

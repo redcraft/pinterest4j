@@ -1,9 +1,10 @@
 package ru.redcraft.pinterest4j;
 
-public interface User {
+import java.util.List;
 
-	User refresh();
-	
+
+public interface User extends PinsProvider, FollowersProvider, Refreshable<User> {
+
 	String getUserName();
 	
 	String getFullName();
@@ -22,12 +23,9 @@ public interface User {
 	
 	int getBoardsCount();
 	
-	int getPinsCount();
-	
 	int getLikesCount();
 	
-	int getFollowersCount();
+	List<Board> getBoards();
 	
 	int getFollowingCount();
-	
 }

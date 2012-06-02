@@ -23,7 +23,6 @@ import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.api.components.CommentImpl;
 import ru.redcraft.pinterest4j.core.api.components.PinBuilder;
-import ru.redcraft.pinterest4j.core.api.components.PinImpl;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
@@ -85,7 +84,7 @@ public class PinAPI extends CoreAPI {
 		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
 			throw new PinterestRuntimeException(PIN_CREATION_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
-		createdPin = new LazyPin(responseMap.get("url"), this);
+		createdPin = new LazyPin(responseMap.get("url"), getApiManager());
 		LOG.debug("Pin created " + createdPin);
 		return createdPin;
 	}
@@ -131,7 +130,7 @@ public class PinAPI extends CoreAPI {
 		return doc;
 	}
 	
-	public PinImpl getCompletePin(long id) {
+	public PinBuilder getCompletePin(long id) {
 		LOG.debug("Getting all info for pin with id " + id);
 		PinBuilder builder = new PinBuilder();
 		builder.setId(id);
@@ -148,12 +147,12 @@ public class PinAPI extends CoreAPI {
 		builder.setLikesCount(Integer.valueOf(metaMap.get(PIN_LIKES_COUNT_PROP_NAME)));
 		builder.setRepinsCount(Integer.valueOf(metaMap.get(PIN_REPINS_COUNT_PROP_NAME)));
 		builder.setCommentsCount(Integer.valueOf(metaMap.get(PIN_COMMENTS_COUNT_PROP_NAME)));
-		builder.setBoard(new LazyBoard(metaMap.get(PIN_PINBOARD_PROP_NAME).replace(PINTEREST_URL, ""), getApiManager().getBoardAPI()));
-		builder.setPinner(new LazyUser(metaMap.get(PIN_PINNER_PROP_NAME).replace(PINTEREST_URL, "").replace("/", ""), getApiManager().getUserAPI()));
+		builder.setBoard(new LazyBoard(metaMap.get(PIN_PINBOARD_PROP_NAME).replace(PINTEREST_URL, ""), getApiManager()));
+		builder.setPinner(new LazyUser(metaMap.get(PIN_PINNER_PROP_NAME).replace(PINTEREST_URL, "").replace("/", ""), getApiManager()));
 		
 		Elements pinners = doc.select("p#PinnerName").first().getElementsByTag("a");
 		if(pinners.size() > 1) {
-			builder.setOriginalPinner(new LazyUser(pinners.get(1).attr("href").replace("/", ""), getApiManager().getUserAPI()));
+			builder.setOriginalPinner(new LazyUser(pinners.get(1).attr("href").replace("/", ""), getApiManager()));
 			builder.setRepined(true);
 		}
 		else {
@@ -161,7 +160,7 @@ public class PinAPI extends CoreAPI {
 			builder.setRepined(false);
 		}
 			
-		return builder.build();
+		return builder;
 	}
 	
 	public List<Pin> getPins(User user, int page) {
@@ -174,24 +173,10 @@ public class PinAPI extends CoreAPI {
 		for(Element htmlPin : htmlPins) {
 			if(htmlPin.hasAttr(PinAPI.PIN_ID_ATTR)) {
 				long pinID = Long.valueOf(htmlPin.attr(PinAPI.PIN_ID_ATTR));
-				pinList.add(new LazyPin(pinID, this));
+				pinList.add(new LazyPin(pinID, getApiManager()));
 			}
 		}
 		
-		LOG.debug(COLLECTED_PINS + pinList.size());
-		return pinList;
-	}
-	
-	public List<Pin> getPins(User user) {
-		LOG.debug("Getting pin list for user " + user);
-		List<Pin> pinList = new ArrayList<Pin>();
-		List<Pin> pinPartialList = null;
-		boolean pinsLoaded = true;
-		for(int i = 1; pinsLoaded; ++i) {
-			pinPartialList = getPins(user, i);
-			pinsLoaded = !pinPartialList.isEmpty();
-			pinList.addAll(pinPartialList);
-		}
 		LOG.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
@@ -206,7 +191,7 @@ public class PinAPI extends CoreAPI {
 		for(Element htmlPin : htmlPins) {
 			if(htmlPin.hasAttr(PinAPI.PIN_ID_ATTR)) {
 				long pinID = Long.valueOf(htmlPin.attr(PinAPI.PIN_ID_ATTR));
-				pinList.add(new LazyPin(pinID, this));
+				pinList.add(new LazyPin(pinID, getApiManager()));
 			}
 		}
 		
@@ -214,20 +199,6 @@ public class PinAPI extends CoreAPI {
 		return pinList;
 	}
 	
-	public List<Pin> getPins(Board board) {
-		LOG.debug("Getting pin list for board " + board);
-		List<Pin> pinList = new ArrayList<Pin>();
-		List<Pin> pinPartialList = null;
-		boolean pinsLoaded = true;
-		for(int i = 1; pinsLoaded; ++i) {
-			pinPartialList = getPins(board, i);
-			pinsLoaded = !pinPartialList.isEmpty();
-			pinList.addAll(pinPartialList);
-		}
-		LOG.debug(COLLECTED_PINS + pinList.size());
-		return pinList;
-	}
-
 	public void deletePin(Pin pin) {
 		LOG.debug("Deleting pin " + pin);
 		ClientResponse response = getWR(Protocol.HTTP, pin.getURL() + "delete/").entity("{}").post(ClientResponse.class);
@@ -253,13 +224,13 @@ public class PinAPI extends CoreAPI {
 		if(response.getStatus() != Status.OK.getStatusCode()) {
 			throw new PinterestRuntimeException(response, PIN_UPDATE_ERROR + BAD_SERVER_RESPONSE);
 		}
-		Pin updatedPin = new LazyPin(pin.getId(), this);
+		Pin updatedPin = new LazyPin(pin.getId(), getApiManager());
 		LOG.debug("Pin updated");
 		return updatedPin;
 	}
 
 	public Pin getPinByID(long id) {
-		return new LazyPin(getCompletePin(id), this);
+		return new LazyPin(getCompletePin(id), getApiManager());
 	}
 
 	private Form createRepinForm(Pin pin, Board board, String description) {
@@ -281,7 +252,7 @@ public class PinAPI extends CoreAPI {
 		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
 			throw new PinterestRuntimeException(PIN_REPIN_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}		
-		repinedPin = new LazyPin(responseMap.get("repin_url"), this);
+		repinedPin = new LazyPin(responseMap.get("repin_url"), getApiManager());
 		LOG.debug("Created repined pin=" + repinedPin);
 		return repinedPin;
 	}
@@ -312,7 +283,7 @@ public class PinAPI extends CoreAPI {
 		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
 			throw new PinterestRuntimeException(PIN_COMMENT_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
 		}
-		Comment newComment = new CommentImpl(Long.valueOf(responseMap.get("id")), comment, user, pin);
+		Comment newComment = new CommentImpl(Long.valueOf(responseMap.get("id")), comment, user, new LazyPin(pin.getId(), getApiManager()));
 		LOG.debug("Comment created: " + newComment);
 		return newComment;
 	}
@@ -345,7 +316,7 @@ public class PinAPI extends CoreAPI {
 			for(Element comment : doc.select("div.comment")) {
 				long id = Long.valueOf(comment.getElementsByClass("DeleteComment").first().attr("data"));
 				Element contentMeta = comment.getElementsByClass("CommenterMeta").first();
-				User user = new LazyUser(contentMeta.getElementsByTag("a").first().attr("href").replace("/", ""), getApiManager().getUserAPI());
+				User user = new LazyUser(contentMeta.getElementsByTag("a").first().attr("href").replace("/", ""), getApiManager());
 				contentMeta.getElementsByTag("a").remove();
 				String text = contentMeta.text();
 				comments.add(new CommentImpl(id, text, user, pin));

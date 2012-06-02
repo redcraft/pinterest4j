@@ -1,72 +1,62 @@
 package ru.redcraft.pinterest4j.core.api;
 
+import java.util.List;
+
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
-import ru.redcraft.pinterest4j.core.api.components.BoardImpl;
+import ru.redcraft.pinterest4j.Pin;
+import ru.redcraft.pinterest4j.core.api.components.BoardBuilder;
 
-public class LazyBoard implements Board {
+public class LazyBoard extends PinterestEntity<Board, BoardBuilder> implements Board {
 
 	private long id = 0;
 	private final String url;
 	private String title;
 	private String description = null;
 	private BoardCategory category = null;
-	private final BoardAPI boardAPI;
-	private BoardImpl target = null;
 	
-	LazyBoard(String url, BoardAPI boardAPI) {
+	LazyBoard(String url, InternalAPIManager apiManager) {
+		super(apiManager);
 		this.url = url;
-		this.boardAPI = boardAPI;
 	}
 	
-	LazyBoard(BoardImpl board, BoardAPI boardAPI) {
-		this.url = board.getURL();
-		this.target = board;
-		this.boardAPI = boardAPI;
+	LazyBoard(BoardBuilder boardBuildr, InternalAPIManager apiManager) {
+		super(boardBuildr, apiManager);
+		this.url = boardBuildr.getURL();
 	}
 	
-	LazyBoard(long id, String url, String title, BoardCategory category, BoardAPI boardAPI) {
-		super();
+	LazyBoard(long id, String url, String title, BoardCategory category, InternalAPIManager apiManager) {
+		super(apiManager);
 		this.id = id;
 		this.url = url;
 		this.title = title;
 		this.category = category;
-		this.boardAPI = boardAPI;
 	}
 	
-	LazyBoard(long id, String url, String title, BoardAPI boardAPI) {
-		super();
+	LazyBoard(long id, String url, String title, InternalAPIManager apiManager) {
+		super(apiManager);
 		this.id = id;
 		this.url = url;
 		this.title = title;
-		this.boardAPI = boardAPI;
 	}
 	
 	LazyBoard(long id, String url, String title, String description,
-			BoardCategory category, BoardAPI boardAPI) {
-		super();
+			BoardCategory category, InternalAPIManager apiManager) {
+		super(apiManager);
 		this.id = id;
 		this.url = url;
 		this.title = title;
 		this.description = description;
 		this.category = category;
-		this.boardAPI = boardAPI;
 	}
 
-	private Board getTarget() {
-		if(target == null) {
-			refresh();
-		}
-		return target;
-	}
-	
 	public Board refresh() {
-		target = boardAPI.getCompleteBoard(url);
+		setTarget(getApiManager().getBoardAPI().getCompleteBoard(url));
 		return this;
 	}
 	
 	public long getId() {
-		if(target == null && id != 0) {
+		if(!hasTarget() && id != 0) {
 			return id;
 		}
 		else {
@@ -79,7 +69,7 @@ public class LazyBoard implements Board {
 	}
 
 	public String getTitle() {
-		if(target == null && title != null) {
+		if(!hasTarget() && title != null) {
 			return title;
 		}
 		else {
@@ -88,7 +78,7 @@ public class LazyBoard implements Board {
 	}
 
 	public String getDescription() {
-		if(target == null && description != null) {
+		if(!hasTarget() && description != null) {
 			return description;
 		}
 		else {
@@ -97,7 +87,7 @@ public class LazyBoard implements Board {
 	}
 
 	public BoardCategory getCategory() {
-		if(target == null && category != null) {
+		if(!hasTarget() && category != null) {
 			return category;
 		}
 		else {
@@ -115,6 +105,14 @@ public class LazyBoard implements Board {
 
 	public int getFollowersCount() {
 		return getTarget().getFollowersCount();
+	}
+	
+	public List<Pin> getPins(int page) {
+		return getApiManager().getPinAPI().getPins(this, page);
+	}
+
+	public PinsCollection getPins() {
+		return new PinsCollection(this);
 	}
 	
 	@Override

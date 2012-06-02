@@ -20,7 +20,6 @@ public class PinterestTestBase {
 	protected static String pinterest1Facebook;
 	protected static File imageFile;
 	protected static String webLink;
-	protected static User nonexistentUser;
 	private static final String BUNDLE_NAME = "test";
 	private static final Logger log = Logger.getLogger(PinterestTestBase.class);
 	
@@ -74,7 +73,6 @@ public class PinterestTestBase {
 		
 		imageLink = rb.getString("pin.image.link");
 		webLink = rb.getString("pin.link");
-		nonexistentUser = Utils.getNonexistentUser();
 		try {
 			imageFile = new File(ClassLoader.getSystemResource("pin_image.jpg").toURI());
 		} catch(URISyntaxException e) {

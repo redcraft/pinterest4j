@@ -1,7 +1,5 @@
 package ru.redcraft.pinterest4j.core;
 
-import java.util.List;
-
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.Comment;
@@ -33,14 +31,6 @@ public class PinterestImpl implements Pinterest {
 		return internalAPI.getPinAPI().addPinToBoard(board, newPin);
 	}
 
-	public List<Board> getBoards(User user) {
-		return internalAPI.getBoardAPI().getBoards(user);
-	}
-	
-	public List<Board> getBoards() {
-		return getBoards(user);
-	}
-
 	public Board createBoard(NewBoard newBoard) {
 		return internalAPI.getBoardAPI().createBoard(newBoard);
 	}
@@ -59,30 +49,6 @@ public class PinterestImpl implements Pinterest {
 
 	public User getUser(String userName) {
 		return internalAPI.getUserAPI().getUserForName(userName);
-	}
-
-	public List<Pin> getPins(Board board) {
-		return internalAPI.getPinAPI().getPins(board);
-	}
-
-	public List<Pin> getPins(Board board, int page) {
-		return internalAPI.getPinAPI().getPins(board, page);
-	}
-	
-	public List<Pin> getPins(User user) {
-		return internalAPI.getPinAPI().getPins(user);
-	}
-	
-	public List<Pin> getPins(User user, int page) {
-		return internalAPI.getPinAPI().getPins(user, page);
-	}
-	
-	public List<Pin> getPins() {
-		return internalAPI.getPinAPI().getPins(user);
-	}
-
-	public List<Pin> getPins(int page) {
-		return internalAPI.getPinAPI().getPins(user, page);
 	}
 
 	public void deletePin(Pin pin) {
@@ -123,10 +89,6 @@ public class PinterestImpl implements Pinterest {
 
 	public void deleteComment(Comment comment) {
 		internalAPI.getPinAPI().deleteComment(comment);
-	}
-
-	public List<Comment> getComments(Pin pin) {
-		return internalAPI.getPinAPI().getComments(pin);
 	}
 
 	public User updateUser(NewUserSettings settings) {

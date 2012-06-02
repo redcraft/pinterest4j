@@ -1,34 +1,28 @@
 package ru.redcraft.pinterest4j.core.api;
 
-import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.api.components.UserImpl;
+import java.util.List;
 
-public class LazyUser  implements User {
+import ru.redcraft.pinterest4j.Board;
+import ru.redcraft.pinterest4j.Pin;
+import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.core.api.components.UserBuilder;
+
+public class LazyUser extends PinterestEntity<User, UserBuilder> implements User {
 	
 	private final String userName;
-	private final UserAPI userAPI;
-	private UserImpl target = null;
 	
-	LazyUser(String userName, UserAPI userAPI) {
+	LazyUser(String userName, InternalAPIManager apiManager) {
+		super(apiManager);
 		this.userName = userName;
-		this.userAPI = userAPI;
 	}
 	
-	LazyUser(UserImpl user, UserAPI userAPI) {
-		this.userName = user.getUserName();
-		this.target = user;
-		this.userAPI = userAPI;
-	}
-	
-	private UserImpl getTarget() {
-		if(target == null) {
-			refresh();
-		}
-		return target;
+	LazyUser(UserBuilder userBuilder, InternalAPIManager apiManager) {
+		super(userBuilder, apiManager);
+		this.userName = userBuilder.getUserName();
 	}
 	
 	public User refresh() {
-		target = userAPI.getCompleteUser(userName);
+		setTarget(getApiManager().getUserAPI().getCompleteUser(userName));
 		return this;
 	}
 	
@@ -84,6 +78,18 @@ public class LazyUser  implements User {
 		return getTarget().getFollowingCount();
 	}
 	
+	public List<Pin> getPins(int page) {
+		return getApiManager().getPinAPI().getPins(this, page);
+	}
+
+	public PinsCollection getPins() {
+		return new PinsCollection(this);
+	}
+	
+	public List<Board> getBoards() {
+		return getApiManager().getBoardAPI().getBoards(this);
+	}
+
 	@Override
 	public String toString() {
 		return "LazyUser [userName=" + userName + "]";

@@ -1,9 +1,8 @@
 package ru.redcraft.pinterest4j.core.api.components;
 
-import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
 
-public class BoardBuilder implements Board {
+public class BoardBuilder {
 
 	private long id;
 	private String url;
@@ -13,10 +12,6 @@ public class BoardBuilder implements Board {
 	private int pinsCount;
 	private int pageCount;
 	private int followersCount;
-	
-	public Board refresh() {
-		throw new UnsupportedOperationException();
-	}
 	
 	public long getId() {
 		return id;
@@ -75,8 +70,4 @@ public class BoardBuilder implements Board {
 		return this;
 	}
 	
-	public BoardImpl build() {
-		return new BoardImpl(id, url, title, description, category, pinsCount, pageCount, followersCount);
-	}
-
 }

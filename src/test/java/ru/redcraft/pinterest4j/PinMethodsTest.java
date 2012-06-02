@@ -25,6 +25,15 @@ public class PinMethodsTest extends PinterestTestBase {
 	private double testPrice = 10;
 	private Pin testPin;
 	
+	private static final String LONG_DESCRIPTION = "ssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+			"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+			"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+			"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+			"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+			"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+			"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
+			"sssssssssssssssssssssssssss";
+	
 	@Before
 	public void pinTestInitialize() throws PinterestAuthException {
 		NewBoardImpl newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
@@ -43,20 +52,6 @@ public class PinMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void getPinsTest() {
-		int pinsCount = 3;
-		String newDescription = UUID.randomUUID().toString();
-		NewPinImpl newPin = new NewPinImpl(newDescription, 0, webLink, null, imageFile);
-		for(int i = 0; i < pinsCount; ++i) {
-			pinterest1.addPin(board1, newPin);
-		}
-		assertEquals(pinsCount, pinterest1.getPins(board1).size());
-		assertEquals(0, pinterest1.getPins(board1, 2).size());
-		assertTrue(pinterest1.getPins().size() >= pinsCount);
-		assertTrue(pinterest1.getPins(pinterest1.getUser()).size() >= pinsCount);
-	}
-	
-	@Test
 	public void pinLifeCircleTest() throws InterruptedException {
 		
 		//Create
@@ -66,7 +61,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		NewPinImpl newPin = new NewPinImpl(newDescription, newPrice, webLink, imageLink, null);
 		Pin createdPin = pinterest1.addPin(board1, newPin);
 		boolean pinCreated = false;
-		for(Pin pin : pinterest1.getPins(board1)) {
+		for(Pin pin : board1.getPins()) {
 			if(pin.getDescription().equals(newDescription)) {
 				assertEquals(newPrice, pin.getPrice(), 0);
 				assertEquals(webLink, pin.getLink());
@@ -84,7 +79,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		String newLink = "http://something.com/";
 		Pin updatedPin = pinterest1.updatePin(createdPin, newDescription, newPrice, newLink, board2);
 		boolean pinUpdated = false;
-		for(Pin pin : pinterest1.getPins(board2)) {
+		for(Pin pin : board2.getPins()) {
 			if(pin.getDescription().equals(newDescription)) {
 				assertEquals(newPrice, pin.getPrice(), 0);
 				assertEquals(newLink, pin.getLink());
@@ -98,7 +93,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		
 		pinterest1.deletePin(updatedPin);
 		boolean pinDeleted = true;
-		for(Pin pin : pinterest1.getPins(board2)) {
+		for(Pin pin : board2.getPins()) {
 			if(pin.getDescription().equals(newDescription)) {
 				pinDeleted = false;
 			}
@@ -118,16 +113,8 @@ public class PinMethodsTest extends PinterestTestBase {
 	
 	@Test(expected=PinMessageSizeException.class)
 	public void pinDescriptionTooLongTest() {
-		String newDescription = "ssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
-				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
-				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
-				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
-				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
-				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
-				"ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" +
-				"sssssssssssssssssssssssssss";
 		double newPrice = 10;
-		NewPinImpl newPin = new NewPinImpl(newDescription, newPrice, webLink, imageLink, null);
+		NewPinImpl newPin = new NewPinImpl(LONG_DESCRIPTION, newPrice, webLink, imageLink, null);
 		pinterest1.addPin(board1, newPin);
 	}
 	
@@ -137,6 +124,17 @@ public class PinMethodsTest extends PinterestTestBase {
 		double newPrice = 10;
 		NewPinImpl newPin = new NewPinImpl(newDescription, newPrice, webLink, imageLink, null);
 		pinterest1.addPin(board1, newPin);
+	}
+	
+	@Test(expected=PinMessageSizeException.class)
+	public void pinDescriptionTooLongUpdateTest() {
+		pinterest1.updatePin(testPin, LONG_DESCRIPTION, null, null, null);
+	}
+	
+	@Test(expected=PinMessageSizeException.class)
+	public void pinDescriptionZeroSizeUpdateTest() {
+		String newDescription = "";
+		pinterest1.updatePin(testPin, newDescription, null, null, null);
 	}
 	
 	@Test(expected=PinterestPinNotFoundException.class)
@@ -164,7 +162,7 @@ public class PinMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void commentTest() throws InterruptedException {
-		assertEquals(0, pinterest1.getComments(testPin).size());
+		assertEquals(0, testPin.getComments().size());
 		
 		String commentText1 = UUID.randomUUID().toString();
 		String commentText2 = UUID.randomUUID().toString();
@@ -172,12 +170,12 @@ public class PinMethodsTest extends PinterestTestBase {
 		Comment createdComment1 = pinterest1.addComment(testPin, commentText1);
 		assertEquals(commentText1, createdComment1.getText());
 		assertEquals(createdComment1.getUser(), pinterest1.getUser());
-		assertEquals(1, pinterest1.getComments(testPin).size());
+		assertEquals(1, testPin.getComments().size());
 		
 		Comment createdComment2 = pinterest2.addComment(testPin, commentText2);
-		List<Comment> comments = pinterest1.getComments(testPin);
+		List<Comment> comments = testPin.getComments();
 		
-		assertEquals(2, pinterest1.getComments(testPin).size());
+		assertEquals(2, testPin.getComments().size());
 		assertEquals(commentText1, comments.get(0).getText());
 		assertEquals(createdComment1.getId(), comments.get(0).getId());
 		assertEquals(pinterest1.getUser().getUserName(), comments.get(0).getUser().getUserName());
@@ -190,7 +188,7 @@ public class PinMethodsTest extends PinterestTestBase {
 		
 		pinterest1.deleteComment(createdComment1);
 		pinterest2.deleteComment(createdComment2);
-		assertEquals(0, pinterest1.getComments(testPin).size());
+		assertEquals(0, testPin.getComments().size());
 	}
 	
 	@Test

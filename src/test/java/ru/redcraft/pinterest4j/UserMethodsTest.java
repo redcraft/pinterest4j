@@ -4,10 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.Test;
 
+import ru.redcraft.pinterest4j.core.NewBoardImpl;
+import ru.redcraft.pinterest4j.core.NewPinImpl;
 import ru.redcraft.pinterest4j.core.NewUserSettingsImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
@@ -78,4 +82,56 @@ public class UserMethodsTest extends PinterestTestBase {
 		assertEquals(followingCountForUser2, pinterest2.getUser().refresh().getFollowingCount());
 		assertFalse("Is still following", pinterest2.isFollowing(pinterest1.getUser()));
 	}
+	
+	@Test
+	public void bordCountersTest() {
+		int boardCount = pinterest1.getUser().getBoardsCount();
+		int boardCountToCreate = 3;
+		List<Board> createdBoard = new ArrayList<Board>();
+		for(int i = 0; i < boardCountToCreate; ++i) {
+			NewBoardImpl newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
+			createdBoard.add(pinterest1.createBoard(newBoard));
+		}
+		assertEquals(boardCount + boardCountToCreate, pinterest1.getUser().refresh().getBoardsCount());
+		for(Board board : createdBoard) {
+			pinterest1.deleteBoard(board);
+		}
+		assertEquals(boardCount, pinterest1.getUser().refresh().getBoardsCount());
+	}
+	
+	@Test
+	public void pinCountersTest() {
+		int userPinCount = pinterest1.getUser().getPinsCount();
+		int pinCountToCreate = 3;
+		NewBoardImpl newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
+		Board board = pinterest1.createBoard(newBoard);
+		
+		String newDescription = UUID.randomUUID().toString();
+		NewPinImpl newPin = new NewPinImpl(newDescription, 0, webLink, null, imageFile);
+		for(int i = 0; i < pinCountToCreate; ++i) {
+			pinterest1.addPin(board, newPin);
+		}
+		assertEquals(userPinCount + pinCountToCreate, pinterest1.getUser().refresh().getPinsCount());
+		
+		int page = 1;
+		List<Pin> pins = pinterest1.getUser().getPins(page);
+		int counter = pins.size();
+		
+		while(pins.size() > 0) {
+			++page;
+			pins = pinterest1.getUser().getPins(page);
+			counter += pins.size();
+		}
+		assertEquals(userPinCount + pinCountToCreate, counter);
+		
+		counter = 0;
+		for(Pin pin : pinterest1.getUser().getPins()) {
+			pin.getId();
+			++counter;
+		}
+		assertEquals(userPinCount + pinCountToCreate, counter);
+		
+		pinterest1.deleteBoard(board);
+	}
+	
 }

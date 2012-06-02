@@ -14,7 +14,6 @@ import ru.redcraft.pinterest4j.NewUserSettings;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.api.AdditionalUserSettings.Gender;
 import ru.redcraft.pinterest4j.core.api.components.UserBuilder;
-import ru.redcraft.pinterest4j.core.api.components.UserImpl;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
@@ -57,7 +56,7 @@ public class UserAPI extends CoreAPI {
 		return doc;
 	}
 	
-	public UserImpl getCompleteUser(String userName) {
+	public UserBuilder getCompleteUser(String userName) {
 		LOG.debug("Getting all info for username " + userName);
 		UserBuilder builder = new UserBuilder();
 		builder.setUserName(userName);
@@ -90,11 +89,11 @@ public class UserAPI extends CoreAPI {
 		
 		builder.setLikesCount(Integer.valueOf(doc.select("div#ContextBar").first().getElementsByTag("li").get(2).getElementsByTag("strong").first().text()));
 		
-		return builder.build();
+		return builder;
 	}
 	
 	public User getUserForName(String userName) {
-		return new LazyUser(getCompleteUser(userName), this);
+		return new LazyUser(getCompleteUser(userName), getApiManager());
 	}
 
 	private AdditionalUserSettings getUserAdtSettings() {

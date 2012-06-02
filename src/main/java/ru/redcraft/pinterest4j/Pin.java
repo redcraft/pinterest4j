@@ -1,9 +1,9 @@
 package ru.redcraft.pinterest4j;
 
-public interface Pin {
+import java.util.List;
 
-	Pin refresh();
-	
+public interface Pin extends Refreshable<Pin> {
+
 	long getId();
 	
 	String getURL();
@@ -29,5 +29,7 @@ public interface Pin {
 	User getOriginalPinner();
 	
 	boolean isRepined();
+	
+	List<Comment> getComments();
 	
 }
