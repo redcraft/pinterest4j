@@ -11,7 +11,7 @@ public class PinterestIterator <E> implements Iterator<E> {
 	private Iterator<E> currentIterator;
 	private boolean stopUpdate = false;
 
-	public PinterestIterator(PineterstPaginator<E> paginator) {
+	PinterestIterator(PineterstPaginator<E> paginator) {
 		super();
 		this.paginator = paginator;
 		loadNextPage();

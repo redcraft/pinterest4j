@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest4j.core.api.components;
+package ru.redcraft.pinterest4j.core.api;
 
 
 public class UserBuilder {
@@ -16,6 +16,8 @@ public class UserBuilder {
 	private  int likesCount;
 	private  int followersCount;
 	private  int followingCount;
+	
+	UserBuilder() {};
 	
 	public String getUserName() {
 		return userName;

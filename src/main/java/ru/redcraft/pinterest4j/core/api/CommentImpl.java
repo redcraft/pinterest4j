@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest4j.core.api.components;
+package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.Pin;
@@ -11,7 +11,7 @@ public class CommentImpl implements Comment {
 	private final User user;
 	private final Pin pin;
 	
-	public CommentImpl(long id, String text, User user, Pin pin) {
+	CommentImpl(long id, String text, User user, Pin pin) {
 		super();
 		this.id = id;
 		this.text = text;

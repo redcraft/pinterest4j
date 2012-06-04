@@ -4,13 +4,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import ru.redcraft.pinterest4j.Pin;
-import ru.redcraft.pinterest4j.PinsProvider;
+import ru.redcraft.pinterest4j.Pinholder;
 
 public class PinsCollection implements Iterable<Pin> {
 
-	private final PinsProvider provider;
+	private final Pinholder provider;
 	
-	PinsCollection(PinsProvider provider) {
+	PinsCollection(Pinholder provider) {
 		this.provider = provider;
 	}
 	

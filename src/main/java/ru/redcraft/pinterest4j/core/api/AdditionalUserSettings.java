@@ -10,6 +10,8 @@ public class AdditionalUserSettings {
 	private String website;
 	private String location;
 	
+	AdditionalUserSettings() {};
+	
 	public String getEmail() {
 		return email;
 	}

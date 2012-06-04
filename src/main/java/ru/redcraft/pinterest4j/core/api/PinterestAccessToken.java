@@ -9,7 +9,7 @@ public class PinterestAccessToken {
 	private final Cookie csrfToken;
 	private final Cookie sessionToken;
 	
-	public PinterestAccessToken(String login, String password, Cookie csrfToken, Cookie sessionToken) {
+	PinterestAccessToken(String login, String password, Cookie csrfToken, Cookie sessionToken) {
 		this.login = login;
 		this.password = password;
 		this.csrfToken = csrfToken;

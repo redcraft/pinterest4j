@@ -3,7 +3,7 @@ package ru.redcraft.pinterest4j;
 import java.util.List;
 
 
-public interface PinsProvider {
+public interface Pinholder {
 
 	List<Pin> getPins(int page);
 	

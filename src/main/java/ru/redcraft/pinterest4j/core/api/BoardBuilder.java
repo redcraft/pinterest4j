@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest4j.core.api.components;
+package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.BoardCategory;
 
@@ -12,6 +12,8 @@ public class BoardBuilder {
 	private int pinsCount;
 	private int pageCount;
 	private int followersCount;
+	
+	BoardBuilder() {};
 	
 	public long getId() {
 		return id;

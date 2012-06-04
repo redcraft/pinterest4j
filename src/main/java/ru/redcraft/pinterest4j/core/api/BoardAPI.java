@@ -15,7 +15,6 @@ import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.NewBoard;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.api.components.BoardBuilder;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
@@ -39,7 +38,7 @@ public final class BoardAPI extends CoreAPI {
 	private static final String BOARD_UPDATE_ERROR = "PINBOARD UPDATE ERROR: ";
 	private static final String BOARD_FOLLOW_ERROR = "PINBOARD FOLLOW ERROR: ";
 	
-	public BoardAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
+	BoardAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
 	}
 	

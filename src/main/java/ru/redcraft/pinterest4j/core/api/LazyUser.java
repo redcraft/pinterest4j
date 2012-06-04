@@ -6,7 +6,6 @@ import java.util.List;
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.api.components.UserBuilder;
 
 public class LazyUser extends PinterestEntity<User, UserBuilder> implements User {
 	
@@ -29,6 +28,10 @@ public class LazyUser extends PinterestEntity<User, UserBuilder> implements User
 	
 	public String getUserName() {
 		return userName;
+	}
+	
+	public String getURL() {
+		return "/" + getUserName() + "/";
 	}
 	
 	public String getFullName() {
@@ -101,6 +104,14 @@ public class LazyUser extends PinterestEntity<User, UserBuilder> implements User
 				});
 			}
 		};
+	}
+	
+	public Iterable<User> getFollowers() {
+		return FollowCollection.getFollowersCollection(this, getApiManager());
+	}
+	
+	public Iterable<User> getFollowing() {
+		return FollowCollection.getFollowingCollection(this, getApiManager());
 	}
 	
 	public List<Board> getBoards() {

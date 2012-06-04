@@ -21,8 +21,6 @@ import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.NewPin;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.api.components.CommentImpl;
-import ru.redcraft.pinterest4j.core.api.components.PinBuilder;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
@@ -62,7 +60,7 @@ public class PinAPI extends CoreAPI {
 	
 	private static final String COLLECTED_PINS = "Collected pins: ";
 	
-	public PinAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
+	PinAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
 	}
 
@@ -163,12 +161,8 @@ public class PinAPI extends CoreAPI {
 		return builder;
 	}
 	
-	public List<Pin> getPins(User user, int page, boolean likes) {
-		LOG.debug("Getting pin list for user " + user + " on page " + page + "with filter likes " + likes);
+	private List<Pin> parsePinsResponse(ClientResponse response) {
 		List<Pin> pinList = new ArrayList<Pin>();
-		String filter = likes ? "&filter=likes" : "";
-		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/pins/?page=" + page + filter).get(ClientResponse.class);
-		
 		Document doc = Jsoup.parse(response.getEntity(String.class));
 		Elements htmlPins = doc.select("div.pin");
 		for(Element htmlPin : htmlPins) {
@@ -177,27 +171,21 @@ public class PinAPI extends CoreAPI {
 				pinList.add(new LazyPin(pinID, getApiManager()));
 			}
 		}
-		
 		LOG.debug(COLLECTED_PINS + pinList.size());
 		return pinList;
 	}
 	
+	public List<Pin> getPins(User user, int page, boolean likes) {
+		LOG.debug("Getting pin list for user " + user + " on page " + page + "with filter likes " + likes);
+				String filter = likes ? "&filter=likes" : "";
+		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/pins/?page=" + page + filter).get(ClientResponse.class);
+		return parsePinsResponse(response);
+	}
+	
 	public List<Pin> getPins(Board board, int page) {
 		LOG.debug("Getting pin list for board " + board + " on page " + page);
-		List<Pin> pinList = new ArrayList<Pin>();
 		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "?page=" + page).get(ClientResponse.class);
-		
-		Document doc = Jsoup.parse(response.getEntity(String.class));
-		Elements htmlPins = doc.select("div.pin");
-		for(Element htmlPin : htmlPins) {
-			if(htmlPin.hasAttr(PinAPI.PIN_ID_ATTR)) {
-				long pinID = Long.valueOf(htmlPin.attr(PinAPI.PIN_ID_ATTR));
-				pinList.add(new LazyPin(pinID, getApiManager()));
-			}
-		}
-		
-		LOG.debug(COLLECTED_PINS + pinList.size());
-		return pinList;
+		return parsePinsResponse(response);
 	}
 	
 	public void deletePin(Pin pin) {

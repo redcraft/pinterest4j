@@ -5,7 +5,7 @@ import java.util.List;
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.Pin;
-import ru.redcraft.pinterest4j.core.api.components.BoardBuilder;
+import ru.redcraft.pinterest4j.User;
 
 public class LazyBoard extends PinterestEntity<Board, BoardBuilder> implements Board {
 
@@ -99,12 +99,12 @@ public class LazyBoard extends PinterestEntity<Board, BoardBuilder> implements B
 		return getTarget().getPinsCount();
 	}
 
-	public int getPageCount() {
-		return getTarget().getPageCount();
-	}
-
 	public int getFollowersCount() {
 		return getTarget().getFollowersCount();
+	}
+	
+	public Iterable<User> getFollowers() {
+		return FollowCollection.getFollowersCollection(this, getApiManager());
 	}
 	
 	public List<Pin> getPins(int page) {

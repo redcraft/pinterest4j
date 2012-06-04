@@ -6,7 +6,6 @@ import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Comment;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.api.components.PinBuilder;
 
 public class LazyPin extends PinterestEntity<Pin, PinBuilder> implements Pin {
 

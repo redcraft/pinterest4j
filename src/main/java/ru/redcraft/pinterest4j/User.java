@@ -3,7 +3,7 @@ package ru.redcraft.pinterest4j;
 import java.util.List;
 
 
-public interface User extends PinsProvider, FollowersProvider, Refreshable<User> {
+public interface User extends Pinholder, Followable, Refreshable<User> {
 
 	String getUserName();
 	
@@ -32,4 +32,6 @@ public interface User extends PinsProvider, FollowersProvider, Refreshable<User>
 	List<Board> getBoards();
 	
 	int getFollowingCount();
+	
+	Iterable<User> getFollowing();
 }

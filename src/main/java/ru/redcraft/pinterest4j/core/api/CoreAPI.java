@@ -44,7 +44,7 @@ public abstract class CoreAPI {
 	
 	protected static final Locale PINTEREST_LOCALE = Locale.ENGLISH;
 	
-	public enum Protocol {HTTP, HTTPS};
+	enum Protocol {HTTP, HTTPS};
 	
 	
 	CoreAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {

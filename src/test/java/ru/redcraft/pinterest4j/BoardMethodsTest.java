@@ -113,6 +113,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 		assertEquals(0, board.getFollowersCount());
 		pinterest2.followBoard(board);
 		assertEquals(1, board.refresh().getFollowersCount());
+		assertEquals(pinterest2.getUser(), board.getFollowers().iterator().next());
 		assertTrue("Board not followed", pinterest2.isFollowing(board));
 		pinterest2.unfollowBoard(board);
 		assertEquals(0, board.refresh().getFollowersCount());

@@ -6,7 +6,7 @@ public abstract class PinterestEntity<E, Builder> {
 	private Builder target = null;
 	private final InternalAPIManager apiManager;
 	
-	public PinterestEntity(InternalAPIManager apiManager) {
+	PinterestEntity(InternalAPIManager apiManager) {
 		this.apiManager = apiManager;
 	}
 	

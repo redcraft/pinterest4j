@@ -76,6 +76,8 @@ public class UserMethodsTest extends PinterestTestBase {
 		pinterest2.followUser(pinterest1.getUser());
 		assertEquals(followersCountForUser1 + 1, pinterest1.getUser().refresh().getFollowersCount());
 		assertEquals(followingCountForUser2 + 1, pinterest2.getUser().refresh().getFollowingCount());
+		assertEquals(pinterest2.getUser(), pinterest1.getUser().getFollowers().iterator().next());
+		assertEquals(pinterest1.getUser(), pinterest2.getUser().getFollowing().iterator().next());
 		assertTrue("Is not following", pinterest2.isFollowing(pinterest1.getUser()));
 		pinterest2.unfollowUser(pinterest1.getUser()); 
 		assertEquals(followersCountForUser1, pinterest1.getUser().refresh().getFollowersCount());

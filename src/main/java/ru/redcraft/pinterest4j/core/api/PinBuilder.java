@@ -1,4 +1,4 @@
-package ru.redcraft.pinterest4j.core.api.components;
+package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.User;
@@ -17,6 +17,8 @@ public class PinBuilder {
 	private User pinner;
 	private User originalPinner;
 	private boolean repined;
+	
+	PinBuilder() {};
 	
 	public long getId() {
 		return id;

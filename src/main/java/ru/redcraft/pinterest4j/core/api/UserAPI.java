@@ -1,7 +1,11 @@
 package ru.redcraft.pinterest4j.core.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.core.MediaType;
 
@@ -10,10 +14,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import ru.redcraft.pinterest4j.Followable;
 import ru.redcraft.pinterest4j.NewUserSettings;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.api.AdditionalUserSettings.Gender;
-import ru.redcraft.pinterest4j.core.api.components.UserBuilder;
+import ru.redcraft.pinterest4j.core.api.FollowCollection.FollowContainer;
+import ru.redcraft.pinterest4j.core.api.FollowCollection.FollowType;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
@@ -34,8 +40,9 @@ public class UserAPI extends CoreAPI {
 	
 	private static final String USER_OBTAINING_ERROR = "USER OBTAINING ERROR: ";
 	private static final String USER_FOLLOW_ERROR = "USER FOLLOW ERROR: ";
+	private static final String USER_FOLLOWERS_ERROR = "USER FOLLOWERS ERROR: ";
 	
-	public UserAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
+	UserAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
 	}
 	
@@ -181,6 +188,47 @@ public class UserAPI extends CoreAPI {
 		}
 		LOG.debug("Following state is " + followed);
 		return followed;
+	}
+
+	public FollowContainer getFollow(Followable followable, FollowType followType, int page, long marker) {
+		LOG.debug(String.format("Getting follows of type=%s for followable=%s on page=%d with marker=%d", followType.name(), followable, page, marker));
+		String path = null;
+		if(page != 1) {
+			path = String.format("%s/?page=%d&marker=%d", followType.name().toLowerCase(PINTEREST_LOCALE), page, marker);
+		}
+		else {
+			path = followType.name().toLowerCase(PINTEREST_LOCALE) + "/?page=1";
+		}
+		ClientResponse response = getWR(Protocol.HTTP, followable.getURL() + path).get(ClientResponse.class);
+		String entity = response.getEntity(String.class);
+		long newMarker = 0;
+		
+		Pattern pattern = Pattern.compile("\"marker\": (-?[0-9]+)");
+		Matcher m = pattern.matcher(entity);
+		if (m.find()) {
+			newMarker = Long.valueOf(m.group(1));
+		}
+		else {
+			pattern = Pattern.compile("settings.marker = (-?[0-9]+)");
+			m = pattern.matcher(entity);
+			if (m.find()) {
+				newMarker = Long.valueOf(m.group(1));
+			}
+			else {
+				throw new PinterestRuntimeException(USER_FOLLOWERS_ERROR + "marker parsing error");
+			}
+		}
+		
+		List<User> users = new ArrayList<User>();
+		Document doc = Jsoup.parse(entity);
+		for(Element userElement : doc.select("div.PersonInfo")) {
+			User user = new LazyUser(userElement.getElementsByTag("a").first().attr("href").replace("/", ""), getApiManager());
+			users.add(user);
+		}
+		
+		FollowContainer container = new FollowContainer(newMarker, users);
+		LOG.debug("Container with follow created: " + container);
+		return container;
 	}
 	
 }
