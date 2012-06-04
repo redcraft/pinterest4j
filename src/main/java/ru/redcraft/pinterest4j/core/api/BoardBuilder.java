@@ -1,6 +1,7 @@
 package ru.redcraft.pinterest4j.core.api;
 
 import ru.redcraft.pinterest4j.BoardCategory;
+import ru.redcraft.pinterest4j.User;
 
 public class BoardBuilder {
 
@@ -12,6 +13,7 @@ public class BoardBuilder {
 	private int pinsCount;
 	private int pageCount;
 	private int followersCount;
+	private User user;
 	
 	BoardBuilder() {};
 	
@@ -69,6 +71,15 @@ public class BoardBuilder {
 	}
 	public BoardBuilder setFollowersCount(int followersCount) {
 		this.followersCount = followersCount;
+		return this;
+	}
+
+	public User getUser() {
+		return user;
+	}
+	
+	public BoardBuilder setUser(User user) {
+		this.user = user;
 		return this;
 	}
 	

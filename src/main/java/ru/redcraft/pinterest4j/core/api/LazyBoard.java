@@ -115,6 +115,10 @@ public class LazyBoard extends PinterestEntity<Board, BoardBuilder> implements B
 		return new PinsCollection(this);
 	}
 	
+	public User getUser() {
+		return getTarget().getUser();	
+	}
+	
 	@Override
 	public String toString() {
 		return "LazyBoard [url=" + url + "]";

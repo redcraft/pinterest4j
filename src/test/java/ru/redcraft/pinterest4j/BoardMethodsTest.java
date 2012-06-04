@@ -34,6 +34,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 			}
 		}
 		assertTrue("Board is not created", boardCreated);
+		assertEquals(pinterest1.getUser(), createdBoard.getUser());
 		
 		//Update
 		newTitle = UUID.randomUUID().toString();

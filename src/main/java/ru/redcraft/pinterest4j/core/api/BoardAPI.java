@@ -30,6 +30,7 @@ public final class BoardAPI extends CoreAPI {
 	private static final String BOARD_CATEGORY_PROP_NAME = "pinterestapp:category";
 	private static final String BOARD_PINS_PROP_NAME = "pinterestapp:pins";
 	private static final String BOARD_FOLLOWERS_PROP_NAME = "pinterestapp:followers";
+	private static final String BOARD_USER_PROP_NAME = "pinterestapp:pinner";
 	
 	private static final Logger LOG = Logger.getLogger(BoardAPI.class);
 	private static final String BOARDS_OBTAINING_ERROR = "PINBOARDS OBTAINING ERROR: ";
@@ -139,6 +140,7 @@ public final class BoardAPI extends CoreAPI {
 		builder.setPinsCount(Integer.valueOf(metaMap.get(BOARD_PINS_PROP_NAME)));
 		builder.setFollowersCount(Integer.valueOf(metaMap.get(BOARD_FOLLOWERS_PROP_NAME)));
 		builder.setTitle(metaMap.get(BOARD_TITLE_PROP_NAME));
+		builder.setUser(new LazyUser(metaMap.get(BOARD_USER_PROP_NAME).replace("http://pinterest.com/", "").replace("/?timeline=1", ""), getApiManager()));
 		
 		for(Element meta : doc.select("div.BoardList").first().select("li")) {
 			if(meta.child(0).text().equals(builder.getTitle())) {

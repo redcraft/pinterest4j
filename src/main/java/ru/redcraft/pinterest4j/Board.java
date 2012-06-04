@@ -11,4 +11,6 @@ public interface Board extends Pinholder, Followable, Refreshable<Board> {
 	
 	BoardCategory getCategory();
 	
+	User getUser();
+	
 }
