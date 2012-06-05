@@ -34,4 +34,6 @@ public interface User extends Pinholder, Followable, Refreshable<User> {
 	int getFollowingCount();
 	
 	Iterable<User> getFollowing();
+	
+	List<Activity> getActivity();
 }

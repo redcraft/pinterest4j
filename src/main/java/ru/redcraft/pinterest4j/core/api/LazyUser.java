@@ -3,6 +3,7 @@ package ru.redcraft.pinterest4j.core.api;
 import java.util.Iterator;
 import java.util.List;
 
+import ru.redcraft.pinterest4j.Activity;
 import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
@@ -116,6 +117,10 @@ public class LazyUser extends PinterestEntity<User, UserBuilder> implements User
 	
 	public List<Board> getBoards() {
 		return getApiManager().getBoardAPI().getBoards(this);
+	}
+	
+	public List<Activity> getActivity() {
+		return getApiManager().getUserAPI().getActivity(this);
 	}
 
 	@Override

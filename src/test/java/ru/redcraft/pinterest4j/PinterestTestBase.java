@@ -87,4 +87,20 @@ public class PinterestTestBase {
 		return new TestUserInfo(login, password);
 	}
 	
+	public void clean() {
+		cleanAccount(pinterest1);
+		cleanAccount(pinterest2);
+	}
+	
+	private void cleanAccount(Pinterest pinterest) {
+		for(Board board : pinterest.getUser().getBoards()) {
+			pinterest.deleteBoard(board);
+		}
+		for(Pin pin : pinterest.getUser().getLikes()) {
+			pinterest.unlikePin(pin);
+		}
+		for(User user : pinterest.getUser().getFollowing()) {
+			pinterest.unfollowUser(user);
+		}
+	}
 }

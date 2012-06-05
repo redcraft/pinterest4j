@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,9 +15,18 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import ru.redcraft.pinterest4j.Activity;
+import ru.redcraft.pinterest4j.Activity.ActivityType;
+import ru.redcraft.pinterest4j.Board;
 import ru.redcraft.pinterest4j.Followable;
 import ru.redcraft.pinterest4j.NewUserSettings;
+import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.core.activities.CommentActivity;
+import ru.redcraft.pinterest4j.core.activities.CreateBoardActivity;
+import ru.redcraft.pinterest4j.core.activities.FollowBoardActivity;
+import ru.redcraft.pinterest4j.core.activities.FollowUserActivity;
+import ru.redcraft.pinterest4j.core.activities.PinActivity;
 import ru.redcraft.pinterest4j.core.api.AdditionalUserSettings.Gender;
 import ru.redcraft.pinterest4j.core.api.FollowCollection.FollowContainer;
 import ru.redcraft.pinterest4j.core.api.FollowCollection.FollowType;
@@ -229,6 +239,54 @@ public class UserAPI extends CoreAPI {
 		FollowContainer container = new FollowContainer(newMarker, users);
 		LOG.debug("Container with follow created: " + container);
 		return container;
+	}
+
+	public List<Activity> getActivity(User user) {
+		LOG.debug("Getting activity for user = " + user);
+		List<Activity> activities = new ArrayList<Activity>();
+		ClientResponse response = getWR(Protocol.HTTP, user.getURL() + "activity").get(ClientResponse.class);
+		Document doc = Jsoup.parse(response.getEntity(String.class));
+		for(Element activity : doc.select("div.activity")) {
+			Set<String> types = activity.classNames();
+			if(types.contains("activity-1")) {
+				activities.add(new PinActivity(ActivityType.PIN, new LazyPin(Long.valueOf(activity.attr("data-id")), getApiManager())));
+			}
+			else if(types.contains("activity-5")) {
+				activities.add(new PinActivity(ActivityType.REPIN, new LazyPin(Long.valueOf(activity.attr("data-id")), getApiManager())));
+			}
+			else if(types.contains("activity-6")) {
+				activities.add(new PinActivity(ActivityType.LIKE, new LazyPin(Long.valueOf(activity.attr("data-id")), getApiManager())));
+			}
+			else if(types.contains("activity-7")) {
+				
+				Pattern pattern = Pattern.compile("Ò(.*?)Ó");
+				String info = activity.select("div.info").first().text();
+				Matcher m = pattern.matcher(info);
+				if (m.find()) {
+					String commentMsg = m.group(1);
+					Pin pin = new LazyPin(Long.valueOf(activity.attr("data-id")), getApiManager());
+					activities.add(new CommentActivity(pin, commentMsg));
+				}
+				
+			}
+			else if(types.contains("activity-45")) {
+				activities.add(new FollowUserActivity(new LazyUser((activity.getElementsByTag("a").attr("href").replace("/", "")), getApiManager())));
+			}
+			else if(types.contains("activity-26")) {
+				Board board = new LazyBoard(activity.getElementsByTag("a").attr("href"), getApiManager());
+				Pattern pattern = Pattern.compile("Followed");
+				String info = activity.select("div.info").first().text();
+				Matcher m = pattern.matcher(info);
+				if (m.find()) {
+					activities.add(new FollowBoardActivity(board));
+				} 
+				else {
+					activities.add(new CreateBoardActivity(board));
+				}
+			}
+		}
+		LOG.debug("User activity is: " + activities);
+		return activities;
 	}
 	
 }

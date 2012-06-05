@@ -10,9 +10,12 @@ import java.util.UUID;
 
 import org.junit.Test;
 
+import ru.redcraft.pinterest4j.Activity.ActivityType;
 import ru.redcraft.pinterest4j.core.NewBoardImpl;
 import ru.redcraft.pinterest4j.core.NewPinImpl;
 import ru.redcraft.pinterest4j.core.NewUserSettingsImpl;
+import ru.redcraft.pinterest4j.core.activities.CommentActivity;
+import ru.redcraft.pinterest4j.core.activities.PinActivity;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
 public class UserMethodsTest extends PinterestTestBase {
@@ -176,4 +179,12 @@ public class UserMethodsTest extends PinterestTestBase {
 		pinterest2.deleteBoard(board);
 	}
 	
+	@Test
+	public void activityTest() {
+		for(Activity activity : pinterest1.getUser("mediabb").getActivity()) {
+			if(activity.getActivityType() == ActivityType.COMMENT) {
+				System.out.println(((CommentActivity) activity).getCommentMessage());
+			}
+		}
+	}
 }
