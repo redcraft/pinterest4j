@@ -1,9 +1,8 @@
 package ru.redcraft.pinterest4j.core.activities;
 
-import ru.redcraft.pinterest4j.Activity;
 import ru.redcraft.pinterest4j.Pin;
 
-public class PinActivity extends BaseActivity implements Activity {
+public class PinActivity extends BaseActivity {
 
 	private final Pin pin;
 	

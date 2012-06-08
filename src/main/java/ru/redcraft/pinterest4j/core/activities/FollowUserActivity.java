@@ -1,9 +1,8 @@
 package ru.redcraft.pinterest4j.core.activities;
 
-import ru.redcraft.pinterest4j.Activity;
 import ru.redcraft.pinterest4j.User;
 
-public class FollowUserActivity extends BaseActivity implements Activity {
+public class FollowUserActivity extends BaseActivity {
 
 	private final User user;
 	

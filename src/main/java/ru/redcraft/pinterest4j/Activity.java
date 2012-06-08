@@ -7,4 +7,6 @@ public interface Activity {
 	}
 	
 	ActivityType getActivityType();
+	
+	//TODO add time interval support
 }

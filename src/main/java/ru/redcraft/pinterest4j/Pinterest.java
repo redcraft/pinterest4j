@@ -1,6 +1,5 @@
 package ru.redcraft.pinterest4j;
 
-import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 
 
 public interface Pinterest {
@@ -23,11 +22,11 @@ public interface Pinterest {
 	
 	//Pin
 	
-	Pin addPin(Board board, NewPin newPin) throws PinMessageSizeException;
+	Pin addPin(Board board, NewPin newPin);
 	
 	void deletePin(Pin pin);
 	
-	Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException;
+	Pin updatePin(Pin pin, String description, Double price, String link, Board board);
 	
 	Pin getPin(long id);
 	

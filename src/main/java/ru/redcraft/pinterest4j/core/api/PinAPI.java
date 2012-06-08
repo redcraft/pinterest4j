@@ -64,7 +64,7 @@ public class PinAPI extends CoreAPI {
 		super(accessToken, apiManager);
 	}
 
-	public Pin addPinToBoard(Board board, NewPin newPin) throws PinMessageSizeException {
+	public Pin addPinToBoard(Board board, NewPin newPin) {
 		LOG.debug("Creating new pin on board " + board + " with new pin: " + newPin);
 		int descLength = newPin.getDescription().length();
 		if(descLength == 0) {
@@ -197,7 +197,7 @@ public class PinAPI extends CoreAPI {
 		LOG.debug("Pin deleted");
 	}
 
-	public Pin updatePin(Pin pin, String description, double price, String link, Board board) throws PinMessageSizeException {
+	public Pin updatePin(Pin pin, String description, double price, String link, Board board) {
 		LOG.debug(String.format("Updating pin=%s with desc=%s, price=%f, link = %s, board=%s",
 				pin, description, price, link, board));
 		int descLength = description.length();

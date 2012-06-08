@@ -1,9 +1,8 @@
 package ru.redcraft.pinterest4j.core.activities;
 
-import ru.redcraft.pinterest4j.Activity;
 import ru.redcraft.pinterest4j.Pin;
 
-public class CommentActivity extends PinActivity implements Activity {
+public class CommentActivity extends PinActivity {
 
 	private final String commentMessage;
 	

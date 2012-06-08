@@ -10,7 +10,6 @@ import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.Pinterest;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
-import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 public class PinterestImpl implements Pinterest {
@@ -27,7 +26,7 @@ public class PinterestImpl implements Pinterest {
 		return internalAPI.getBoardAPI().getBoardByURL(url);
 	}
 	
-	public Pin addPin(Board board, NewPin newPin) throws PinMessageSizeException {
+	public Pin addPin(Board board, NewPin newPin) {
 		return internalAPI.getPinAPI().addPinToBoard(board, newPin);
 	}
 
@@ -55,7 +54,7 @@ public class PinterestImpl implements Pinterest {
 		internalAPI.getPinAPI().deletePin(pin);
 	}
 
-	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) throws PinMessageSizeException {
+	public Pin updatePin(Pin pin, String description, Double price, String link, Board board) {
 		String newDescription = (description != null) ? description : pin.getDescription();
 		double newPrice = (price != null) ? price : pin.getPrice();
 		String newLink = (link != null) ? link : pin.getLink();
