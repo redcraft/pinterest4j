@@ -79,6 +79,7 @@ public class PinterestTestBase {
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
+		clean();
 	}
 	
 	private static TestUserInfo getTestUserForPrefix(ResourceBundle rb, String prefix) {
@@ -87,12 +88,12 @@ public class PinterestTestBase {
 		return new TestUserInfo(login, password);
 	}
 	
-	public void clean() {
+	private static void clean() {
 		cleanAccount(pinterest1);
 		cleanAccount(pinterest2);
 	}
 	
-	private void cleanAccount(Pinterest pinterest) {
+	private static void cleanAccount(Pinterest pinterest) {
 		for(Board board : pinterest.getUser().getBoards()) {
 			pinterest.deleteBoard(board);
 		}

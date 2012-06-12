@@ -82,13 +82,39 @@ public class LazyPin extends PinterestEntity<Pin, PinBuilder> implements Pin {
 		return "pin/" + Long.toString(id) + "/";
 	}
 	
+	public List<Comment> getComments() {
+		return getApiManager().getPinAPI().getComments(this);
+	}
+	
 	@Override
 	public String toString() {
 		return "LazyPin [id=" + id + "]";
 	}
 
-	public List<Comment> getComments() {
-		return getApiManager().getPinAPI().getComments(this);
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof LazyPin)) {
+			return false;
+		}
+		LazyPin other = (LazyPin) obj;
+		if (id != other.id) {
+			return false;
+		}
+		return true;
 	}
 
 }

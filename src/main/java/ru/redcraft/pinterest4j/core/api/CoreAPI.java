@@ -13,6 +13,8 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
@@ -33,19 +35,149 @@ public abstract class CoreAPI {
 	private static final String PINTEREST_DOMAIN = "pinterest.com";
 	private static final String COOKIE_HEADER_NAME = "Cookie";
 	
-	protected static final String PINTEREST_URL = "http://pinterest.com";
+	protected static final String PINTEREST_URL = "http://" + PINTEREST_DOMAIN;
 	protected static final String RESPONSE_STATUS_FIELD = "status";
 	protected static final String RESPONSE_MESSAGE_FIELD = "message";
 	protected static final String RESPONSE_SUCCESS_STATUS = "success";
-	protected static final String BAD_SERVER_RESPONSE = "bad server response";
+	protected static final String BAD_SERVER_RESPONSE = " bad server response";
 	
 	protected static final String VALUE_TAG_ATTR = "value";
 	protected static final String CHECKED_TAG_ATTR = "checked";
+	protected static final String HREF_TAG_ATTR = "href";
+	protected static final String DATA_ID_TAG_ATTR = "data-id";
 	
 	protected static final Locale PINTEREST_LOCALE = Locale.ENGLISH;
 	
 	enum Protocol {HTTP, HTTPS};
 	
+	enum Method {GET, POST, DELETE};
+	
+	private static final Class<ClientResponse> RESPONSE_CLASS = ClientResponse.class;
+
+	class APIRequestBuilder {
+		private Protocol protocol = Protocol.HTTP;
+		private Method method = Method.GET;
+		private MediaType mediaType = null;
+		private Object requestEntity = null;
+		private final String url;
+		private boolean ajaxUsage = true;
+		private Map<Status, PinterestRuntimeException> exceptionMap = new HashMap<Status, PinterestRuntimeException>();
+		private Status httpSuccessStatus = Status.OK;
+		private String errorMessage = null;
+		
+		class APIResponse {
+			private final ClientResponse response;
+			
+			APIResponse(ClientResponse response) {
+				this.response = response;
+			}
+			
+			public ClientResponse getResponse() {
+				return response;
+			}
+			
+			public Document getDocument() {
+				String entety = response.getEntity(String.class);
+				return Jsoup.parse(entety);	
+			}
+			
+			public Map<String, String> parseResponse() {
+				return parseResponse(null, null);
+			}
+			
+			public Map<String, String> parseResponse(String errorMsg, PinterestRuntimeException exception) {
+				Map<String, String> resultMap = new HashMap<String, String>();
+				try{
+					JSONObject jResponse = new JSONObject(response.getEntity(String.class));
+					Iterator<?> responseIterator = jResponse.keys();
+					while(responseIterator.hasNext()) {
+						String key = (String) responseIterator.next();
+						resultMap.put(key, jResponse.getString(key));
+					}
+				} catch(JSONException e) {
+					String msg = errorMessage + e.getMessage();
+					throw new PinterestRuntimeException(response, msg, e);
+				}
+				if(!resultMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
+					if(resultMap.get(RESPONSE_MESSAGE_FIELD).equals(errorMsg)) {
+						throw exception;
+					}
+					else {
+						throw new PinterestRuntimeException(errorMessage + resultMap.get(RESPONSE_MESSAGE_FIELD));
+					}
+				}
+				return resultMap;
+			}
+		}
+		
+		APIRequestBuilder(String url) {
+			this.url = url;
+		}
+		
+		public APIRequestBuilder setProtocol(Protocol protocol) {
+			this.protocol = protocol;
+			return this;
+		}
+		public APIRequestBuilder setMethod(Method method) {
+			this.method = method;
+			return this;
+		}
+		public APIRequestBuilder setMethod(Method method, Object requestEntity) {
+			this.method = method;
+			this.requestEntity = requestEntity;
+			return this;
+		}
+		public APIRequestBuilder setHttpSuccessStatus(Status httpSuccessStatus) {
+			this.httpSuccessStatus = httpSuccessStatus;
+			return this;
+		}
+		public APIRequestBuilder setErrorMessage(String errorMessage) {
+			this.errorMessage = errorMessage;
+			return this;
+		}
+		public APIRequestBuilder addExceptionMapping(Status status, PinterestRuntimeException exception) {
+			exceptionMap.put(status, exception);
+			return this;
+		}
+		public APIRequestBuilder setMediaType(MediaType mediaType) {
+			this.mediaType = mediaType;
+			return this;
+		}
+		public APIRequestBuilder setAjaxUsage(boolean ajaxUsage) {
+			this.ajaxUsage = ajaxUsage;
+			return this;
+		}
+		
+		public APIResponse build() {
+			WebResource.Builder builder = getWR(protocol, url, ajaxUsage);
+			if(mediaType != null) {
+				builder = builder.type(mediaType);
+			}
+			ClientResponse response = null;
+			switch(method) {
+				case GET :
+					response = builder.get(RESPONSE_CLASS);
+					break;
+				case POST :
+					response = builder.post(RESPONSE_CLASS, requestEntity);
+					break;
+				case DELETE :
+					response = builder.delete(RESPONSE_CLASS);
+					break;
+			}
+			Status status = Status.fromStatusCode(response.getStatus());
+			if(status != httpSuccessStatus) {
+				if(exceptionMap.containsKey(status)) {
+					throw exceptionMap.get(status);
+				}
+				else {
+					throw new PinterestRuntimeException(response, errorMessage + BAD_SERVER_RESPONSE);
+				}
+			}
+			return new APIResponse(response);
+		}
+		
+	}
 	
 	CoreAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		this.accessToken = accessToken;
@@ -78,28 +210,6 @@ public abstract class CoreAPI {
 			}
 		}
 		return wr;
-	}
-	
-	protected Map<String, String> parseResponse(ClientResponse response, String errorTitle) {
-		Map<String, String> resultMap = new HashMap<String, String>();
-		if(response.getStatus() == Status.OK.getStatusCode()) {
-			try{
-				JSONObject jResponse = new JSONObject(response.getEntity(String.class));
-				Iterator<?> responseIterator = jResponse.keys();
-				while(responseIterator.hasNext()) {
-					String key = (String) responseIterator.next();
-					resultMap.put(key, jResponse.getString(key));
-				}
-			} catch(JSONException e) {
-				String msg = errorTitle + e.getMessage();
-				throw new PinterestRuntimeException(response, msg, e);
-			}
-		} else {
-			throw new PinterestRuntimeException(
-					response, 
-					errorTitle + BAD_SERVER_RESPONSE);
-		}
-		return resultMap;
 	}
 	
 	protected FormDataBodyPart createImageBodyPart(File imgFile) {

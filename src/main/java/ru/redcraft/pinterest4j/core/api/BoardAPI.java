@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.Response.Status;
+
 import org.apache.log4j.Logger;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -17,10 +18,7 @@ import ru.redcraft.pinterest4j.NewBoard;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardExistException;
 import ru.redcraft.pinterest4j.exceptions.PinterestBoardNotFoundException;
-import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.representation.Form;
 
 public final class BoardAPI extends CoreAPI {
@@ -33,11 +31,7 @@ public final class BoardAPI extends CoreAPI {
 	private static final String BOARD_USER_PROP_NAME = "pinterestapp:pinner";
 	
 	private static final Logger LOG = Logger.getLogger(BoardAPI.class);
-	private static final String BOARDS_OBTAINING_ERROR = "PINBOARDS OBTAINING ERROR: ";
-	private static final String BOARD_CREATION_ERROR = "PINBOARD CREATION ERROR: ";
-	private static final String BOARD_DELETION_ERROR = "PINBOARD DELETION ERROR: ";
-	private static final String BOARD_UPDATE_ERROR = "PINBOARD UPDATE ERROR: ";
-	private static final String BOARD_FOLLOW_ERROR = "PINBOARD FOLLOW ERROR: ";
+	private static final String BOARD_API_ERROR = "PINBOARD API ERROR: ";
 	
 	BoardAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
@@ -46,25 +40,19 @@ public final class BoardAPI extends CoreAPI {
 	public List<Board> getBoards(User user) {
 		LOG.debug("Collecting board list for user = " + user);
 		List<Board> boardList = new ArrayList<Board>();
-		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/").get(ClientResponse.class);
-		if(response.getStatus() == Status.OK.getStatusCode()) {
-			Document doc = Jsoup.parse(response.getEntity(String.class));
-			Elements htmlBoards = doc.select(".pinBoard");
-			for(Element htmlBoard : htmlBoards) {
-				if(htmlBoard.hasAttr("id")) {
-					String stringID = htmlBoard.attr("id").replace("board", "");
-					long id = Long.valueOf(stringID);
-					String url = htmlBoard.select("a.link").first().attr("href");
-					String name = htmlBoard.select("h3.serif").first().select("a").text();
-					LazyBoard board = new LazyBoard(id, url, name, getApiManager());
-					boardList.add(board);
-				}
+		Document doc = new APIRequestBuilder(user.getUserName() + "/")
+			.setErrorMessage(BOARD_API_ERROR)
+			.build().getDocument();
+		Elements htmlBoards = doc.select(".pinBoard");
+		for(Element htmlBoard : htmlBoards) {
+			if(htmlBoard.hasAttr("id")) {
+				String stringID = htmlBoard.attr("id").replace("board", "");
+				long id = Long.valueOf(stringID);
+				String url = htmlBoard.select("a.link").first().attr("href");
+				String name = htmlBoard.select("h3.serif").first().select("a").text();
+				LazyBoard board = new LazyBoard(id, url, name, getApiManager());
+				boardList.add(board);
 			}
-		}
-		else {
-			throw new PinterestRuntimeException(
-					response,
-					BOARDS_OBTAINING_ERROR + "can't get boars list");
 		}
 		LOG.debug("Board count = " + boardList.size());
 		return boardList;
@@ -80,19 +68,11 @@ public final class BoardAPI extends CoreAPI {
 
 	public Board createBoard(NewBoard newBoard) {
 		LOG.debug("Creating board for user = " + getAccessToken().getLogin() + "using info: " + newBoard);
-		LazyBoard createdBoard = null;
-		Form newBoardForm = createNewBoardForm(newBoard);
-		ClientResponse response = getWR(Protocol.HTTP, "board/create/").post(ClientResponse.class, newBoardForm);
-		Map<String, String> responseMap = parseResponse(response, BOARD_CREATION_ERROR);
-		if(responseMap.get("status").equals("failure")) {
-			if(responseMap.get(RESPONSE_MESSAGE_FIELD).equals("You already have a board with that name.")) {
-				throw new PinterestBoardExistException(newBoard.getTitle());
-			}
-			else {
-				throw new PinterestRuntimeException(BOARD_CREATION_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
-			}
-		}
-		createdBoard = new LazyBoard(
+		Map<String, String> responseMap = new APIRequestBuilder("board/create/")
+			.setMethod(Method.POST, createNewBoardForm(newBoard))
+			.setErrorMessage(BOARD_API_ERROR)
+			.build().parseResponse("You already have a board with that name.", new PinterestBoardExistException(newBoard.getTitle()));
+		LazyBoard createdBoard = new LazyBoard(
 				Long.valueOf(responseMap.get("id")), responseMap.get("url"), responseMap.get("name"), newBoard.getCategory(), getApiManager());
 		LOG.debug("Board created " + createdBoard);
 		return createdBoard;
@@ -107,20 +87,10 @@ public final class BoardAPI extends CoreAPI {
 	}
 	
 	private Document getBoardInfoPage(String boardURL) {
-		Document doc = null;
-		ClientResponse response = getWR(Protocol.HTTP, boardURL).get(ClientResponse.class);
-		if(response.getStatus() == Status.OK.getStatusCode()) {
-			doc = Jsoup.parse(response.getEntity(String.class));
-		}
-		else if(response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
-			throw new PinterestBoardNotFoundException(boardURL);
-		}
-		else {
-			throw new PinterestRuntimeException(
-					response, 
-					BOARDS_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
-		}
-		return doc;
+		return new APIRequestBuilder(boardURL)
+			.addExceptionMapping(Status.NOT_FOUND, new PinterestBoardNotFoundException(boardURL))
+			.setErrorMessage(BOARD_API_ERROR)
+			.build().getDocument();	
 	}
 	
 	public BoardBuilder getCompleteBoard(String boardURL) {
@@ -155,12 +125,10 @@ public final class BoardAPI extends CoreAPI {
 
 	public void deleteBoard(Board board) {
 		LOG.debug("Deleting board " + board);
-		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").delete(ClientResponse.class);
-		if(response.getStatus() != Status.OK.getStatusCode()) {
-			throw new PinterestRuntimeException(
-					response, 
-					BOARD_DELETION_ERROR + BAD_SERVER_RESPONSE);
-		}
+		new APIRequestBuilder(board.getURL() + "settings/")
+			.setMethod(Method.DELETE)
+			.setErrorMessage(BOARD_API_ERROR)
+			.build();	
 		LOG.debug("Board deleted");
 	}
 
@@ -179,13 +147,10 @@ public final class BoardAPI extends CoreAPI {
 	public Board updateBoard(Board board, String title, String description, BoardCategory category) {
 		LOG.debug(String.format("Updating board with uri = %s with title=%s, desc=%s, cat=%s",
 				board.getURL(), title, description, category));
-		Form updateBoardForm = createUpdateBoardForm(title, description, category);
-		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "settings/").post(ClientResponse.class, updateBoardForm);
-		if(response.getStatus() != Status.OK.getStatusCode()) {
-			throw new PinterestRuntimeException(
-					response, 
-					BOARD_UPDATE_ERROR + BAD_SERVER_RESPONSE);
-		}
+		new APIRequestBuilder(board.getURL() + "settings/")
+			.setMethod(Method.POST, createUpdateBoardForm(title, description, category))
+			.setErrorMessage(BOARD_API_ERROR)
+			.build();
 		Board updatedBoard = new LazyBoard(
 				board.getId(), createLink(title, getAccessToken().getLogin()), title, description, category, getApiManager());
 		LOG.debug("Board updated");
@@ -198,11 +163,10 @@ public final class BoardAPI extends CoreAPI {
 
 	public void followBoard(Board board, boolean follow) {
 		LOG.debug(String.format("Setting follow on board = %s to = %s", board, follow));
-		ClientResponse response = getWR(Protocol.HTTP, board.getURL() + "follow/").post(ClientResponse.class, getSwitchForm("unfollow", follow));
-		Map<String, String> responseMap = parseResponse(response, BOARD_FOLLOW_ERROR);
-		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
-			throw new PinterestRuntimeException(BOARD_FOLLOW_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
-		}
+		new APIRequestBuilder(board.getURL() + "follow/")
+			.setMethod(Method.POST, getSwitchForm("unfollow", follow))
+			.setErrorMessage(BOARD_API_ERROR)
+			.build().parseResponse();
 		LOG.debug("Board follow mark set to " + follow);
 	}
 

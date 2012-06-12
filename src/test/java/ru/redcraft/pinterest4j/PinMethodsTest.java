@@ -213,4 +213,10 @@ public class PinMethodsTest extends PinterestTestBase {
 		assertEquals(true, repinedPin.isRepined());
 		pinterest2.deleteBoard(repinsBoard);
 	}
+	
+	@Test
+	public void getPinByIDTest() {
+		Pin newPin = pinterest1.getPin(testPin.getId());
+		assertEquals(testPin, newPin);
+	}
 }

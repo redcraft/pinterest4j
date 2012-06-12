@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -33,8 +34,6 @@ import ru.redcraft.pinterest4j.core.api.FollowCollection.FollowType;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
@@ -48,29 +47,17 @@ public class UserAPI extends CoreAPI {
 	
 	private static final Logger LOG = Logger.getLogger(UserAPI.class);
 	
-	private static final String USER_OBTAINING_ERROR = "USER OBTAINING ERROR: ";
-	private static final String USER_FOLLOW_ERROR = "USER FOLLOW ERROR: ";
-	private static final String USER_FOLLOWERS_ERROR = "USER FOLLOWERS ERROR: ";
+	private static final String USER_API_ERROR = "USER API ERROR: ";
 	
 	UserAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
 	}
 	
 	private Document getUserInfoPage(String userName) {
-		Document doc = null;
-		ClientResponse response = getWR(Protocol.HTTP, userName + "/").get(ClientResponse.class);
-		if(response.getStatus() == Status.OK.getStatusCode()) {
-			doc = Jsoup.parse(response.getEntity(String.class));
-		}
-		else if(response.getStatus() ==  Status.NOT_FOUND.getStatusCode()) {
-			throw new PinterestUserNotFoundException(userName);
-		}
-		else {
-			throw new PinterestRuntimeException(
-					response, 
-					USER_OBTAINING_ERROR + BAD_SERVER_RESPONSE);
-		}
-		return doc;
+		return new APIRequestBuilder(userName + "/")
+			.addExceptionMapping(Status.NOT_FOUND, new PinterestUserNotFoundException(userName))
+			.setErrorMessage(USER_API_ERROR)
+			.build().getDocument();
 	}
 	
 	public UserBuilder getCompleteUser(String userName) {
@@ -115,27 +102,25 @@ public class UserAPI extends CoreAPI {
 
 	private AdditionalUserSettings getUserAdtSettings() {
 		AdditionalUserSettings adtSettings = new AdditionalUserSettings();
-		ClientResponse response = getWR(Protocol.HTTPS, "settings/", false).get(ClientResponse.class);
-		if(response.getStatus() == Status.OK.getStatusCode()) {
-			Document doc = Jsoup.parse(response.getEntity(String.class));
-			adtSettings.setEmail(doc.getElementById("id_email").attr(VALUE_TAG_ATTR));
-			adtSettings.setFirstName(doc.getElementById("id_first_name").attr(VALUE_TAG_ATTR));
-			adtSettings.setLastName(doc.getElementById("id_last_name").attr(VALUE_TAG_ATTR));
-			adtSettings.setUserName(doc.getElementById("id_username").attr(VALUE_TAG_ATTR));
-			adtSettings.setWebsite(doc.getElementById("id_website").attr(VALUE_TAG_ATTR));
-			adtSettings.setLocation(doc.getElementById("id_location").attr(VALUE_TAG_ATTR));
-			if(doc.getElementById("id_gender_0").hasAttr(UserAPI.CHECKED_TAG_ATTR)) {
-				adtSettings.setGender(Gender.MALE);
-			}
-			if(doc.getElementById("id_gender_1").hasAttr(UserAPI.CHECKED_TAG_ATTR)) {
-				adtSettings.setGender(Gender.FEMALE);
-			}
-			if(doc.getElementById("id_gender_2").hasAttr(UserAPI.CHECKED_TAG_ATTR)) {
-				adtSettings.setGender(Gender.UNSPECIFIED);
-			}
+		Document doc = new APIRequestBuilder("settings/")
+			.setProtocol(Protocol.HTTPS)
+			.setAjaxUsage(false)
+			.setErrorMessage(USER_API_ERROR)
+			.build().getDocument();
+		adtSettings.setEmail(doc.getElementById("id_email").attr(VALUE_TAG_ATTR));
+		adtSettings.setFirstName(doc.getElementById("id_first_name").attr(VALUE_TAG_ATTR));
+		adtSettings.setLastName(doc.getElementById("id_last_name").attr(VALUE_TAG_ATTR));
+		adtSettings.setUserName(doc.getElementById("id_username").attr(VALUE_TAG_ATTR));
+		adtSettings.setWebsite(doc.getElementById("id_website").attr(VALUE_TAG_ATTR));
+		adtSettings.setLocation(doc.getElementById("id_location").attr(VALUE_TAG_ATTR));
+		if(doc.getElementById("id_gender_0").hasAttr(UserAPI.CHECKED_TAG_ATTR)) {
+			adtSettings.setGender(Gender.MALE);
 		}
-		else {
-			throw new PinterestRuntimeException(response, USER_OBTAINING_ERROR + "can't get additional settings");
+		if(doc.getElementById("id_gender_1").hasAttr(UserAPI.CHECKED_TAG_ATTR)) {
+			adtSettings.setGender(Gender.FEMALE);
+		}
+		if(doc.getElementById("id_gender_2").hasAttr(UserAPI.CHECKED_TAG_ATTR)) {
+			adtSettings.setGender(Gender.UNSPECIFIED);
 		}
 		return adtSettings;
 	}
@@ -171,10 +156,14 @@ public class UserAPI extends CoreAPI {
 	
 	public User updateUser(NewUserSettings settings) {
 		LOG.debug(String.format("Updating user=%s with settings=%s", getAccessToken().getLogin(), settings));
-		FormDataMultiPart userUpdateForm = createUserForm(settings);
-		ClientResponse response = getWR(Protocol.HTTPS, "settings/", false).type(MediaType.MULTIPART_FORM_DATA)
-																   .post(ClientResponse.class, userUpdateForm);
-		LOG.debug(response.getEntity(String.class) + response.getStatus());
+		new APIRequestBuilder("settings/")
+			.setProtocol(Protocol.HTTPS)
+			.setAjaxUsage(false)
+			.setMethod(Method.POST, createUserForm(settings))
+			.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE)
+			.setHttpSuccessStatus(Status.fromStatusCode(302))
+			.setErrorMessage(USER_API_ERROR)
+			.build();
 		User newUser = getUserForName(getAccessToken().getLogin());
 		LOG.debug("User updated. New user info: " + newUser);
 		return newUser;
@@ -182,11 +171,10 @@ public class UserAPI extends CoreAPI {
 
 	public void followUser(User user, boolean follow) {
 		LOG.debug(String.format("Setting follow on user = %s to = %s", user, follow));
-		ClientResponse response = getWR(Protocol.HTTP, user.getUserName() + "/follow/").post(ClientResponse.class, getSwitchForm("unfollow", follow));
-		Map<String, String> responseMap = parseResponse(response, USER_FOLLOW_ERROR);
-		if(!responseMap.get(RESPONSE_STATUS_FIELD).equals(RESPONSE_SUCCESS_STATUS)) {
-			throw new PinterestRuntimeException(USER_FOLLOW_ERROR + responseMap.get(RESPONSE_MESSAGE_FIELD));
-		}
+		new APIRequestBuilder(user.getUserName() + "/follow/")
+			.setMethod(Method.POST, getSwitchForm("unfollow", follow))
+			.setErrorMessage(USER_API_ERROR)
+			.build().getResponse();
 		LOG.debug("Board follow mark set to " + follow);
 	}
 
@@ -209,8 +197,9 @@ public class UserAPI extends CoreAPI {
 		else {
 			path = followType.name().toLowerCase(PINTEREST_LOCALE) + "/?page=1";
 		}
-		ClientResponse response = getWR(Protocol.HTTP, followable.getURL() + path).get(ClientResponse.class);
-		String entity = response.getEntity(String.class);
+		String entity = new APIRequestBuilder(followable.getURL() + path)
+			.setErrorMessage(USER_API_ERROR)
+			.build().getResponse().getEntity(String.class);
 		long newMarker = 0;
 		
 		Pattern pattern = Pattern.compile("\"marker\": (-?[0-9]+)");
@@ -225,7 +214,7 @@ public class UserAPI extends CoreAPI {
 				newMarker = Long.valueOf(m.group(1));
 			}
 			else {
-				throw new PinterestRuntimeException(USER_FOLLOWERS_ERROR + "marker parsing error");
+				throw new PinterestRuntimeException(USER_API_ERROR + "follow marker parsing error");
 			}
 		}
 		
@@ -244,27 +233,28 @@ public class UserAPI extends CoreAPI {
 	public List<Activity> getActivity(User user) {
 		LOG.debug("Getting activity for user = " + user);
 		List<Activity> activities = new ArrayList<Activity>();
-		ClientResponse response = getWR(Protocol.HTTP, user.getURL() + "activity").get(ClientResponse.class);
-		Document doc = Jsoup.parse(response.getEntity(String.class));
+		Document doc = new APIRequestBuilder(user.getURL() + "activity")
+			.setErrorMessage(USER_API_ERROR)
+			.build().getDocument();
 		for(Element activity : doc.select("div.activity")) {
 			Set<String> types = activity.classNames();
 			if(types.contains("activity-1")) {
-				activities.add(new PinActivity(ActivityType.PIN, new LazyPin(Long.valueOf(activity.attr("data-id")), getApiManager())));
+				activities.add(new PinActivity(ActivityType.PIN, new LazyPin(Long.valueOf(activity.attr(DATA_ID_TAG_ATTR)), getApiManager())));
 			}
 			else if(types.contains("activity-5")) {
-				activities.add(new PinActivity(ActivityType.REPIN, new LazyPin(Long.valueOf(activity.attr("data-id")), getApiManager())));
+				activities.add(new PinActivity(ActivityType.REPIN, new LazyPin(Long.valueOf(activity.attr(DATA_ID_TAG_ATTR)), getApiManager())));
 			}
 			else if(types.contains("activity-6")) {
-				activities.add(new PinActivity(ActivityType.LIKE, new LazyPin(Long.valueOf(activity.attr("data-id")), getApiManager())));
+				activities.add(new PinActivity(ActivityType.LIKE, new LazyPin(Long.valueOf(activity.attr(DATA_ID_TAG_ATTR)), getApiManager())));
 			}
 			else if(types.contains("activity-7")) {
 				
-				Pattern pattern = Pattern.compile("Ò(.*?)Ó");
+				Pattern pattern = Pattern.compile("Ò(.*?).Ó");
 				String info = activity.select("div.info").first().text();
 				Matcher m = pattern.matcher(info);
 				if (m.find()) {
 					String commentMsg = m.group(1);
-					Pin pin = new LazyPin(Long.valueOf(activity.attr("data-id")), getApiManager());
+					Pin pin = new LazyPin(Long.valueOf(activity.attr(DATA_ID_TAG_ATTR)), getApiManager());
 					activities.add(new CommentActivity(pin, commentMsg));
 				}
 				

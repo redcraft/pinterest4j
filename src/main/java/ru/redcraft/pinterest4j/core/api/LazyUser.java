@@ -145,7 +145,7 @@ public class LazyUser extends PinterestEntity<User, UserBuilder> implements User
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (!(obj instanceof LazyUser)) {
 			return false;
 		}
 		LazyUser other = (LazyUser) obj;

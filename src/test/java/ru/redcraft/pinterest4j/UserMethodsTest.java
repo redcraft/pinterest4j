@@ -15,6 +15,9 @@ import ru.redcraft.pinterest4j.core.NewBoardImpl;
 import ru.redcraft.pinterest4j.core.NewPinImpl;
 import ru.redcraft.pinterest4j.core.NewUserSettingsImpl;
 import ru.redcraft.pinterest4j.core.activities.CommentActivity;
+import ru.redcraft.pinterest4j.core.activities.CreateBoardActivity;
+import ru.redcraft.pinterest4j.core.activities.FollowBoardActivity;
+import ru.redcraft.pinterest4j.core.activities.FollowUserActivity;
 import ru.redcraft.pinterest4j.core.activities.PinActivity;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
@@ -106,7 +109,7 @@ public class UserMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void pinCountersTest() {
-		int userPinCount = pinterest1.getUser().getPinsCount();
+		int userPinCount = pinterest1.getUser().refresh().getPinsCount();
 		int pinCountToCreate = 3;
 		NewBoardImpl newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
 		Board board = pinterest1.createBoard(newBoard);
@@ -180,11 +183,71 @@ public class UserMethodsTest extends PinterestTestBase {
 	}
 	
 	@Test
-	public void activityTest() {
-		for(Activity activity : pinterest1.getUser("mediabb").getActivity()) {
-			if(activity.getActivityType() == ActivityType.COMMENT) {
-				System.out.println(((CommentActivity) activity).getCommentMessage());
-			}
-		}
+	public void activityTest() throws InterruptedException {
+		//Create board
+		NewBoardImpl newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.CARS_MOTORCYCLES);
+		Board createdBoard = pinterest1.createBoard(newBoard);
+		Board createdBoard2 = pinterest2.createBoard(newBoard);
+		//Create pin
+		String newDescription = UUID.randomUUID().toString();
+		double newPrice = 10;
+		NewPinImpl newPin = new NewPinImpl(newDescription, newPrice, webLink, imageLink, null);
+		Pin createdPin = pinterest1.addPin(createdBoard, newPin);
+		Pin createdPin2 = pinterest2.addPin(createdBoard2, newPin);
+		Thread.sleep(2000);
+		//Repin
+		Pin repinedPin = pinterest1.repin(createdPin2, createdBoard, UUID.randomUUID().toString());
+		Thread.sleep(1000);
+		//Like
+		pinterest1.likePin(createdPin);
+		Thread.sleep(1000);
+		//Comment
+		String comment = UUID.randomUUID().toString();
+		pinterest1.addComment(createdPin, comment);
+		Thread.sleep(1000);
+		//Follow user
+		pinterest1.unfollowUser(pinterest2.getUser());
+		pinterest1.followUser(pinterest2.getUser());
+		Thread.sleep(1000);
+		//Follow board
+		pinterest1.followBoard(createdBoard2);
+		Thread.sleep(1000);
+		
+		List<Activity> activity = pinterest1.getUser().getActivity();
+		System.out.println(activity.size());
+		
+		int counter = 0;
+		
+		assertEquals(ActivityType.FOLLOW_BOARD, activity.get(counter).getActivityType());
+		assertEquals(createdBoard2, ((FollowBoardActivity)activity.get(counter)).getBoard());
+		
+		++counter;
+		assertEquals(ActivityType.FOLLOW_USER, activity.get(counter).getActivityType());
+		assertEquals(pinterest2.getUser(), ((FollowUserActivity)activity.get(counter)).getUser());
+		
+		++counter;
+		assertEquals(ActivityType.COMMENT, activity.get(counter).getActivityType());
+		assertEquals(createdPin, ((CommentActivity)activity.get(counter)).getPin());
+		assertEquals(comment, ((CommentActivity)activity.get(counter)).getCommentMessage());
+		
+		++counter;
+		assertEquals(ActivityType.LIKE, activity.get(counter).getActivityType());
+		assertEquals(createdPin, ((PinActivity)activity.get(counter)).getPin());
+		
+		++counter;
+		assertEquals(ActivityType.REPIN, activity.get(counter).getActivityType());
+		assertEquals(repinedPin, ((PinActivity)activity.get(counter)).getPin());
+		
+		++counter;
+		assertEquals(ActivityType.PIN, activity.get(counter).getActivityType());
+		assertEquals(createdPin, ((PinActivity)activity.get(counter)).getPin());
+		
+		++counter;
+		assertEquals(ActivityType.CREATE_BOARD, activity.get(counter).getActivityType());
+		assertEquals(createdBoard, ((CreateBoardActivity)activity.get(counter)).getBoard());
+		
+		pinterest1.deleteBoard(createdBoard);
+		pinterest2.deleteBoard(createdBoard2);
 	}
+	
 }
