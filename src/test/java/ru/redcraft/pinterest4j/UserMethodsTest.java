@@ -198,20 +198,25 @@ public class UserMethodsTest extends PinterestTestBase {
 		Pin createdPin2 = pinterest2.addPin(createdBoard2, newPin);
 		int waitPeriod = 2000;
 		Thread.sleep(waitPeriod);
+		pinterest1.getUser().getActivity();
 		//Repin
 		Pin repinedPin = pinterest1.repin(createdPin2, createdBoard, UUID.randomUUID().toString());
 		Thread.sleep(waitPeriod);
+		pinterest1.getUser().getActivity();
 		//Like
 		pinterest1.likePin(createdPin);
 		Thread.sleep(waitPeriod);
+		pinterest1.getUser().getActivity();
 		//Comment
 		String comment = UUID.randomUUID().toString();
 		pinterest1.addComment(createdPin, comment);
 		Thread.sleep(waitPeriod);
+		pinterest1.getUser().getActivity();
 		//Follow user
 		pinterest1.unfollowUser(pinterest2.getUser());
 		pinterest1.followUser(pinterest2.getUser());
 		Thread.sleep(waitPeriod);
+		pinterest1.getUser().getActivity();
 		//Follow board
 		pinterest1.followBoard(createdBoard2);
 		Thread.sleep(waitPeriod);
