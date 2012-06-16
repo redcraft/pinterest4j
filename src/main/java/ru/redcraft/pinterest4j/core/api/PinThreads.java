@@ -1,16 +1,13 @@
 package ru.redcraft.pinterest4j.core.api;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.GiftPriceCategory;
 import ru.redcraft.pinterest4j.Pin;
-import ru.redcraft.pinterest4j.User;
-import ru.redcraft.pinterest4j.core.api.FollowCollection.FollowContainer;
 
-public class PinThreads implements Iterable<Pin> {
+public final class PinThreads implements Iterable<Pin> {
 
 	private final String url;
 	private final InternalAPIManager apiManager;

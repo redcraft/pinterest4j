@@ -7,7 +7,7 @@ import java.util.List;
 import ru.redcraft.pinterest4j.Followable;
 import ru.redcraft.pinterest4j.User;
 
-public class FollowCollection implements Iterable<User> {
+public final class FollowCollection implements Iterable<User> {
 
 	private final Followable target;
 	private final InternalAPIManager apiManager;
