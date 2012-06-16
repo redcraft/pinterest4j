@@ -83,11 +83,11 @@ public class UserAPI extends CoreAPI {
 		Element description = userInfo.getElementsByTag("p").first();
 		builder.setDescription(description != null ? description.text() : null);
 		Element twitter = userInfo.select("a.twitter").first();
-		builder.setTwitterURL(twitter != null ? twitter.attr("href") : null);
+		builder.setTwitterURL(twitter != null ? twitter.attr(HREF_TAG_ATTR) : null);
 		Element facebook = userInfo.select("a.facebook").first();
-		builder.setFacebookURL(facebook != null ? facebook.attr("href") : null);
+		builder.setFacebookURL(facebook != null ? facebook.attr(HREF_TAG_ATTR) : null);
 		Element website = userInfo.select("a.website").first();
-		builder.setSiteURL(website != null ? website.attr("href") : null);
+		builder.setSiteURL(website != null ? website.attr(HREF_TAG_ATTR) : null);
 		Element location = userInfo.select("li#ProfileLocation").first();
 		builder.setLocation(location != null ? location.text() : null);
 		
@@ -221,7 +221,7 @@ public class UserAPI extends CoreAPI {
 		List<User> users = new ArrayList<User>();
 		Document doc = Jsoup.parse(entity);
 		for(Element userElement : doc.select("div.PersonInfo")) {
-			User user = new LazyUser(userElement.getElementsByTag("a").first().attr("href").replace("/", ""), getApiManager());
+			User user = new LazyUser(userElement.getElementsByTag("a").first().attr(HREF_TAG_ATTR).replace("/", ""), getApiManager());
 			users.add(user);
 		}
 		
@@ -260,10 +260,10 @@ public class UserAPI extends CoreAPI {
 				
 			}
 			else if(types.contains("activity-45")) {
-				activities.add(new FollowUserActivity(new LazyUser((activity.getElementsByTag("a").attr("href").replace("/", "")), getApiManager())));
+				activities.add(new FollowUserActivity(new LazyUser((activity.getElementsByTag("a").attr(HREF_TAG_ATTR).replace("/", "")), getApiManager())));
 			}
 			else if(types.contains("activity-26")) {
-				Board board = new LazyBoard(activity.getElementsByTag("a").attr("href"), getApiManager());
+				Board board = new LazyBoard(activity.getElementsByTag("a").attr(HREF_TAG_ATTR), getApiManager());
 				Pattern pattern = Pattern.compile("Followed");
 				String info = activity.select("div.info").first().text();
 				Matcher m = pattern.matcher(info);

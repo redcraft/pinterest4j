@@ -42,6 +42,8 @@ public interface Pinterest {
 	
 	void deleteComment(Comment comment);
 	
+	Iterable<Pin> getPinsByCategory(BoardCategory category);
+	
 	//User
 	
 	User getUser(String userName);

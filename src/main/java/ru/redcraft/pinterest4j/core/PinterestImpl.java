@@ -10,6 +10,7 @@ import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.Pinterest;
 import ru.redcraft.pinterest4j.User;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
+import ru.redcraft.pinterest4j.core.api.PinThreads;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
 public class PinterestImpl implements Pinterest {
@@ -120,6 +121,10 @@ public class PinterestImpl implements Pinterest {
 
 	public boolean isLiked(Pin pin) {
 		return internalAPI.getPinAPI().isLiked(pin);
+	}
+
+	public Iterable<Pin> getPinsByCategory(BoardCategory category) {
+		return PinThreads.createPinThreadByCategory(category, internalAPI);
 	}
 
 }

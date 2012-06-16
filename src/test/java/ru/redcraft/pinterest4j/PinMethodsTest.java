@@ -219,4 +219,14 @@ public class PinMethodsTest extends PinterestTestBase {
 		Pin newPin = pinterest1.getPin(testPin.getId());
 		assertEquals(testPin, newPin);
 	}
+	
+	public void getPinsByCategoryTest() {
+		int counter = 100;
+		for(Pin pin : pinterest1.getPinsByCategory(BoardCategory.ARCHITECTURE)) {
+			if(--counter < 0) {
+				break;
+			}
+			System.out.println(pin + " " + pin.getPinner());
+		}
+	}
 }

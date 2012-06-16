@@ -164,9 +164,11 @@ public abstract class CoreAPI {
 				case DELETE :
 					response = builder.delete(RESPONSE_CLASS);
 					break;
+				default :
+					throw new PinterestRuntimeException("Unknown HTTP method");
 			}
 			Status status = Status.fromStatusCode(response.getStatus());
-			if(status != httpSuccessStatus) {
+			if(!status.equals(httpSuccessStatus)) {
 				if(exceptionMap.containsKey(status)) {
 					throw exceptionMap.get(status);
 				}

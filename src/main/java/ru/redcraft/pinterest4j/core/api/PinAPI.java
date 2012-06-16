@@ -51,7 +51,7 @@ public class PinAPI extends CoreAPI {
 	
 	private static final Logger LOG = Logger.getLogger(PinAPI.class);
 	
-	class NoMorePinsException extends PinterestRuntimeException {
+	static class NoMorePinsException extends PinterestRuntimeException {
 
 		private static final long serialVersionUID = -8944899106991139578L;
 		
@@ -135,7 +135,7 @@ public class PinAPI extends CoreAPI {
 		builder.setDescription(metaMap.get(PIN_DESCRIPTION_PROP_NAME));
 		builder.setImageURL(metaMap.get(PIN_IMAGE_PROP_NAME));
 		builder.setLink(metaMap.get(PIN_LINK_PROP_NAME));
-		builder.setPrice(Double.valueOf(metaMap.get(PIN_PRICE_PROP_NAME)));
+		builder.setPrice(metaMap.get(PIN_PRICE_PROP_NAME) != null ? Double.valueOf(metaMap.get(PIN_PRICE_PROP_NAME)) : 0);
 		builder.setLikesCount(Integer.valueOf(metaMap.get(PIN_LIKES_COUNT_PROP_NAME)));
 		builder.setRepinsCount(Integer.valueOf(metaMap.get(PIN_REPINS_COUNT_PROP_NAME)));
 		builder.setCommentsCount(Integer.valueOf(metaMap.get(PIN_COMMENTS_COUNT_PROP_NAME)));
@@ -307,6 +307,14 @@ public class PinAPI extends CoreAPI {
 		}
 		LOG.debug("Liked state is " + liked);
 		return liked;
+	}
+
+	public List<Pin> getPinsFromThread(String url, int page, long marker) {
+		LOG.debug(String.format("Loading pins thread for url = %s on page = %d with marker = %d", url, page, marker));
+		Document doc = new APIRequestBuilder(url + "&page=" + page + "&marker=" + marker)
+			.setErrorMessage(PIN_API_ERROR)
+			.build().getDocument();
+		return parsePinsResponse(doc);
 	}
 
 }
