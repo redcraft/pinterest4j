@@ -154,7 +154,13 @@ public abstract class CoreAPI {
 				builder = builder.type(mediaType);
 			}
 			ClientResponse response = null;
-			switch(method) {
+			
+			int errorRepeats = 4;
+			int waitInterval = 2000;
+			boolean responseResieved = false;
+			
+			while(!responseResieved) {
+				switch(method) {
 				case GET :
 					response = builder.get(RESPONSE_CLASS);
 					break;
@@ -166,7 +172,20 @@ public abstract class CoreAPI {
 					break;
 				default :
 					throw new PinterestRuntimeException("Unknown HTTP method");
+				}
+				if(response.getStatus() == 502 && errorRepeats > 0) {
+					-- errorRepeats;
+					try {
+						Thread.sleep(waitInterval);
+					} catch (InterruptedException e) {
+						throw new PinterestRuntimeException(e.getMessage(), e);
+					}
+				}
+				else {
+					responseResieved = true;
+				}
 			}
+			
 			Status status = Status.fromStatusCode(response.getStatus());
 			if(!status.equals(httpSuccessStatus)) {
 				if(exceptionMap.containsKey(status)) {

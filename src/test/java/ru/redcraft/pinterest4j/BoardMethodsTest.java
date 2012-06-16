@@ -109,6 +109,7 @@ public class BoardMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void followBoardTest() {
+		pinterest2.unfollowUser(pinterest1.getUser());
 		NewBoard newBoard = new NewBoardImpl(UUID.randomUUID().toString(), BoardCategory.ARCHITECTURE);
 		Board board = pinterest1.createBoard(newBoard);
 		assertEquals(0, board.getFollowersCount());

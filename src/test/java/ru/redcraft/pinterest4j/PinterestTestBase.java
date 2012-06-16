@@ -91,6 +91,8 @@ public class PinterestTestBase {
 	private static void clean() {
 		cleanAccount(pinterest1);
 		cleanAccount(pinterest2);
+		pinterest1.getUser().refresh();
+		pinterest2.getUser().refresh();
 	}
 	
 	private static void cleanAccount(Pinterest pinterest) {
