@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status;
 
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -34,6 +33,7 @@ import ru.redcraft.pinterest4j.core.api.FollowCollection.FollowType;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestUserNotFoundException;
 
+import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
 
@@ -161,7 +161,7 @@ public class UserAPI extends CoreAPI {
 			.setAjaxUsage(false)
 			.setMethod(Method.POST, createUserForm(settings))
 			.setMediaType(MediaType.MULTIPART_FORM_DATA_TYPE)
-			.setHttpSuccessStatus(Status.fromStatusCode(302))
+			.setHttpSuccessStatus(Status.FOUND)
 			.setErrorMessage(USER_API_ERROR)
 			.build();
 		User newUser = getUserForName(getAccessToken().getLogin());

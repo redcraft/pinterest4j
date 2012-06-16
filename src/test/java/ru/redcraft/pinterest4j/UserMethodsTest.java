@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.Activity.ActivityType;
@@ -142,6 +143,7 @@ public class UserMethodsTest extends PinterestTestBase {
 		pinterest1.deleteBoard(board);
 	}
 	
+	@Ignore
 	@Test
 	public void likesCountersTest() {
 		int userLikesCount = pinterest1.getUser().getLikesCount();
