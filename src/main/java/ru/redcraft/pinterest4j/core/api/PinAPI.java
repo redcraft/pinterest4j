@@ -168,19 +168,10 @@ public class PinAPI extends CoreAPI {
 		return pinList;
 	}
 	
-	public List<Pin> getPins(User user, int page, boolean likes) {
-		LOG.debug("Getting pin list for user " + user + " on page " + page + "with filter likes " + likes);
-		String filter = likes ? "&filter=likes" : "";
-		Document doc = new APIRequestBuilder(user.getUserName() + "/pins/?page=" + page + filter).setErrorMessage(PIN_API_ERROR)
-				.build().getDocument();
-		return parsePinsResponse(doc);
-	}
-	
-	public List<Pin> getPins(Board board, int page) {
-		LOG.debug("Getting pin list for board " + board + " on page " + page);
+	private List<Pin> processPinsPage(APIRequestBuilder requestBuilder) {
 		List<Pin> response = null;
 		try {
-			Document doc = new APIRequestBuilder(board.getURL() + "?page=" + page)
+			Document doc = requestBuilder
 				.addExceptionMapping(Status.NOT_FOUND, new NoMorePinsException())
 				.setErrorMessage(PIN_API_ERROR)
 				.build().getDocument();
@@ -189,6 +180,17 @@ public class PinAPI extends CoreAPI {
 			response = new ArrayList<Pin>();
 		}
 		return response;
+	}
+	
+	public List<Pin> getPins(User user, int page, boolean likes) {
+		LOG.debug("Getting pin list for user " + user + " on page " + page + "with filter likes " + likes);
+		String filter = likes ? "&filter=likes" : "";
+		return processPinsPage(new APIRequestBuilder(user.getUserName() + "/pins/?page=" + page + filter));
+	}
+	
+	public List<Pin> getPins(Board board, int page) {
+		LOG.debug("Getting pin list for board " + board + " on page " + page);
+		return processPinsPage(new APIRequestBuilder(board.getURL() + "?page=" + page));
 	}
 	
 	public void deletePin(Pin pin) {
