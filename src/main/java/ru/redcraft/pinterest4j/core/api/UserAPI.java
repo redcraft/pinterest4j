@@ -249,7 +249,7 @@ public class UserAPI extends CoreAPI {
 			}
 			else if(types.contains("activity-7")) {
 				
-				Pattern pattern = Pattern.compile("Ò(.*?).Ó");
+				Pattern pattern = Pattern.compile("â€œ(.*?).â€œ");
 				String info = activity.select("div.info").first().text();
 				Matcher m = pattern.matcher(info);
 				if (m.find()) {
