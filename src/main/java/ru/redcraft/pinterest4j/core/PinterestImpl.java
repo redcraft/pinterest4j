@@ -127,4 +127,8 @@ public class PinterestImpl implements Pinterest {
 		return PinThreads.createPinThreadByCategory(category, internalAPI);
 	}
 
+	public Iterable<Pin> getPopularPins() {
+		return PinThreads.createPopularPinThread(internalAPI);
+	}
+
 }

@@ -44,6 +44,8 @@ public interface Pinterest {
 	
 	Iterable<Pin> getPinsByCategory(BoardCategory category);
 	
+	Iterable<Pin> getPopularPins();
+	
 	//User
 	
 	User getUser(String userName);

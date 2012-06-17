@@ -5,7 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.junit.Ignore;
@@ -196,63 +198,39 @@ public class UserMethodsTest extends PinterestTestBase {
 		NewPinImpl newPin = new NewPinImpl(newDescription, newPrice, webLink, imageLink, null);
 		Pin createdPin = pinterest1.addPin(createdBoard, newPin);
 		Pin createdPin2 = pinterest2.addPin(createdBoard2, newPin);
-		int waitPeriod = 2000;
-		Thread.sleep(waitPeriod);
 		pinterest1.getUser().getActivity();
 		//Repin
 		Pin repinedPin = pinterest1.repin(createdPin2, createdBoard, UUID.randomUUID().toString());
-		Thread.sleep(waitPeriod);
-		pinterest1.getUser().getActivity();
 		//Like
 		pinterest1.likePin(createdPin);
-		Thread.sleep(waitPeriod);
-		pinterest1.getUser().getActivity();
 		//Comment
 		String comment = UUID.randomUUID().toString();
 		pinterest1.addComment(createdPin, comment);
-		Thread.sleep(waitPeriod);
-		pinterest1.getUser().getActivity();
 		//Follow user
 		pinterest1.unfollowUser(pinterest2.getUser());
 		pinterest1.followUser(pinterest2.getUser());
-		Thread.sleep(waitPeriod);
-		pinterest1.getUser().getActivity();
 		//Follow board
 		pinterest1.followBoard(createdBoard2);
-		Thread.sleep(waitPeriod);
 		
-		List<Activity> activity = pinterest1.getUser().getActivity();
-		System.out.println(activity.size());
+		Map<ActivityType, Activity> activityMap = new HashMap<ActivityType, Activity>();
+		for(Activity activity : pinterest1.getUser().getActivity()) {
+			activityMap.put(activity.getActivityType(), activity);
+		}
 		
-		int counter = 0;
+		assertEquals(createdBoard2, ((FollowBoardActivity)activityMap.get(ActivityType.FOLLOW_BOARD)).getBoard());
 		
-		assertEquals(ActivityType.FOLLOW_BOARD, activity.get(counter).getActivityType());
-		assertEquals(createdBoard2, ((FollowBoardActivity)activity.get(counter)).getBoard());
+		assertEquals(pinterest2.getUser(), ((FollowUserActivity)activityMap.get(ActivityType.FOLLOW_USER)).getUser());
 		
-		++counter;
-		assertEquals(ActivityType.FOLLOW_USER, activity.get(counter).getActivityType());
-		assertEquals(pinterest2.getUser(), ((FollowUserActivity)activity.get(counter)).getUser());
+		assertEquals(createdPin, ((CommentActivity)activityMap.get(ActivityType.COMMENT)).getPin());
+		assertEquals(comment, ((CommentActivity)activityMap.get(ActivityType.COMMENT)).getCommentMessage());
 		
-		++counter;
-		assertEquals(ActivityType.COMMENT, activity.get(counter).getActivityType());
-		assertEquals(createdPin, ((CommentActivity)activity.get(counter)).getPin());
-		assertEquals(comment, ((CommentActivity)activity.get(counter)).getCommentMessage());
+		assertEquals(createdPin, ((PinActivity)activityMap.get(ActivityType.LIKE)).getPin());
 		
-		++counter;
-		assertEquals(ActivityType.LIKE, activity.get(counter).getActivityType());
-		assertEquals(createdPin, ((PinActivity)activity.get(counter)).getPin());
+		assertEquals(repinedPin, ((PinActivity)activityMap.get(ActivityType.REPIN)).getPin());
 		
-		++counter;
-		assertEquals(ActivityType.REPIN, activity.get(counter).getActivityType());
-		assertEquals(repinedPin, ((PinActivity)activity.get(counter)).getPin());
+		assertEquals(createdPin, ((PinActivity)activityMap.get(ActivityType.PIN)).getPin());
 		
-		++counter;
-		assertEquals(ActivityType.PIN, activity.get(counter).getActivityType());
-		assertEquals(createdPin, ((PinActivity)activity.get(counter)).getPin());
-		
-		++counter;
-		assertEquals(ActivityType.CREATE_BOARD, activity.get(counter).getActivityType());
-		assertEquals(createdBoard, ((CreateBoardActivity)activity.get(counter)).getBoard());
+		assertEquals(createdBoard, ((CreateBoardActivity)activityMap.get(ActivityType.CREATE_BOARD)).getBoard());
 		
 		pinterest1.deleteBoard(createdBoard);
 		pinterest2.deleteBoard(createdBoard2);

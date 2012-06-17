@@ -105,7 +105,7 @@ public final class BoardAPI extends CoreAPI {
 			metaMap.put(meta.attr("property"), meta.attr("content"));
 		}
 		builder.setDescription(metaMap.get(BOARD_DESCRIPTION_PROP_NAME));
-		builder.setCategory(BoardCategory.valueOf(metaMap.get(BOARD_CATEGORY_PROP_NAME).toUpperCase(PINTEREST_LOCALE)));
+		builder.setCategory(BoardCategory.getInstance(metaMap.get(BOARD_CATEGORY_PROP_NAME).toUpperCase(PINTEREST_LOCALE)));
 		builder.setPinsCount(Integer.valueOf(metaMap.get(BOARD_PINS_PROP_NAME)));
 		builder.setFollowersCount(Integer.valueOf(metaMap.get(BOARD_FOLLOWERS_PROP_NAME)));
 		builder.setTitle(metaMap.get(BOARD_TITLE_PROP_NAME));

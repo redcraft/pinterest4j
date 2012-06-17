@@ -37,7 +37,17 @@ public enum BoardCategory {
 	WEDDING_EVENTS("wedding_events", "Wedding &amp; Events");
 	                                
 	private final String id;
-	private final String name;
+	private String name;
+	
+	public static BoardCategory getInstance(String name) {
+		BoardCategory category = null;
+		try {
+			category = BoardCategory.valueOf(name);
+		} catch (IllegalArgumentException e) {
+			category = BoardCategory.OTHER.setName(name);
+		}
+		return category;
+	}
 	
 	private BoardCategory(String id, String name) {
 		this.id = id;
@@ -50,6 +60,11 @@ public enum BoardCategory {
 
 	public String getName() {
 		return name;
+	}
+	
+	public BoardCategory setName(String name) {
+		this.name = name;
+		return this;
 	}
 
 	@Override
