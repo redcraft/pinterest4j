@@ -208,7 +208,7 @@ public class UserMethodsTest extends PinterestTestBase {
 		Thread.sleep(waitPeriod);
 		//Comment
 		String comment = UUID.randomUUID().toString();
-		pinterest1.addComment(createdPin, comment);
+		pinterest1.addComment(createdPin2, comment);
 		Thread.sleep(waitPeriod);
 		//Follow user
 		pinterest1.unfollowUser(pinterest2.getUser());
@@ -227,7 +227,7 @@ public class UserMethodsTest extends PinterestTestBase {
 		
 		assertEquals(pinterest2.getUser(), ((FollowUserActivity)activityMap.get(ActivityType.FOLLOW_USER)).getUser());
 		
-		assertEquals(createdPin, ((CommentActivity)activityMap.get(ActivityType.COMMENT)).getPin());
+		assertEquals(createdPin2, ((CommentActivity)activityMap.get(ActivityType.COMMENT)).getPin());
 		assertEquals(comment, ((CommentActivity)activityMap.get(ActivityType.COMMENT)).getCommentMessage());
 		
 		assertEquals(createdPin, ((PinActivity)activityMap.get(ActivityType.LIKE)).getPin());
