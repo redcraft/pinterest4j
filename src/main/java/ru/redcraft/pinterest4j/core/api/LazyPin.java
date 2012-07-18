@@ -94,8 +94,8 @@ public class LazyPin extends PinterestEntity<Pin, PinBuilder> implements Pin {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
+		final int shift = 32;
 		int result = 1;
-		int shift = 32;
 		result = prime * result + (int) (id ^ (id >>> shift));
 		return result;
 	}

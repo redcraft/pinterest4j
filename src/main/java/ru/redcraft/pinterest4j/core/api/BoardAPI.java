@@ -70,7 +70,7 @@ public final class BoardAPI extends CoreAPI {
 		Map<String, String> responseMap = new APIRequestBuilder("board/create/")
 			.setMethod(Method.POST, createNewBoardForm(newBoard))
 			.setErrorMessage(BOARD_API_ERROR)
-			.build().parseResponse("You already have a board with that name.", new PinterestBoardExistException(newBoard.getTitle()));
+			.build().parseResponse("<ul class=\"errorlist\"><li>You already have a board with that name.</li></ul>", new PinterestBoardExistException(newBoard.getTitle()));
 		LazyBoard createdBoard = new LazyBoard(
 				Long.valueOf(responseMap.get("id")), responseMap.get("url"), responseMap.get("name"), newBoard.getCategory(), getApiManager());
 		LOG.debug("Board created " + createdBoard);

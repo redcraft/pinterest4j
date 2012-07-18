@@ -10,6 +10,7 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 
+import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -17,13 +18,17 @@ import org.jsoup.nodes.Document;
 
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
+import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.async.TypeListener;
 import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.representation.Form;
+import com.sun.jersey.client.non.blocking.NonBlockingClient;
+import com.sun.jersey.client.non.blocking.config.DefaultNonBlockingClientConfig;
+import com.sun.jersey.client.non.blocking.config.NonBlockingClientConfig;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataBodyPart;
 
@@ -31,6 +36,10 @@ public abstract class CoreAPI {
 
 	private final PinterestAccessToken accessToken; 
 	private final InternalAPIManager apiManager;
+	private Client client;
+	private NonBlockingClient asyncClient;
+	
+	private static final Logger LOG = Logger.getLogger(CoreAPI.class);
 	
 	private static final String PINTEREST_DOMAIN = "pinterest.com";
 	private static final String COOKIE_HEADER_NAME = "Cookie";
@@ -47,6 +56,9 @@ public abstract class CoreAPI {
 	protected static final String DATA_ID_TAG_ATTR = "data-id";
 	
 	protected static final Locale PINTEREST_LOCALE = Locale.ENGLISH;
+	
+	private static final int REPEATS_ON_ERROR = 4;
+	private static final int ERROR_WAIT_INTERVAL = 5000; 
 	
 	enum Protocol {HTTP, HTTPS};
 	
@@ -155,9 +167,8 @@ public abstract class CoreAPI {
 			}
 			ClientResponse response = null;
 			
-			int errorRepeats = 4;
-			int waitInterval = 2000;
 			boolean responseResieved = false;
+			int errorRepeats = REPEATS_ON_ERROR;
 			
 			while(!responseResieved) {
 				switch(method) {
@@ -173,10 +184,11 @@ public abstract class CoreAPI {
 				default :
 					throw new PinterestRuntimeException("Unknown HTTP method");
 				}
-				if(response.getStatus() == 502 && errorRepeats > 0) {
+				if(response.getStatus() >= Status.INTERNAL_SERVER_ERROR.getStatusCode() && errorRepeats > 0) {
+					LOG.error(String.format("ERROR in request to Pinterest. Start repeat with counter=%d AND timeout=%d", errorRepeats, ERROR_WAIT_INTERVAL));
 					-- errorRepeats;
 					try {
-						Thread.sleep(waitInterval);
+						Thread.sleep(ERROR_WAIT_INTERVAL * (REPEATS_ON_ERROR - errorRepeats));
 					} catch (InterruptedException e) {
 						throw new PinterestRuntimeException(e.getMessage(), e);
 					}
@@ -198,6 +210,26 @@ public abstract class CoreAPI {
 			return new APIResponse(response);
 		}
 		
+		public void buildAsync(TypeListener<ClientResponse> listener) {
+			AsyncWebResource.Builder builder = getAsyncWR(protocol, url, ajaxUsage);
+			if(mediaType != null) {
+				builder = builder.type(mediaType);
+			}
+			switch(method) {
+				case GET :
+					builder.get(listener);
+					break;
+				case POST :
+					builder.post(listener, requestEntity);
+					break;
+				case DELETE :
+					builder.delete(listener);
+					break;
+				default :
+					throw new PinterestRuntimeException("Unknown HTTP method");
+			}
+		}
+		
 	}
 	
 	CoreAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
@@ -217,10 +249,19 @@ public abstract class CoreAPI {
 		return getWR(protocol, url, true);
 	}
 	
+	private ClientConfig getClientConfig() {
+		ClientConfig cc = new DefaultNonBlockingClientConfig();
+		cc.getProperties().put(NonBlockingClientConfig.PROPERTY_THREADPOOL_SIZE, 30);
+		cc.getProperties().put(NonBlockingClientConfig.PROPERTY_READ_TIMEOUT, 20000);
+		cc.getProperties().put(NonBlockingClientConfig.PROPERTY_CONNECT_TIMEOUT, 0000);
+		return cc;
+	}
+	
 	protected WebResource.Builder getWR(Protocol protocol, String url, boolean useAJAX) {
+		if(client == null) {
+			client = Client.create(getClientConfig());
+		}
 		WebResource.Builder wr = null;
-		ClientConfig config = new DefaultClientConfig();
-		Client client = Client.create(config);
 		String requestURL = String.format("%s://%s/%s", protocol.name().toLowerCase(PINTEREST_LOCALE), PINTEREST_DOMAIN, url);
 		wr = client.resource(UriBuilder.fromUri(requestURL).build()).getRequestBuilder();
 		if(accessToken != null) {
@@ -231,6 +272,29 @@ public abstract class CoreAPI {
 			}
 		}
 		return wr;
+	}
+	
+	protected AsyncWebResource.Builder getAsyncWR(Protocol protocol, String url, boolean useAJAX) {
+		if(asyncClient == null) {
+			asyncClient = NonBlockingClient.create(getClientConfig());
+		}
+		AsyncWebResource.Builder wr = null;
+		String requestURL = String.format("%s://%s/%s", protocol.name().toLowerCase(PINTEREST_LOCALE), PINTEREST_DOMAIN, url);
+		wr = asyncClient.asyncResource(UriBuilder.fromUri(requestURL).build()).getRequestBuilder();
+		if(accessToken != null) {
+			wr = wr.header(COOKIE_HEADER_NAME, accessToken.generateCookieHeader());
+			wr = wr.header("X-CSRFToken", accessToken.getCsrfToken().getValue());
+			if(useAJAX) {
+				wr = wr.header("X-Requested-With", "XMLHttpRequest");
+			}
+		}
+		return wr;
+	}
+	
+	public void close() {
+		if(asyncClient != null) {
+			asyncClient.close();
+		}
 	}
 	
 	protected FormDataBodyPart createImageBodyPart(File imgFile) {

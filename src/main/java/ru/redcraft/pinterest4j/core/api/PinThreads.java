@@ -2,6 +2,7 @@ package ru.redcraft.pinterest4j.core.api;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import ru.redcraft.pinterest4j.BoardCategory;
 import ru.redcraft.pinterest4j.GiftPriceCategory;
@@ -13,7 +14,7 @@ public final class PinThreads implements Iterable<Pin> {
 	private final InternalAPIManager apiManager;
 	
 	public static PinThreads createPinThreadByCategory(BoardCategory category, InternalAPIManager apiManager) {
-		return new PinThreads(String.format("all/?category=%s&lazy=1", (category != null) ? category.name().toLowerCase() : "" ), apiManager);
+		return new PinThreads(String.format("all/?category=%s&lazy=1", (category != null) ? category.name().toLowerCase(Locale.ENGLISH) : "" ), apiManager);
 	}
 	
 	public static PinThreads createPopularPinThread(InternalAPIManager apiManager) {

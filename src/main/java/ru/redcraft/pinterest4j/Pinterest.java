@@ -1,5 +1,7 @@
 package ru.redcraft.pinterest4j;
 
+import ru.redcraft.pinterest4j.core.api.AsyncPinPayload;
+
 
 
 public interface Pinterest {
@@ -30,6 +32,8 @@ public interface Pinterest {
 	
 	Pin getPin(long id);
 	
+	void getAsyncPin(long id, AsyncPinPayload payload);
+	
 	Pin repin(Pin pin, Board board, String description);
 	
 	void likePin(Pin pin);
@@ -59,5 +63,9 @@ public interface Pinterest {
 	void unfollowUser(User user);
 	
 	boolean isFollowing(User user);
+	
+	//Gloabal
+	
+	void close();
 	
 }

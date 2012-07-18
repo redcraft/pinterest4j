@@ -1,18 +1,21 @@
 package ru.redcraft.pinterest4j;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.core.NewBoardImpl;
 import ru.redcraft.pinterest4j.core.NewPinImpl;
+import ru.redcraft.pinterest4j.core.api.AsyncPinPayload;
 import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
@@ -228,5 +231,70 @@ public class PinMethodsTest extends PinterestTestBase {
 			}
 			System.out.println(pin + " " + pin.getPinner());
 		}
+	}
+	
+	class Red implements AsyncPinPayload {
+		
+		private int repins = 0;
+		private int likes = 0;
+		private int processed = 0;
+		private int error = 0;
+		
+		@Override
+		public void processPin(Pin pin) {
+			if(pin != null) {
+				System.out.println(pin.getId());
+				repins += pin.getRepinsCount();
+				likes += pin.getLikesCount();
+			}
+			else {
+				System.out.println("ERROR");
+			}
+			++processed;
+		}
+		
+		public int getProcessed() {
+			return processed;
+		}
+
+		public int getRepins() {
+			return repins;
+		}
+
+		public int getLikes() {
+			return likes;
+		}
+		
+		public int getError() {
+			return error;
+		}
+
+		@Override
+		public void processException(long id, Exception e) {
+			++ error;
+		}
+		
+	};
+	
+	@Ignore
+	@Test
+	public void testAsyncPins() throws InterruptedException {
+		Red payload = new Red();
+		int pinsCount = 0;
+		long startTime = new Date().getTime();
+		for(Board board : pinterest1.getUser("redmax3d").getBoards()) {
+			for(Pin pin : board.getPins()) {
+				pinterest1.getAsyncPin(pin.getId(), payload);
+				++ pinsCount;
+			}
+		}
+		while(pinsCount != payload.getProcessed()) {
+			Thread.sleep(5000);
+			System.out.println("likes: " + payload.getLikes());
+			System.out.println("repins: " + payload.getRepins());
+			System.out.println("processed: " + payload.getProcessed());
+			System.out.println("total: " + pinsCount);
+		}
+		System.out.println("time (sec): " + (new Date().getTime() - startTime) / 1000);
 	}
 }

@@ -9,6 +9,7 @@ import ru.redcraft.pinterest4j.NewUserSettings;
 import ru.redcraft.pinterest4j.Pin;
 import ru.redcraft.pinterest4j.Pinterest;
 import ru.redcraft.pinterest4j.User;
+import ru.redcraft.pinterest4j.core.api.AsyncPinPayload;
 import ru.redcraft.pinterest4j.core.api.InternalAPIManager;
 import ru.redcraft.pinterest4j.core.api.PinThreads;
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
@@ -129,6 +130,14 @@ public class PinterestImpl implements Pinterest {
 
 	public Iterable<Pin> getPopularPins() {
 		return PinThreads.createPopularPinThread(internalAPI);
+	}
+
+	public void getAsyncPin(long id, AsyncPinPayload payload) {
+		internalAPI.getPinAPI().getAsyncPinByID(id, payload);
+	}
+	
+	public void close() {
+		internalAPI.close();
 	}
 
 }

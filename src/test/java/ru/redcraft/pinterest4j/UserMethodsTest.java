@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import ru.redcraft.pinterest4j.Activity.ActivityType;
@@ -145,9 +144,8 @@ public class UserMethodsTest extends PinterestTestBase {
 		pinterest1.deleteBoard(board);
 	}
 	
-	@Ignore
 	@Test
-	public void likesCountersTest() {
+	public void likesCountersTest() throws InterruptedException {
 		int userLikesCount = pinterest1.getUser().getLikesCount();
 		int userRealLikesCount = 0;
 		for(Pin pin : pinterest1.getUser().getLikes()) {
@@ -163,6 +161,7 @@ public class UserMethodsTest extends PinterestTestBase {
 		for(int i = 0; i < pinCountToCreate; ++i) {
 			pinterest1.likePin(pinterest2.addPin(board, newPin));
 		}
+		Thread.sleep(3000);
 		assertEquals(userLikesCount + pinCountToCreate, pinterest1.getUser().refresh().getLikesCount());
 		
 		int page = 1;
@@ -211,9 +210,11 @@ public class UserMethodsTest extends PinterestTestBase {
 		//Follow board
 		pinterest1.followBoard(createdBoard2);
 		
+		Thread.sleep(10000);
 		Map<ActivityType, Activity> activityMap = new HashMap<ActivityType, Activity>();
-		for(Activity activity : pinterest1.getUser().getActivity()) {
-			activityMap.put(activity.getActivityType(), activity);
+		List<Activity> activities = pinterest1.getUser().getActivity();
+		for(int i = activities.size() - 1; i >=0 ; --i) {
+			activityMap.put(activities.get(i).getActivityType(), activities.get(i));
 		}
 		
 		assertEquals(createdBoard2, ((FollowBoardActivity)activityMap.get(ActivityType.FOLLOW_BOARD)).getBoard());

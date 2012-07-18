@@ -26,4 +26,10 @@ public class InternalAPIManager {
 	public UserAPI getUserAPI() {
 		return userAPI;
 	}
+
+	public void close() {
+		userAPI.close();
+		boardAPI.close();
+		pinAPI.close();
+	}
 }

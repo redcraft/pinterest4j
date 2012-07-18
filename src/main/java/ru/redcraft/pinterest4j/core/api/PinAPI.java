@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import javax.ws.rs.core.MediaType;
 
@@ -25,7 +26,9 @@ import ru.redcraft.pinterest4j.exceptions.PinMessageSizeException;
 import ru.redcraft.pinterest4j.exceptions.PinterestPinNotFoundException;
 import ru.redcraft.pinterest4j.exceptions.PinterestRuntimeException;
 
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
+import com.sun.jersey.api.client.async.TypeListener;
 import com.sun.jersey.api.representation.Form;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
@@ -44,6 +47,7 @@ public class PinAPI extends CoreAPI {
 	private static final String PIN_LIKES_COUNT_PROP_NAME = "pinterestapp:likes";
 	private static final String PIN_REPINS_COUNT_PROP_NAME = "pinterestapp:repins";
 	private static final String PIN_COMMENTS_COUNT_PROP_NAME = "pinterestapp:comments";
+	private static final String PIN_URL = "og:url";
 	private static final String PIN_ID_ATTR = "data-id";
 	
 	private static final String PIN_API_ERROR = "PIN API ERROR: ";
@@ -114,24 +118,25 @@ public class PinAPI extends CoreAPI {
 		return createdPin;
 	}
 	
-	private Document getPinInfoPage(long id) {
+	private APIRequestBuilder getPinInfoRequestBuilder(long id) {
 		return new APIRequestBuilder("pin/" + Long.toString(id) + "/")
 			.setAjaxUsage(false)
 			.addExceptionMapping(Status.NOT_FOUND, new PinterestPinNotFoundException(id))
-			.setErrorMessage(PIN_API_ERROR)
-			.build().getDocument();
+			.setErrorMessage(PIN_API_ERROR);
 	}
 	
 	public PinBuilder getCompletePin(long id) {
 		LOG.debug("Getting all info for pin with id " + id);
+		return parsePinInfo(getPinInfoRequestBuilder(id).build().getDocument());
+	}
+	
+	private PinBuilder parsePinInfo(Document doc) {
 		PinBuilder builder = new PinBuilder();
-		builder.setId(id);
-		Document doc = getPinInfoPage(id);
-		
 		Map<String, String> metaMap = new HashMap<String, String>();
 		for(Element meta : doc.select("meta")) {
 			metaMap.put(meta.attr("property"), meta.attr("content"));
 		}
+		builder.setId(Long.valueOf(metaMap.get(PIN_URL).replace("http://pinterest.com/pin/", "").replace("/?timeline=1", "")));
 		builder.setDescription(metaMap.get(PIN_DESCRIPTION_PROP_NAME));
 		builder.setImageURL(metaMap.get(PIN_IMAGE_PROP_NAME));
 		builder.setLink(metaMap.get(PIN_LINK_PROP_NAME));
@@ -151,7 +156,6 @@ public class PinAPI extends CoreAPI {
 			builder.setOriginalPinner(builder.getPinner());
 			builder.setRepined(false);
 		}
-			
 		return builder;
 	}
 	
@@ -218,6 +222,45 @@ public class PinAPI extends CoreAPI {
 
 	public Pin getPinByID(long id) {
 		return new LazyPin(getCompletePin(id), getApiManager());
+	}
+	
+	class PinListener extends TypeListener<ClientResponse> {
+		
+		private final long id;
+		private final AsyncPinPayload payload;
+		
+		public PinListener(long id, AsyncPinPayload payload) {
+			super(ClientResponse.class);
+			this.id = id;
+			this.payload = payload;
+		}
+		
+		@Override
+		public void onComplete(Future<ClientResponse> f)
+				throws InterruptedException {
+			try {
+				ClientResponse response = f.get();
+				if(response.getStatus() == Status.OK.getStatusCode()) {
+					Document doc = Jsoup.parse(response.getEntity(String.class));
+					Pin pin = new LazyPin(parsePinInfo(doc), getApiManager());
+					payload.processPin(pin);
+				}
+				else {
+					LOG.error("Async pin processing error");
+					response.close();
+					f.cancel(true);
+					payload.processException(id, new PinterestRuntimeException(response, "Bad async response"));
+				}
+			} catch (Exception e) {
+				LOG.error("Async pin processing error", e);
+				f.cancel(true);
+				payload.processException(id, e);
+			}
+		}
+	}
+	
+	public void getAsyncPinByID(final long id, final AsyncPinPayload payload) {
+		getPinInfoRequestBuilder(id).buildAsync(new PinListener(id, payload));
 	}
 
 	private Form createRepinForm(Pin pin, Board board, String description) {
@@ -304,7 +347,7 @@ public class PinAPI extends CoreAPI {
 	public boolean isLiked(Pin pin) {
 		LOG.debug("Checking liked status for pin=" + pin);
 		boolean liked = false;
-		if(getPinInfoPage(pin.getId()).select("li.unlike-button").size() == 1) {
+		if(getPinInfoRequestBuilder(pin.getId()).build().getDocument().select("li.unlike-button").size() == 1) {
 			liked = true;
 		}
 		LOG.debug("Liked state is " + liked);
