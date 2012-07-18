@@ -3,8 +3,15 @@ package ru.redcraft.pinterest4j;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URISyntaxException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.apache.log4j.Logger;
 
@@ -50,6 +57,21 @@ public class PinterestTestBase {
 	}
 	
 	static {
+		TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager(){
+		    public X509Certificate[] getAcceptedIssuers(){return null;}
+		    public void checkClientTrusted(X509Certificate[] certs, String authType){}
+		    public void checkServerTrusted(X509Certificate[] certs, String authType){}
+		}};
+
+		// Install the all-trusting trust manager
+		try {
+		    SSLContext sc = SSLContext.getInstance("TLS");
+		    sc.init(null, trustAllCerts, new SecureRandom());
+		    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+		} catch (Exception e) {
+		    ;
+		}
+		
 		ResourceBundle rb = null;
 		try {
 			rb = new PropertyResourceBundle(new FileInputStream("/opt/redcraft/pinterest4j.properties"));
