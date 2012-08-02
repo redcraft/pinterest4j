@@ -58,7 +58,7 @@ public abstract class CoreAPI {
 	protected static final Locale PINTEREST_LOCALE = Locale.ENGLISH;
 	
 	private static final int REPEATS_ON_ERROR = 4;
-	private static final int ERROR_WAIT_INTERVAL = 5000; 
+	private static final long ERROR_WAIT_INTERVAL = 5000; 
 	
 	enum Protocol {HTTP, HTTPS};
 	
@@ -252,8 +252,8 @@ public abstract class CoreAPI {
 	private ClientConfig getClientConfig() {
 		ClientConfig cc = new DefaultNonBlockingClientConfig();
 		cc.getProperties().put(NonBlockingClientConfig.PROPERTY_THREADPOOL_SIZE, 30);
-		cc.getProperties().put(NonBlockingClientConfig.PROPERTY_READ_TIMEOUT, 20000);
-		cc.getProperties().put(NonBlockingClientConfig.PROPERTY_CONNECT_TIMEOUT, 0000);
+		cc.getProperties().put(NonBlockingClientConfig.PROPERTY_READ_TIMEOUT, 120000);
+		cc.getProperties().put(NonBlockingClientConfig.PROPERTY_CONNECT_TIMEOUT, 120000);
 		return cc;
 	}
 	
