@@ -66,7 +66,7 @@ public class UserMethodsTest extends PinterestTestBase {
 	
 	@Test
 	public void getUserByNameTest() {
-		User user = pinterest1.getUser(id2.getLogin());
+		User user = pinterest1.getUser(pinterest2.getUser().getUserName());
 		assertEquals(pinterest2.getUser().getUserName(), user.getUserName());
 		assertEquals(pinterest2.getUser().getFullName(), user.getFullName());
 	}

@@ -20,7 +20,7 @@ public class PinterestAccessTokenTest {
 		String login = "some_login";
 		String password  = "some_password";
 		PinterestAccessToken token = new PinterestAccessToken(login, password, csrfToken, sessionToken);
-		assertEquals(login, token.getLogin());
+		assertEquals(login, token.getEmail());
 		assertEquals(password, token.getPassword());
 		assertEquals(csrfToken, token.getCsrfToken());
 		assertEquals(sessionToken, token.getSessionToken());

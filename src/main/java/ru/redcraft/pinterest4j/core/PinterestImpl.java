@@ -21,7 +21,7 @@ public class PinterestImpl implements Pinterest {
 	
 	public PinterestImpl(String login, String password) throws PinterestAuthException {
 		internalAPI = new InternalAPIManager(login, password);
-		this.user = internalAPI.getUserAPI().getUserForName(login);
+		this.user = internalAPI.getUserAPI().getCurrentUser();
 	}
 
 	public Board getBoard(String url) {

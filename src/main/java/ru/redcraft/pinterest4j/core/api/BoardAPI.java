@@ -22,6 +22,7 @@ import com.sun.jersey.api.representation.Form;
 
 public final class BoardAPI extends CoreAPI {
 
+	private static final String BOARD_EXIST_RESPONSE_MESSAGE = "<ul class=\"errorlist\"><li>You have a board with this name.</li></ul>";
 	private static final String BOARD_DESCRIPTION_PROP_NAME = "og:description";
 	private static final String BOARD_TITLE_PROP_NAME = "og:title";
 	private static final String BOARD_CATEGORY_PROP_NAME = "pinterestapp:category";
@@ -66,11 +67,11 @@ public final class BoardAPI extends CoreAPI {
 	}
 
 	public Board createBoard(NewBoard newBoard) {
-		LOG.debug("Creating board for user = " + getAccessToken().getLogin() + "using info: " + newBoard);
+		LOG.debug("Creating board for user = " + getApiManager().getUserAPI().getCurrentUser().getUserName() + "using info: " + newBoard);
 		Map<String, String> responseMap = new APIRequestBuilder("board/create/")
 			.setMethod(Method.POST, createNewBoardForm(newBoard))
 			.setErrorMessage(BOARD_API_ERROR)
-			.build().parseResponse("<ul class=\"errorlist\"><li>You already have a board with that name.</li></ul>", new PinterestBoardExistException(newBoard.getTitle()));
+			.build().parseResponse(BOARD_EXIST_RESPONSE_MESSAGE, new PinterestBoardExistException(newBoard.getTitle()));
 		LazyBoard createdBoard = new LazyBoard(
 				Long.valueOf(responseMap.get("id")), responseMap.get("url"), responseMap.get("name"), newBoard.getCategory(), getApiManager());
 		LOG.debug("Board created " + createdBoard);
@@ -151,7 +152,7 @@ public final class BoardAPI extends CoreAPI {
 			.setErrorMessage(BOARD_API_ERROR)
 			.build();
 		Board updatedBoard = new LazyBoard(
-				board.getId(), createLink(title, getAccessToken().getLogin()), title, description, category, getApiManager());
+				board.getId(), createLink(title, getApiManager().getUserAPI().getCurrentUser().getUserName()), title, description, category, getApiManager());
 		LOG.debug("Board updated");
 		return updatedBoard;
 	}

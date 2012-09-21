@@ -4,20 +4,20 @@ import javax.ws.rs.core.Cookie;
 
 public class PinterestAccessToken {
 
-	private final String login;
+	private final String email;
 	private final String password;
 	private final Cookie csrfToken;
 	private final Cookie sessionToken;
 	
-	PinterestAccessToken(String login, String password, Cookie csrfToken, Cookie sessionToken) {
-		this.login = login;
+	PinterestAccessToken(String email, String password, Cookie csrfToken, Cookie sessionToken) {
+		this.email = email;
 		this.password = password;
 		this.csrfToken = csrfToken;
 		this.sessionToken = sessionToken;
 	}
 	
-	public String getLogin() {
-		return login;
+	public String getEmail() {
+		return email;
 	}
 	
 	public String getPassword() {
@@ -35,7 +35,7 @@ public class PinterestAccessToken {
 	
 	@Override
 	public String toString() {
-		return "PinterestAccessToken [login=" + login + ", csrfToken=" +
+		return "PinterestAccessToken [email=" + email + ", csrfToken=" +
 				csrfToken + ", sessionToken=" + sessionToken + "]";
 	}
 

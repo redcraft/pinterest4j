@@ -21,7 +21,7 @@ public final class AuthAPI extends CoreAPI {
 	private static final String CSRF_TOKEN_COOKIE = "csrftoken";
 	private static final String SESSION_COOKIE = "_pinterest_sess";
 	
-	private static final String LOGIN_FORM_LOGIN_FIELD = "email";
+	private static final String LOGIN_FORM_EMAIL_FIELD = "email";
 	private static final String LOGIN_FORM_PASSWORD_FIELD = "password";
 	private static final String LOGIN_FORM_CSRF_FIELD = "csrfmiddlewaretoken";
 	
@@ -31,18 +31,18 @@ public final class AuthAPI extends CoreAPI {
 		super(null, null);
 	}
 	
-	public static PinterestAccessToken authenticate(String login, String password) throws PinterestAuthException {
-		return authAPI.getAccessToken(login, password);
+	public static PinterestAccessToken authenticate(String email, String password) throws PinterestAuthException {
+		return authAPI.getAccessToken(email, password);
 	}
 	
-	public PinterestAccessToken getAccessToken(String login, String password) throws PinterestAuthException {
-		LOG.debug("Creating AccessToken for login = " + login);
+	public PinterestAccessToken getAccessToken(String email, String password) throws PinterestAuthException {
+		LOG.debug("Creating AccessToken for login = " + email);
 		
 		ClientResponse responClient = getWR(Protocol.HTTPS, "login/").get(ClientResponse.class);
 		Cookie csrfToken = getCookieMap(responClient).get(CSRF_TOKEN_COOKIE);
 		LOG.debug("CSRF cookie value = " + csrfToken.getValue());
 		
-		Form loginForm = getLoginForm(login, password, csrfToken);
+		Form loginForm = getLoginForm(email, password, csrfToken);
 		responClient = getWR(Protocol.HTTPS, "login/").cookie(csrfToken).post(ClientResponse.class, loginForm);
 		if(responClient.getStatus() != Status.FOUND.getStatusCode()) {
 			throw new PinterestAuthException();
@@ -50,7 +50,8 @@ public final class AuthAPI extends CoreAPI {
 		Cookie sessionToken = getCookieMap(responClient).get(SESSION_COOKIE);
 		LOG.debug("SESSION cookie value = " + sessionToken.getValue());
 		
-		PinterestAccessToken accessToken = new PinterestAccessToken(login, password, csrfToken, sessionToken);
+		PinterestAccessToken accessToken = new PinterestAccessToken(email, password, csrfToken, sessionToken);
+		
 		LOG.debug("ACCESS TOKEN: " + accessToken);
 		
 		return accessToken;
@@ -64,9 +65,9 @@ public final class AuthAPI extends CoreAPI {
 		return pinterestCookies;
 	}
 	
-	private static Form getLoginForm(String login, String password, Cookie csrfCookie) {
+	private static Form getLoginForm(String email, String password, Cookie csrfCookie) {
 		Form form = new Form();
-		form.add(LOGIN_FORM_LOGIN_FIELD, login);
+		form.add(LOGIN_FORM_EMAIL_FIELD, email);
 		form.add(LOGIN_FORM_PASSWORD_FIELD, password);
 		form.add(LOGIN_FORM_CSRF_FIELD, csrfCookie.getValue());
 		return form;

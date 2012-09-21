@@ -39,6 +39,8 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 
 public class UserAPI extends CoreAPI {
 
+	private final User currentUser;
+	
 	private static final String USER_FOLLOWING_PROP_NAME = "pinterestapp:following";
 	private static final String USER_FOLLOWERS_PROP_NAME = "pinterestapp:followers";
 	private static final String USER_BOARDS_PROP_NAME = "pinterestapp:boards";
@@ -51,6 +53,10 @@ public class UserAPI extends CoreAPI {
 	
 	UserAPI(PinterestAccessToken accessToken, InternalAPIManager apiManager) {
 		super(accessToken, apiManager);
+		String userName = new APIRequestBuilder("").build().getDocument()
+							.getElementById("UserNav").getElementsByTag("a").get(0).attr(HREF_TAG_ATTR)
+							.replace("/", "");
+		currentUser = getUserForName(userName);
 	}
 	
 	private Document getUserInfoPage(String userName) {
@@ -155,7 +161,7 @@ public class UserAPI extends CoreAPI {
 	}
 	
 	public User updateUser(NewUserSettings settings) {
-		LOG.debug(String.format("Updating user=%s with settings=%s", getAccessToken().getLogin(), settings));
+		LOG.debug(String.format("Updating user=%s with settings=%s", currentUser.getUserName(), settings));
 		new APIRequestBuilder("settings/")
 			.setProtocol(Protocol.HTTPS)
 			.setAjaxUsage(false)
@@ -164,7 +170,7 @@ public class UserAPI extends CoreAPI {
 			.setHttpSuccessStatus(Status.FOUND)
 			.setErrorMessage(USER_API_ERROR)
 			.build();
-		User newUser = getUserForName(getAccessToken().getLogin());
+		User newUser = getUserForName(currentUser.getUserName());
 		LOG.debug("User updated. New user info: " + newUser);
 		return newUser;
 	}
@@ -277,6 +283,10 @@ public class UserAPI extends CoreAPI {
 		}
 		LOG.debug("User activity is: " + activities);
 		return activities;
+	}
+
+	public User getCurrentUser() {
+		return currentUser;
 	}
 	
 }
