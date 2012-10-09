@@ -264,6 +264,7 @@ public abstract class CoreAPI {
 		WebResource.Builder wr = null;
 		String requestURL = String.format("%s://%s/%s", protocol.name().toLowerCase(PINTEREST_LOCALE), PINTEREST_DOMAIN, url);
 		wr = client.resource(UriBuilder.fromUri(requestURL).build()).getRequestBuilder();
+		wr.header("Referer", "https://pinterest.com/");
 		if(accessToken != null) {
 			wr = wr.header(COOKIE_HEADER_NAME, accessToken.generateCookieHeader());
 			wr = wr.header("X-CSRFToken", accessToken.getCsrfToken().getValue());
@@ -281,6 +282,7 @@ public abstract class CoreAPI {
 		AsyncWebResource.Builder wr = null;
 		String requestURL = String.format("%s://%s/%s", protocol.name().toLowerCase(PINTEREST_LOCALE), PINTEREST_DOMAIN, url);
 		wr = asyncClient.asyncResource(UriBuilder.fromUri(requestURL).build()).getRequestBuilder();
+		wr.header("Referer", "https://pinterest.com/");
 		if(accessToken != null) {
 			wr = wr.header(COOKIE_HEADER_NAME, accessToken.generateCookieHeader());
 			wr = wr.header("X-CSRFToken", accessToken.getCsrfToken().getValue());

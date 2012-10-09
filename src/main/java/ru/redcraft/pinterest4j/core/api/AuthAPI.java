@@ -7,6 +7,8 @@ import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 
 import org.apache.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import ru.redcraft.pinterest4j.exceptions.PinterestAuthException;
 
@@ -42,7 +44,13 @@ public final class AuthAPI extends CoreAPI {
 		Cookie csrfToken = getCookieMap(responClient).get(CSRF_TOKEN_COOKIE);
 		LOG.debug("CSRF cookie value = " + csrfToken.getValue());
 		
-		Form loginForm = getLoginForm(email, password, csrfToken);
+		String htmlPage = responClient.getEntity(String.class);
+		LOG.debug(htmlPage);
+		Document loginPage = Jsoup.parse(htmlPage);
+		String chToken = loginPage.select("input[name=_ch]").get(0).attr(VALUE_TAG_ATTR);
+		LOG.debug("CH token value = " + chToken);
+		
+		Form loginForm = getLoginForm(email, password, csrfToken, chToken);
 		responClient = getWR(Protocol.HTTPS, "login/").cookie(csrfToken).post(ClientResponse.class, loginForm);
 		if(responClient.getStatus() != Status.FOUND.getStatusCode()) {
 			throw new PinterestAuthException();
@@ -65,11 +73,12 @@ public final class AuthAPI extends CoreAPI {
 		return pinterestCookies;
 	}
 	
-	private static Form getLoginForm(String email, String password, Cookie csrfCookie) {
+	private static Form getLoginForm(String email, String password, Cookie csrfCookie, String chToken) {
 		Form form = new Form();
 		form.add(LOGIN_FORM_EMAIL_FIELD, email);
 		form.add(LOGIN_FORM_PASSWORD_FIELD, password);
 		form.add(LOGIN_FORM_CSRF_FIELD, csrfCookie.getValue());
+		form.add("_ch", chToken);
 		return form;
 	}
 
