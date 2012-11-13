@@ -45,7 +45,6 @@ public final class AuthAPI extends CoreAPI {
 		LOG.debug("CSRF cookie value = " + csrfToken.getValue());
 		
 		String htmlPage = responClient.getEntity(String.class);
-		LOG.debug(htmlPage);
 		Document loginPage = Jsoup.parse(htmlPage);
 		String chToken = loginPage.select("input[name=_ch]").get(0).attr(VALUE_TAG_ATTR);
 		LOG.debug("CH token value = " + chToken);

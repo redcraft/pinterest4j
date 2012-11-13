@@ -110,7 +110,7 @@ public final class BoardAPI extends CoreAPI {
 		builder.setPinsCount(Integer.valueOf(metaMap.get(BOARD_PINS_PROP_NAME)));
 		builder.setFollowersCount(Integer.valueOf(metaMap.get(BOARD_FOLLOWERS_PROP_NAME)));
 		builder.setTitle(metaMap.get(BOARD_TITLE_PROP_NAME));
-		builder.setUser(new LazyUser(metaMap.get(BOARD_USER_PROP_NAME).replace("http://pinterest.com/", "").replace("/?timeline=1", ""), getApiManager()));
+		builder.setUser(new LazyUser(metaMap.get(BOARD_USER_PROP_NAME).replace("http://pinterest.com/", "").replace("/", ""), getApiManager()));
 		
 		for(Element meta : doc.select("div.BoardList").first().select("li")) {
 			if(meta.child(0).text().equals(builder.getTitle())) {

@@ -136,7 +136,8 @@ public class PinAPI extends CoreAPI {
 		for(Element meta : doc.select("meta")) {
 			metaMap.put(meta.attr("property"), meta.attr("content"));
 		}
-		builder.setId(Long.valueOf(metaMap.get(PIN_URL).replace("http://pinterest.com/pin/", "").replace("/?timeline=1", "")));
+		String url = metaMap.get(PIN_URL);
+		builder.setId(Long.valueOf(metaMap.get(PIN_URL).replace("http://pinterest.com/pin/", "").replace("/", "")));
 		builder.setDescription(metaMap.get(PIN_DESCRIPTION_PROP_NAME));
 		builder.setImageURL(metaMap.get(PIN_IMAGE_PROP_NAME));
 		builder.setLink(metaMap.get(PIN_LINK_PROP_NAME));
