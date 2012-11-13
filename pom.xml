@@ -29,28 +29,29 @@
 		<url>http://code.google.com/p/pinterest4j/issues</url>
 	</issueManagement>
 
-	 <developers>
-        <developer>
-            <id>maxim.gurkin</id>
-            <name>Maxim Gurkin</name>
-            <email>redmax3d@gmail.com</email>
-            <url>http://redcraft.ru/</url>
-            <roles>
-                <role>lead</role>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-            <timezone>+5</timezone>
-        </developer>
-    </developers>
+	<developers>
+		<developer>
+			<id>maxim.gurkin</id>
+			<name>Maxim Gurkin</name>
+			<email>redmax3d@gmail.com</email>
+			<url>http://redcraft.ru/</url>
+			<roles>
+				<role>lead</role>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>+5</timezone>
+		</developer>
+	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jersey.version>1.15</jersey.version>
 	</properties>
-	
+
 	<build>
 		<plugins>
+		
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -60,6 +61,7 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -75,11 +77,37 @@
 					<attach>true</attach>
 				</configuration>
 			</plugin>
+			
+			<plugin>
+            <groupId>com.mycila.maven-license-plugin</groupId>
+            <artifactId>maven-license-plugin</artifactId>
+            <configuration>
+                <header>${basedir}/src/etc/LICENSE_HEADER</header>
+                <includes>
+                    <include>src/main/**</include>
+                    <include>src/test/**</include>
+                </includes>
+                <useDefaultExcludes>true</useDefaultExcludes>
+                <properties>
+                    <year>2012</year>
+                    <email>redmax3d@gmail.com</email>
+                    <owner>Maxim Gurkin</owner>
+                </properties>
+                <encoding>UTF-8</encoding>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>check</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>com.sun.jersey.contribs</groupId>
 			<artifactId>jersey-multipart</artifactId>
@@ -95,7 +123,7 @@
 			<artifactId>jersey-non-blocking-client</artifactId>
 			<version>${jersey.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
@@ -123,7 +151,7 @@
 			<version>1.9.0</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 	</dependencies>
-	
+
 </project>
