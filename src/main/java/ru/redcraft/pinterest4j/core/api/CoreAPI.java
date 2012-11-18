@@ -186,21 +186,26 @@ public abstract class CoreAPI {
 			int errorRepeats = REPEATS_ON_ERROR;
 			
 			while(!responseResieved) {
-				switch(method) {
-				case GET :
-					response = builder.get(RESPONSE_CLASS);
-					break;
-				case POST :
-					response = builder.post(RESPONSE_CLASS, requestEntity);
-					break;
-				case DELETE :
-					response = builder.delete(RESPONSE_CLASS);
-					break;
-				default :
-					throw new PinterestRuntimeException("Unknown HTTP method");
+				response = null;
+				try {
+					switch(method) {
+					case GET :
+						response = builder.get(RESPONSE_CLASS);
+						break;
+					case POST :
+						response = builder.post(RESPONSE_CLASS, requestEntity);
+						break;
+					case DELETE :
+						response = builder.delete(RESPONSE_CLASS);
+						break;
+					default :
+						throw new PinterestRuntimeException("Unknown HTTP method");
+					}
+				} catch(Exception e) {
+					LOG.error("ERROR in client request to Pinterest", e);
 				}
-				if(response.getStatus() >= Status.INTERNAL_SERVER_ERROR.getStatusCode() && errorRepeats > 0) {
-					LOG.error(String.format("ERROR in request to Pinterest. Start repeat with counter=%d AND timeout=%d", errorRepeats, ERROR_WAIT_INTERVAL));
+				if((response == null || response.getStatus() >= Status.INTERNAL_SERVER_ERROR.getStatusCode()) && errorRepeats > 0) {
+					LOG.error(String.format("ERROR in request to Pinterest with code=%d and message='%s'. Start repeat with counter=%d AND timeout=%d", response.getStatus(), response.getEntity(String.class), errorRepeats, ERROR_WAIT_INTERVAL));
 					-- errorRepeats;
 					try {
 						Thread.sleep(ERROR_WAIT_INTERVAL * (REPEATS_ON_ERROR - errorRepeats));
